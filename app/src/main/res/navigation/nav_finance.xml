@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_finance"
+    app:startDestination="@id/categoryFragment">
+    <fragment
+        android:id="@+id/categoryFragment"
+        android:name="com.locotoDevTeam.financontrol.ui.category.CategoryFragment"
+        android:label="CategoryFragment" >
+        <action
+            android:id="@+id/action_categoryFragment_to_insightFragment"
+            app:destination="@id/insightFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/insightFragment"
+        android:name="com.locotoDevTeam.financontrol.ui.insight.InsightFragment"
+        android:label="fragment_insight"
+        tools:layout="@layout/fragment_insight" >
+        <argument
+            android:name="categoryId"
+            app:argType="long" />
+    </fragment>
+</navigation>

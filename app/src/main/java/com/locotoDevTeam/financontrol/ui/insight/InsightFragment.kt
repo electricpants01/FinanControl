@@ -1,0 +1,62 @@
+package com.locotoDevTeam.financontrol.ui.insight
+
+import android.os.Bundle
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.locotoDevTeam.financontrol.R
+import com.locotoDevTeam.financontrol.data.adapter.InsightAdapter
+import com.locotoDevTeam.financontrol.data.dialog.AddIncomeDialog
+import com.locotoDevTeam.financontrol.database.FinancialDB
+import com.locotoDevTeam.financontrol.databinding.FragmentInsightBinding
+
+
+class InsightFragment : Fragment(), InsightAdapter.InsightListener {
+
+    lateinit var binding: FragmentInsightBinding
+    lateinit var recycler: RecyclerView
+    lateinit var adapter: InsightAdapter
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        val view = inflater.inflate(R.layout.fragment_insight, container, false)
+        binding = FragmentInsightBinding.bind(view)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        initRecycler()
+        initListeners()
+        initSubscriptions()
+    }
+
+    fun initRecycler(){
+        recycler = binding.rvInsight
+        adapter = InsightAdapter(emptyList(), this)
+        recycler.layoutManager = LinearLayoutManager(context,LinearLayoutManager.VERTICAL, false)
+        recycler.adapter = adapter
+    }
+
+    fun initListeners(){
+        binding.floatAddInsight.setOnClickListener {
+            val dialog = AddIncomeDialog()
+            dialog.show(parentFragmentManager,"IncomeDialog")
+        }
+    }
+
+    fun initSubscriptions(){
+        FinancialDB.getAppDataBase(requireContext())?.incomeDao()?.getAll()?.observe(viewLifecycleOwner,{
+            adapter.setNewIncomeList(it)
+        })
+    }
+
+    override fun onInsightTapped(incomeId: Long) {
+        // debes motrar la description en un toast de material design
+    }
+}

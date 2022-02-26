@@ -5,6 +5,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.locotoDevTeam.financontrol.R
@@ -16,6 +19,8 @@ import com.locotoDevTeam.financontrol.databinding.FragmentInsightBinding
 
 class InsightFragment : Fragment(), InsightAdapter.InsightListener {
 
+    private val args: InsightFragmentArgs by navArgs()
+    private val insightViewModel: InsightViewModel by activityViewModels()
     lateinit var binding: FragmentInsightBinding
     lateinit var recycler: RecyclerView
     lateinit var adapter: InsightAdapter
@@ -26,6 +31,7 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
     ): View {
         val view = inflater.inflate(R.layout.fragment_insight, container, false)
         binding = FragmentInsightBinding.bind(view)
+        insightViewModel.setCategoryId(args.categoryId)
         return binding.root
     }
 
@@ -43,7 +49,7 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
         recycler.adapter = adapter
     }
 
-    fun initListeners(){
+    fun initListeners(){ // FloatActionButton
         binding.floatAddInsight.setOnClickListener {
             val dialog = AddIncomeDialog()
             dialog.show(parentFragmentManager,"IncomeDialog")
@@ -51,9 +57,12 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
     }
 
     fun initSubscriptions(){
-        FinancialDB.getAppDataBase(requireContext())?.incomeDao()?.getAll()?.observe(viewLifecycleOwner,{
-            adapter.setNewIncomeList(it)
-        })
+        val categoryId = insightViewModel.categoryId.value
+        categoryId?.let {
+            FinancialDB.getAppDataBase(requireContext())?.incomeDao()?.getAllByCategoryId(it)?.observe(viewLifecycleOwner,{
+                adapter.setNewIncomeList(it)
+            })
+        }
     }
 
     override fun onInsightTapped(incomeId: Long) {

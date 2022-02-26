@@ -11,6 +11,7 @@ import com.locotoDevTeam.financontrol.database.FinancialDB
 import com.locotoDevTeam.financontrol.database.entity.Category
 import com.locotoDevTeam.financontrol.databinding.ActivityMainBinding
 import com.locotoDevTeam.financontrol.ui.category.CategoryViewModel
+import java.lang.RuntimeException
 
 class MainActivity : AppCompatActivity(), AddCategoryDialog.AddCategoryListener, AddIncomeDialog.AddIncomeListener {
 
@@ -27,8 +28,9 @@ class MainActivity : AppCompatActivity(), AddCategoryDialog.AddCategoryListener,
         viewmodel.insertNewCategory(categoryName,this)
     }
 
-    override fun onAddIncomeTapped(categoryName: String) {
-
+    override fun onAddIncomeTapped(categoryId: Long, amount: Double, type: String) {
+        viewmodel.insertNewIncomeExpense(categoryId,amount,type, this)
+        println("chris ${categoryId} con ${amount} con ${type}")
     }
 
 }

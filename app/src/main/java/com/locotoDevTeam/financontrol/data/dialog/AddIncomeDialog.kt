@@ -9,19 +9,28 @@ import android.widget.Adapter
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.activityViewModels
 import com.locotoDevTeam.financontrol.R
 import com.locotoDevTeam.financontrol.databinding.DialogAddCategoryBinding
 import com.locotoDevTeam.financontrol.databinding.DialogAddIncomeBinding
+import com.locotoDevTeam.financontrol.ui.insight.InsightViewModel
 import java.sql.SQLOutput
 
 class AddIncomeDialog: DialogFragment() {
 
-    lateinit var binding: DialogAddIncomeBinding
-    lateinit var listener: AddIncomeListener
-    val spinnerItems = arrayListOf<String>("Income","Expense")
+    private val insightViewModel: InsightViewModel by activityViewModels()
+    private lateinit var binding: DialogAddIncomeBinding
+    private lateinit var listener: AddIncomeListener
+    private val spinnerItems = arrayListOf<String>("Income","Expense")
+    private var spinnerItemSelected: String = ""
+
+    enum class Insight{
+        Income, Expense;
+    }
 
     interface AddIncomeListener{
-        fun onAddIncomeTapped(categoryName: String)
+        // this listener is executed in the MainActivity.kt
+        fun onAddIncomeTapped(categoryId: Long, amount: Double, type: String)
     }
 
     override fun onAttach(context: Context) {
@@ -45,30 +54,33 @@ class AddIncomeDialog: DialogFragment() {
     }
 
     fun initButtonListener(){
-        binding.btnAddCategory.setOnClickListener {
-            val text = binding.editTextTextPersonName.text.toString()
-            listener.onAddIncomeTapped(text)
+        // button for adding new income or expense
+        binding.btnAddIncomeExpense.setOnClickListener {
+            val amount = binding.editTextAddIncomeExpense.text.toString().toDouble()
+            insightViewModel.categoryId.value?.let { categoryId ->
+                listener.onAddIncomeTapped(categoryId, amount, spinnerItemSelected)
+            }
             dismiss()
         }
-        binding.btnCancelCategory.setOnClickListener {
+        binding.btnCancelIncomeExpense.setOnClickListener {
             dismiss()
         }
     }
 
     fun initSpinner(){
-        val adapter = ArrayAdapter(requireContext(),R.layout.support_simple_spinner_dropdown_item, spinnerItems)
+        val adapter = ArrayAdapter(requireContext(),android.R.layout.simple_spinner_dropdown_item, spinnerItems)
         binding.spinner.adapter = adapter
 
         binding.spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-                println("chris presionaste ${p2}")
+            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, id: Long) {
+                spinnerItemSelected = when(position){
+                    Insight.Income.ordinal -> Insight.Income.name
+                    Insight.Expense.ordinal -> Insight.Expense.name
+                    else -> Insight.Income.name
+                }
             }
-
             override fun onNothingSelected(p0: AdapterView<*>?) {
-
             }
-
-
         }
     }
 

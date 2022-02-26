@@ -15,6 +15,7 @@ class AddCategoryDialog: DialogFragment() {
     lateinit var listener: AddCategoryListener
 
     interface AddCategoryListener{
+        // this listener is executed in the MainActivity.kt
         fun onAddCategoryTapped(categoryName: String)
     }
 
@@ -38,6 +39,7 @@ class AddCategoryDialog: DialogFragment() {
     }
 
     fun initButtonListener(){
+        // this button creates a new category
         binding.btnAddCategory.setOnClickListener {
             val text = binding.editTextTextPersonName.text.toString()
             listener.onAddCategoryTapped(text)

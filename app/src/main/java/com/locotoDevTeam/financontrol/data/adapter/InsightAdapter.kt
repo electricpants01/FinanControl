@@ -24,7 +24,7 @@ class InsightAdapter(var incomeList: List<Income>,val listener: InsightListener)
         val binding = RvInsightBinding.bind(view)
 
         fun render(income: Income, listener: InsightListener){
-            binding.txtName.text = income.name
+            binding.txtAmount.text = income.amount.toString()
             if( income.type == "Income"){
                 binding.ivInsightType.setImageResource(R.drawable.ic_twotone_arrow_circle_up)
             } else {

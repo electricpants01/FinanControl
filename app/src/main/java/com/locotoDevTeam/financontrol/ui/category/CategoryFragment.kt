@@ -59,7 +59,6 @@ class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
 
         FinancialDB.getAppDataBase(requireContext())?.categoryDao()?.getAll()?.observe(viewLifecycleOwner,{
             initExpenseIncomeOverview()
-            adapter.setCategoryList(it)
             if(it.isNotEmpty()) {
                 // all welcome components
                 binding.viewContainer.visibility = View.GONE
@@ -76,6 +75,8 @@ class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
                 binding.txtIncome.visibility = View.VISIBLE
                 binding.txtExpense.visibility = View.VISIBLE
                 // make rv visible
+                binding.rvCategory.visibility = View.VISIBLE
+                adapter.setCategoryList(it)
             } else {
                 // all welcome components
                 binding.viewContainer.visibility = View.VISIBLE
@@ -91,6 +92,8 @@ class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
                 binding.txtIncomeAmount.visibility = View.GONE
                 binding.txtIncome.visibility = View.GONE
                 binding.txtExpense.visibility = View.GONE
+                // make rv visible
+                binding.rvCategory.visibility = View.GONE
             }
         })
     }

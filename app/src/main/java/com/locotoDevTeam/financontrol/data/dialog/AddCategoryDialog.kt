@@ -45,6 +45,10 @@ class AddCategoryDialog: DialogFragment() {
                 binding.editTextTextPersonName.error = context?.getString(R.string.dialog_should_not_be_empty)
                 return@setOnClickListener
             }
+            if( binding.editTextTextPersonName.text.toString().length > 15 ){
+                binding.editTextTextPersonName.error = context?.getString(R.string.dialog_category_max_lenght)
+                return@setOnClickListener
+            }
             val text = binding.editTextTextPersonName.text.toString()
             listener.onAddCategoryTapped(text)
             dismiss()

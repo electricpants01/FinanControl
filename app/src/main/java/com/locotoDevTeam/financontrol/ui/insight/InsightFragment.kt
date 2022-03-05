@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -17,6 +16,10 @@ import com.locotoDevTeam.financontrol.data.dialog.MaterialAlert
 import com.locotoDevTeam.financontrol.database.FinancialDB
 import com.locotoDevTeam.financontrol.database.entity.Income
 import com.locotoDevTeam.financontrol.databinding.FragmentInsightBinding
+import com.locotoDevTeam.financontrol.fancyChart.FancyChart
+import com.locotoDevTeam.financontrol.fancyChart.MyFancyChartBuilder
+import com.locotoDevTeam.financontrol.util.toDate
+import kotlin.math.exp
 
 
 class InsightFragment : Fragment(), InsightAdapter.InsightListener {
@@ -26,6 +29,7 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
     lateinit var binding: FragmentInsightBinding
     lateinit var recycler: RecyclerView
     lateinit var adapter: InsightAdapter
+    lateinit var fancyChart: FancyChart
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,6 +38,7 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
         val view = inflater.inflate(R.layout.fragment_insight, container, false)
         binding = FragmentInsightBinding.bind(view)
         insightViewModel.setCategoryId(args.categoryId)
+        fancyChart = binding.insightFancyChart
         return binding.root
     }
 
@@ -62,9 +67,14 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
         val categoryId = insightViewModel.categoryId.value
         categoryId?.let {
             FinancialDB.getAppDataBase(requireContext())?.incomeDao()?.getAllByCategoryId(it)?.observe(viewLifecycleOwner,{
+                insightViewModel.splitIncomeAndExpenses(it)
                 adapter.setNewIncomeList(it)
             })
         }
+
+        insightViewModel.incomeExpenseGraphList.observe(viewLifecycleOwner,{ it ->
+           MyFancyChartBuilder.createChart(it,fancyChart)
+        })
     }
 
     override fun onInsightTapped(incomeId: Long) {

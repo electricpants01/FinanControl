@@ -1,5 +1,6 @@
 package com.locotoDevTeam.financontrol.ui.category
 
+import android.opengl.Visibility
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -18,6 +19,11 @@ import com.locotoDevTeam.financontrol.data.dialog.MaterialAlert
 import com.locotoDevTeam.financontrol.database.FinancialDB
 import com.locotoDevTeam.financontrol.database.entity.Category
 import com.locotoDevTeam.financontrol.databinding.FragmentCategoryBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlin.math.exp
 
 class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
 
@@ -50,9 +56,62 @@ class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
     }
 
     private fun initSubscriptions(){
+
         FinancialDB.getAppDataBase(requireContext())?.categoryDao()?.getAll()?.observe(viewLifecycleOwner,{
-            adapter.setCategoryList(it)
+            initExpenseIncomeOverview()
+            if(it.isNotEmpty()) {
+                // all welcome components
+                binding.viewContainer.visibility = View.GONE
+                binding.txtWelcome.visibility = View.GONE
+                binding.txtWelcomeDescription.visibility = View.GONE
+                binding.ivWelcomeArrow.visibility = View.GONE
+                // all overview components
+                binding.ivOverviewExpense.visibility = View.VISIBLE
+                binding.ivOverviewIncome.visibility = View.VISIBLE
+                binding.txtOverview.visibility = View.VISIBLE
+                binding.txtOverviewAmount.visibility = View.VISIBLE
+                binding.txtExpenseAmount.visibility = View.VISIBLE
+                binding.txtIncomeAmount.visibility = View.VISIBLE
+                binding.txtIncome.visibility = View.VISIBLE
+                binding.txtExpense.visibility = View.VISIBLE
+                // make rv visible
+                binding.rvCategory.visibility = View.VISIBLE
+                adapter.setCategoryList(it)
+            } else {
+                // all welcome components
+                binding.viewContainer.visibility = View.VISIBLE
+                binding.txtWelcome.visibility = View.VISIBLE
+                binding.txtWelcomeDescription.visibility = View.VISIBLE
+                binding.ivWelcomeArrow.visibility = View.VISIBLE
+                // all overview components
+                binding.ivOverviewExpense.visibility = View.GONE
+                binding.ivOverviewIncome.visibility = View.GONE
+                binding.txtOverview.visibility = View.GONE
+                binding.txtOverviewAmount.visibility = View.GONE
+                binding.txtExpenseAmount.visibility = View.GONE
+                binding.txtIncomeAmount.visibility = View.GONE
+                binding.txtIncome.visibility = View.GONE
+                binding.txtExpense.visibility = View.GONE
+                // make rv visible
+                binding.rvCategory.visibility = View.GONE
+            }
         })
+    }
+
+    private fun initExpenseIncomeOverview(){
+        CoroutineScope(Dispatchers.IO).launch {
+            val incomeSum = FinancialDB.getAppDataBase(requireContext())?.incomeDao()?.getSumIncome()
+            val expenseSum = FinancialDB.getAppDataBase(requireContext())?.incomeDao()?.getSumExpense()
+            withContext(Dispatchers.Main){
+                binding.txtIncomeAmount.text = incomeSum.toString()
+                binding.txtExpenseAmount.text = expenseSum.toString()
+                incomeSum?.let { incomeSum ->
+                    expenseSum?.let { expenseSum ->
+                        binding.txtOverviewAmount.text = (incomeSum - expenseSum).toString()
+                    }
+                }
+            }
+        }
     }
 
     private fun openAddNewCategory(){

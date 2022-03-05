@@ -16,4 +16,9 @@
     <string name="insight_delete_description">This option will delete this item</string>
     <!-- Dialog validation -->
     <string name="dialog_should_not_be_empty">Field must not be empty</string>
+    <string name="dialog_income_expense_max_lenght">Max lenght digit overcome</string>
+    <string name="dialog_category_max_lenght">You can type at most 15 characters</string>
+    <string name="overview">overview</string>
+    <string name="incomes">Incomes</string>
+    <string name="expenses">Expenses</string>
 </resources>

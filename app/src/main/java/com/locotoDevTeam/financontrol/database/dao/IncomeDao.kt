@@ -21,4 +21,11 @@ interface IncomeDao {
 
     @Delete
     fun delete(income: Income)
+
+    @Query("select sum(amount) as incomeAmount from income where type = 'Income'")
+    fun getSumIncome(): Double
+
+    @Query("select sum(amount) as expenseAmount from income where type = 'Expense'")
+    fun getSumExpense(): Double
+
 }

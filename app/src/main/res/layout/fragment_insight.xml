@@ -6,15 +6,25 @@
     android:layout_height="match_parent"
     tools:context=".ui.insight.InsightFragment">
 
+    <com.locotoDevTeam.financontrol.fancyChart.FancyChart
+        android:visibility="gone"
+        android:id="@+id/insight_fancy_chart"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_insight"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/insight_fancy_chart" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/float_add_insight"

@@ -10,16 +10,18 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.locotoDevTeam.financontrol.R
 import com.locotoDevTeam.financontrol.data.adapter.CategoryAdapter
 import com.locotoDevTeam.financontrol.data.dialog.AddCategoryDialog
+import com.locotoDevTeam.financontrol.data.dialog.MaterialAlert
 import com.locotoDevTeam.financontrol.database.FinancialDB
 import com.locotoDevTeam.financontrol.database.entity.Category
 import com.locotoDevTeam.financontrol.databinding.FragmentCategoryBinding
 
 class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
 
-    private val viewmodel: CategoryViewModel by activityViewModels()
+    private val categoryViewModel: CategoryViewModel by activityViewModels()
     lateinit var binding: FragmentCategoryBinding
     lateinit var recycler: RecyclerView
     lateinit var adapter: CategoryAdapter
@@ -63,6 +65,13 @@ class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
     override fun onCategoryTapped(categoryId: Long) {
         val directions = CategoryFragmentDirections.actionCategoryFragmentToInsightFragment(categoryId)
         findNavController().navigate(directions)
+    }
+
+    override fun onDeleteCategoryTapped(categoryId: Long) {
+        MaterialAlert.showDialog(resources.getString(R.string.category_deletion_title),
+                resources.getString(R.string.category_deletion_description), requireContext()){
+            categoryViewModel.deleteACategoryById(categoryId, requireContext())
+        }
     }
 
 }

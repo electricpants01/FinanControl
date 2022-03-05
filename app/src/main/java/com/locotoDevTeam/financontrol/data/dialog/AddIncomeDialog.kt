@@ -37,6 +37,7 @@ class AddIncomeDialog: DialogFragment() {
         super.onAttach(context)
         listener = context as AddIncomeListener
     }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -53,9 +54,13 @@ class AddIncomeDialog: DialogFragment() {
         initSpinner()
     }
 
-    fun initButtonListener(){
+    private fun initButtonListener(){
         // button for adding new income or expense
         binding.btnAddIncomeExpense.setOnClickListener {
+            if( binding.editTextAddIncomeExpense.text.toString().isEmpty()){
+                binding.editTextAddIncomeExpense.error = context?.getString(R.string.dialog_should_not_be_empty)
+                return@setOnClickListener
+            }
             val amount = binding.editTextAddIncomeExpense.text.toString().toDouble()
             insightViewModel.categoryId.value?.let { categoryId ->
                 listener.onAddIncomeTapped(categoryId, amount, spinnerItemSelected)

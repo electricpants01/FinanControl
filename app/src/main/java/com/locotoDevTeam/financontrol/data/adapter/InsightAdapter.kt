@@ -12,6 +12,7 @@ class InsightAdapter(var incomeList: List<Income>,val listener: InsightListener)
 
     interface InsightListener{
         fun onInsightTapped(incomeId: Long)
+        fun onDeleteInsightTapped(income: Income)
     }
 
     fun setNewIncomeList(newIncomeList: List<Income>){
@@ -29,6 +30,11 @@ class InsightAdapter(var incomeList: List<Income>,val listener: InsightListener)
                 binding.ivInsightType.setImageResource(R.drawable.ic_twotone_arrow_circle_up)
             } else {
                 binding.ivInsightType.setImageResource(R.drawable.ic_twotone_arrow_circle_down)
+            }
+            binding.ivDeleteInsight.setOnClickListener { listener.onDeleteInsightTapped(income) }
+            binding.cvCategory.setOnLongClickListener {
+                listener.onDeleteInsightTapped(income)
+                return@setOnLongClickListener true
             }
         }
     }

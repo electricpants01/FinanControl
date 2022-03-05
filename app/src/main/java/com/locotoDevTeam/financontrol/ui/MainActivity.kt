@@ -16,20 +16,22 @@ import java.lang.RuntimeException
 class MainActivity : AppCompatActivity(), AddCategoryDialog.AddCategoryListener, AddIncomeDialog.AddIncomeListener {
 
     lateinit var binding: ActivityMainBinding
-    private val viewmodel: CategoryViewModel by viewModels()
+    private val categoryViewModel: CategoryViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
     }
 
+    // added a new category
     override fun onAddCategoryTapped(categoryName: String) {
-        viewmodel.insertNewCategory(categoryName,this)
+        categoryViewModel.insertNewCategory(categoryName,this)
     }
 
+    // added a new income from a category
     override fun onAddIncomeTapped(categoryId: Long, amount: Double, type: String) {
-        viewmodel.insertNewIncomeExpense(categoryId,amount,type, this)
-        println("chris ${categoryId} con ${amount} con ${type}")
+        categoryViewModel.insertNewIncomeExpense(categoryId,amount,type, this)
     }
 
 }

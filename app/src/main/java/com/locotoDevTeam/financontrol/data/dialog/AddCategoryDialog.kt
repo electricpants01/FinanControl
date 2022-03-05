@@ -41,6 +41,10 @@ class AddCategoryDialog: DialogFragment() {
     fun initButtonListener(){
         // this button creates a new category
         binding.btnAddCategory.setOnClickListener {
+            if( binding.editTextTextPersonName.text.toString().isEmpty() ){
+                binding.editTextTextPersonName.error = context?.getString(R.string.dialog_should_not_be_empty)
+                return@setOnClickListener
+            }
             val text = binding.editTextTextPersonName.text.toString()
             listener.onAddCategoryTapped(text)
             dismiss()

@@ -13,7 +13,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.locotoDevTeam.financontrol.R
 import com.locotoDevTeam.financontrol.data.adapter.InsightAdapter
 import com.locotoDevTeam.financontrol.data.dialog.AddIncomeDialog
+import com.locotoDevTeam.financontrol.data.dialog.MaterialAlert
 import com.locotoDevTeam.financontrol.database.FinancialDB
+import com.locotoDevTeam.financontrol.database.entity.Income
 import com.locotoDevTeam.financontrol.databinding.FragmentInsightBinding
 
 
@@ -67,5 +69,12 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
 
     override fun onInsightTapped(incomeId: Long) {
         // debes motrar la description en un toast de material design
+    }
+
+    override fun onDeleteInsightTapped(income: Income) {
+        MaterialAlert.showDialog(resources.getString(R.string.insight_deletion_title),
+            resources.getString(R.string.insight_delete_description), requireContext()){
+            insightViewModel.deleteInsight(income, requireContext())
+        }
     }
 }

@@ -12,6 +12,7 @@ class CategoryAdapter(var categories: List<Category>,val listener: CategoryListe
 
     interface CategoryListener{
         fun onCategoryTapped(categoryId: Long)
+        fun onDeleteCategoryTapped(categoryId: Long)
     }
 
     fun setCategoryList(newCategoryList: List<Category>){
@@ -25,6 +26,11 @@ class CategoryAdapter(var categories: List<Category>,val listener: CategoryListe
         fun render(category: Category){
             rvCategoryBinding.cvCategory.setOnClickListener { listener.onCategoryTapped(category.uid!!) }
             rvCategoryBinding.txtName.text = category.name
+            rvCategoryBinding.ivDeleteCategory.setOnClickListener { listener.onDeleteCategoryTapped(categoryId = category.uid!!) }
+            rvCategoryBinding.cvCategory.setOnLongClickListener {
+                listener.onDeleteCategoryTapped(categoryId = category.uid!!)
+                return@setOnLongClickListener true
+            }
         }
     }
 

@@ -16,7 +16,12 @@ interface CategoryDao{
     @Insert
     fun insert(category: Category)
 
-    //TODO: el delelte tiene q eliminar todos los datos de las tablas de ingresos/egresos
     @Delete
     fun delete(category: Category)
+
+    @Query("delete from income where categoryId = :categoryId")
+    fun deleteIncomesFromACategory(categoryId: Long)
+
+    @Query("delete from category where uid = :categoryId")
+    fun deleteCategoryById(categoryId: Long)
 }

@@ -51,7 +51,20 @@ class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
 
     private fun initSubscriptions(){
         FinancialDB.getAppDataBase(requireContext())?.categoryDao()?.getAll()?.observe(viewLifecycleOwner,{
-            adapter.setCategoryList(it)
+            println("chris entro")
+            if(it.isNotEmpty()) {
+                binding.viewContainer.visibility = View.GONE
+                binding.txtWelcome.visibility = View.GONE
+                binding.txtWelcomeDescription.visibility = View.GONE
+                binding.ivWelcomeArrow.visibility = View.GONE
+                adapter.setCategoryList(it)
+            } else {
+                println("chris es empty")
+                binding.viewContainer.visibility = View.VISIBLE
+                binding.txtWelcome.visibility = View.VISIBLE
+                binding.txtWelcomeDescription.visibility = View.VISIBLE
+                binding.ivWelcomeArrow.visibility = View.VISIBLE
+            }
         })
     }
 

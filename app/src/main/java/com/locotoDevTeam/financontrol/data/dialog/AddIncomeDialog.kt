@@ -61,6 +61,10 @@ class AddIncomeDialog: DialogFragment() {
                 binding.editTextAddIncomeExpense.error = context?.getString(R.string.dialog_should_not_be_empty)
                 return@setOnClickListener
             }
+            if( binding.editTextAddIncomeExpense.text.toString().length >= 6){
+                binding.editTextAddIncomeExpense.error = context?.getString(R.string.dialog_income_expense_max_lenght)
+                return@setOnClickListener
+            }
             val amount = binding.editTextAddIncomeExpense.text.toString().toDouble()
             insightViewModel.categoryId.value?.let { categoryId ->
                 listener.onAddIncomeTapped(categoryId, amount, spinnerItemSelected)

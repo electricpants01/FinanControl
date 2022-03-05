@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -17,6 +16,7 @@ import com.locotoDevTeam.financontrol.data.dialog.MaterialAlert
 import com.locotoDevTeam.financontrol.database.FinancialDB
 import com.locotoDevTeam.financontrol.database.entity.Income
 import com.locotoDevTeam.financontrol.databinding.FragmentInsightBinding
+import com.locotoDevTeam.financontrol.util.toDate
 
 
 class InsightFragment : Fragment(), InsightAdapter.InsightListener {
@@ -62,6 +62,7 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
         val categoryId = insightViewModel.categoryId.value
         categoryId?.let {
             FinancialDB.getAppDataBase(requireContext())?.incomeDao()?.getAllByCategoryId(it)?.observe(viewLifecycleOwner,{
+                val temp = it.map { it.timestamp.toDate() }
                 adapter.setNewIncomeList(it)
             })
         }

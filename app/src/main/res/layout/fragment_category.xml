@@ -38,5 +38,52 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_add" />
 
+    <View
+        android:id="@+id/view_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:alpha="1"
+        android:background="@color/container_view_background_color"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/txt_welcome"
+        android:layout_width="193dp"
+        android:layout_height="64dp"
+        android:visibility="gone"
+        android:textStyle="bold"
+        android:layout_marginStart="36dp"
+        android:layout_marginTop="180dp"
+        android:text="Welcome"
+        android:textSize="36sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/txt_welcome_description"
+        android:layout_width="321dp"
+        android:layout_height="144dp"
+        android:visibility="gone"
+        android:layout_marginStart="36dp"
+        android:layout_marginTop="28dp"
+        android:text="Let's start adding a new category for your Income/Expenses 🤑"
+        android:textSize="28sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txt_welcome" />
+
+    <ImageView
+        android:id="@+id/iv_welcome_arrow"
+        android:layout_width="match_parent"
+        android:layout_height="332dp"
+        android:visibility="gone"
+        android:layout_marginBottom="-36dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/arrow" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

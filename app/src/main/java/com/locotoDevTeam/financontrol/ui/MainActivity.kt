@@ -17,7 +17,6 @@ class MainActivity : AppCompatActivity(), AddCategoryDialog.AddCategoryListener,
 
     lateinit var binding: ActivityMainBinding
     private val viewmodel: CategoryViewModel by viewModels()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)

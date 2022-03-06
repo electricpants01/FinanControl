@@ -11,7 +11,7 @@ import com.locotoDevTeam.financontrol.databinding.RvInsightBinding
 class InsightAdapter(var incomeList: List<Income>,val listener: InsightListener): RecyclerView.Adapter<InsightAdapter.Holder>() {
 
     interface InsightListener{
-        fun onInsightTapped(incomeId: Long)
+        fun onInsightTapped(income: Income)
         fun onDeleteInsightTapped(income: Income)
     }
 
@@ -31,6 +31,7 @@ class InsightAdapter(var incomeList: List<Income>,val listener: InsightListener)
             } else {
                 binding.ivInsightType.setImageResource(R.drawable.ic_twotone_arrow_circle_down)
             }
+            binding.cvCategory.setOnClickListener { listener.onInsightTapped(income) }
             binding.ivDeleteInsight.setOnClickListener { listener.onDeleteInsightTapped(income) }
             binding.cvCategory.setOnLongClickListener {
                 listener.onDeleteInsightTapped(income)

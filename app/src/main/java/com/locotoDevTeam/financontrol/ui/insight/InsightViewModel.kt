@@ -46,7 +46,7 @@ class InsightViewModel: ViewModel() {
                 finalExpenses.add(expenses[i])
             }
         }
-        var finalIncomeExpenseList = incomes + expenses
+        var finalIncomeExpenseList = finalIncomes + finalExpenses
         finalIncomeExpenseList = finalIncomeExpenseList.sortedBy { it.timestamp }
         incomeExpenseGraphList.value = finalIncomeExpenseList
     }

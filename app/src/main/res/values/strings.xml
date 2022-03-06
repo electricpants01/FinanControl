@@ -21,4 +21,7 @@
     <string name="overview">overview</string>
     <string name="incomes">Incomes</string>
     <string name="expenses">Expenses</string>
+    <!-- Insight Fragment view -->
+    <string name="insight_item_tapped">%s: %s at %s</string>
+    <string name="insight_point_item_tapped">This item is: %s</string>
 </resources>

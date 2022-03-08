@@ -12,6 +12,7 @@ class CategoryAdapter(var categories: List<Category>,val listener: CategoryListe
 
     interface CategoryListener{
         fun onCategoryTapped(categoryId: Long)
+
         fun onDeleteCategoryTapped(categoryId: Long)
     }
 

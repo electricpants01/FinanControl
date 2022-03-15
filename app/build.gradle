@@ -47,6 +47,8 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth-ktx:21.0.1'
     implementation 'com.google.firebase:firebase-crashlytics:18.2.8'
     implementation 'com.google.firebase:firebase-messaging:23.0.0'
+    //splash screen
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
     //
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation "androidx.activity:activity-ktx:1.4.0"

@@ -88,7 +88,8 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
     }
 
     override fun onInsightTapped(income: Income) {
-        var text = getString(R.string.insight_item_tapped,income.type, income.amount.toString(), income.timestamp.formatDateAndTimeString())
+        val type = if(income.type == "Income") getString(R.string.income) else { getString(R.string.expense) }
+        var text = getString(R.string.insight_item_tapped, type, income.amount.toString(), income.timestamp.formatDateAndTimeString())
         Snackbar.make(binding.floatAddInsight, text, Snackbar.LENGTH_LONG)
             .show()
     }

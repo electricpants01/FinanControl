@@ -10,8 +10,9 @@ class MyFancyChartBuilder {
 
     companion object{
         fun createChart(incomeExpensesList: List<Income>, chart: FancyChart){
+            // first we delete all the components on the canvas
             chart.clearValues()
-            println("entramos dento del create ")
+
             val data = ChartData(ChartData.LINE_COLOR_GREEN)
             val data2 = ChartData(ChartData.LINE_COLOR_RED)
 //            val yValues = intArrayOf(0, 8, 9, 18, 35, 30, 33, 32, 46, 53, 50, 42)
@@ -33,7 +34,7 @@ class MyFancyChartBuilder {
             }
             chart.addData(data)
             chart.addData(data2)
-
+            // the chart.invalidate will redraw the canvas
             chart.invalidate()
         }
     }

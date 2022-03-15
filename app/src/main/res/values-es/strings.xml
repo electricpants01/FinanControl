@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FinanControl</string>
+    <string name="add_category">Añadir Categoría</string>
+    <string name="ex_salary">ejemplo: Salario</string>
+    <string name="basic_number">100</string>
+    <string name="add_income_expense">Añade Ingreso o Egreso</string>
+    <string name="add">Crear</string>
+    <string name="cancel">Cancelar</string>
+    <string name="accept">Aceptar</string>
+    <!-- Deletion Section -->
+    <string name="category_deletion_title">¿ Estás seguro que quieres eliminar esta categoría ?</string>
+    <string name="category_deletion_description">Esta optión eliminará la categoría seleccionada y todo su contenido</string>
+    <string name="insight_deletion_title">¿ Estás seguro que quieres eliminar este Ingreso/Egreso?</string>
+    <string name="insight_delete_description">Esta opción eliminará lo seleccionado</string>
+    <!-- Dialog validation -->
+    <string name="dialog_should_not_be_empty">Este campo no puede estar vacio</string>
+    <string name="dialog_income_expense_max_length">Has sobrepasado la max longitud</string>
+    <string name="dialog_category_max_length">Solo puedes escribir 15 caracteres</string>
+    <string name="overview">Saldo Total</string>
+    <string name="incomes">Ingresos</string>
+    <string name="expenses">Egresos</string>
+    <string name="income">Ingreso</string>
+    <string name="expense">Egreso</string>
+    <!-- Insight Fragment view -->
+    <string name="insight_item_tapped">%s: %s en %s</string>
+    <string name="insight_point_item_tapped">Seleccionaste: %s</string>
+</resources>

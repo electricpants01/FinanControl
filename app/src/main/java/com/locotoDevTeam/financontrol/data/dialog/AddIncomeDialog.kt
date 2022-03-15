@@ -21,7 +21,6 @@ class AddIncomeDialog: DialogFragment() {
     private val insightViewModel: InsightViewModel by activityViewModels()
     private lateinit var binding: DialogAddIncomeBinding
     private lateinit var listener: AddIncomeListener
-    private val spinnerItems = arrayListOf<String>("Income","Expense")
     private var spinnerItemSelected: String = ""
 
     enum class Insight{
@@ -62,7 +61,7 @@ class AddIncomeDialog: DialogFragment() {
                 return@setOnClickListener
             }
             if( binding.editTextAddIncomeExpense.text.toString().length >= 6){
-                binding.editTextAddIncomeExpense.error = context?.getString(R.string.dialog_income_expense_max_lenght)
+                binding.editTextAddIncomeExpense.error = context?.getString(R.string.dialog_income_expense_max_length)
                 return@setOnClickListener
             }
             val amount = binding.editTextAddIncomeExpense.text.toString().toDouble()
@@ -76,7 +75,8 @@ class AddIncomeDialog: DialogFragment() {
         }
     }
 
-    fun initSpinner(){
+    private fun initSpinner(){
+        val spinnerItems = arrayListOf<String>(requireContext().getString(R.string.income),requireContext().getString(R.string.expense))
         val adapter = ArrayAdapter(requireContext(),android.R.layout.simple_spinner_dropdown_item, spinnerItems)
         binding.spinner.adapter = adapter
 

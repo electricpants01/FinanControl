@@ -5,10 +5,12 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import com.locotoDevTeam.financontrol.R
 import com.locotoDevTeam.financontrol.data.adapter.InsightAdapter
 import com.locotoDevTeam.financontrol.data.dialog.AddIncomeDialog
@@ -18,7 +20,12 @@ import com.locotoDevTeam.financontrol.database.entity.Income
 import com.locotoDevTeam.financontrol.databinding.FragmentInsightBinding
 import com.locotoDevTeam.financontrol.fancyChart.FancyChart
 import com.locotoDevTeam.financontrol.fancyChart.MyFancyChartBuilder
+import com.locotoDevTeam.financontrol.fancyChart.data.ChartData
+import com.locotoDevTeam.financontrol.util.formatDateAndTimeString
 import com.locotoDevTeam.financontrol.util.toDate
+import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
+import java.util.*
 import kotlin.math.exp
 
 
@@ -29,7 +36,7 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
     lateinit var binding: FragmentInsightBinding
     lateinit var recycler: RecyclerView
     lateinit var adapter: InsightAdapter
-    lateinit var fancyChart: FancyChart
+    lateinit var chart: FancyChart
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,7 +45,11 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
         val view = inflater.inflate(R.layout.fragment_insight, container, false)
         binding = FragmentInsightBinding.bind(view)
         insightViewModel.setCategoryId(args.categoryId)
-        fancyChart = binding.insightFancyChart
+        chart = binding.insightFancyChart
+        initSubscriptions()
+        chart.setOnPointClickListener {
+            Snackbar.make(binding.floatAddInsight,getString(R.string.insight_point_item_tapped, it.y.toString()),Snackbar.LENGTH_SHORT).show()
+        }
         return binding.root
     }
 
@@ -46,7 +57,6 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
         super.onViewCreated(view, savedInstanceState)
         initRecycler()
         initListeners()
-        initSubscriptions()
     }
 
     fun initRecycler(){
@@ -72,13 +82,16 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
             })
         }
 
-        insightViewModel.incomeExpenseGraphList.observe(viewLifecycleOwner,{ it ->
-           MyFancyChartBuilder.createChart(it,fancyChart)
+        insightViewModel.incomeExpenseGraphList.observe(viewLifecycleOwner,{
+           MyFancyChartBuilder.createChart(it,chart)
         })
     }
 
-    override fun onInsightTapped(incomeId: Long) {
-        // debes motrar la description en un toast de material design
+    override fun onInsightTapped(income: Income) {
+        val type = if(income.type == "Income") getString(R.string.income) else { getString(R.string.expense) }
+        var text = getString(R.string.insight_item_tapped, type, income.amount.toString(), income.timestamp.formatDateAndTimeString())
+        Snackbar.make(binding.floatAddInsight, text, Snackbar.LENGTH_LONG)
+            .show()
     }
 
     override fun onDeleteInsightTapped(income: Income) {

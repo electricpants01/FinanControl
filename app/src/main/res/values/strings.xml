@@ -24,4 +24,6 @@
     <!-- Insight Fragment view -->
     <string name="insight_item_tapped">%s: %s on %s</string>
     <string name="insight_point_item_tapped">This item is: %s</string>
+    <string name="welcome_msg">Let\'s start adding a new category for your Income/Expenses 🤑</string>
+    <string name="welcome_title">Welcome</string>
 </resources>

@@ -25,4 +25,6 @@
     <!-- Insight Fragment view -->
     <string name="insight_item_tapped">%s: %s en %s</string>
     <string name="insight_point_item_tapped">Seleccionaste: %s</string>
+    <string name="welcome_msg">Comencemos añadiendo una nueva categoria para tu Ingreso/Egreso 🤑</string>
+    <string name="welcome_title">Bienvenido</string>
 </resources>

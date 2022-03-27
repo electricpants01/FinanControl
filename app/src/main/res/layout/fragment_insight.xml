@@ -10,7 +10,6 @@
         android:id="@+id/insight_fancy_chart"
         android:layout_width="match_parent"
         android:layout_height="250dp"
-        android:visibility="gone"
         android:layout_marginStart="4dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="4dp"

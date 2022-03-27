@@ -10,13 +10,14 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.locotoDevTeam.financontrol.R
 import com.locotoDevTeam.financontrol.databinding.DialogAddCategoryBinding
 import com.locotoDevTeam.financontrol.databinding.DialogAddIncomeBinding
 import com.locotoDevTeam.financontrol.ui.insight.InsightViewModel
 import java.sql.SQLOutput
 
-class AddIncomeDialog: DialogFragment() {
+class AddIncomeDialog: BottomSheetDialogFragment() {
 
     private val insightViewModel: InsightViewModel by activityViewModels()
     private lateinit var binding: DialogAddIncomeBinding

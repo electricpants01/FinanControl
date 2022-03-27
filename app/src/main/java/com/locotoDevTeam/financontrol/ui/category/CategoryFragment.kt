@@ -20,6 +20,7 @@ import com.locotoDevTeam.financontrol.database.FinancialDB
 import com.locotoDevTeam.financontrol.database.entity.Category
 import com.locotoDevTeam.financontrol.databinding.FragmentCategoryBinding
 import com.locotoDevTeam.financontrol.ui.MainActivity
+import com.locotoDevTeam.financontrol.ui.SharePreference
 import kotlinx.coroutines.*
 import kotlin.math.exp
 
@@ -103,12 +104,14 @@ class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
         CoroutineScope(Dispatchers.IO).launch {
             val incomeSum = FinancialDB.getAppDataBase(requireContext())?.incomeDao()?.getSumIncome()
             val expenseSum = FinancialDB.getAppDataBase(requireContext())?.incomeDao()?.getSumExpense()
+            val currency = SharePreference(requireContext()).getCurrencyPreference() ?: "$"
             withContext(Dispatchers.Main){
-                binding.txtIncomeAmount.text = incomeSum.toString()
-                binding.txtExpenseAmount.text = expenseSum.toString()
+                binding.txtIncomeAmount.text = "$incomeSum $currency"
+                binding.txtExpenseAmount.text = "$expenseSum $currency"
                 incomeSum?.let { incomeSum ->
                     expenseSum?.let { expenseSum ->
-                        binding.txtOverviewAmount.text = (incomeSum - expenseSum).toString()
+                        val total = (incomeSum - expenseSum).toString()
+                        binding.txtOverviewAmount.text = "$total $currency"
                     }
                 }
             }

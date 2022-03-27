@@ -82,6 +82,10 @@ class AddIncomeDialog: BottomSheetDialogFragment() {
         binding.chipExpense.setOnClickListener {
             chipSelected = Insight.Expense.name
         }
+
+        binding.ivClose.setOnClickListener {
+            dismiss()
+        }
     }
 
 }

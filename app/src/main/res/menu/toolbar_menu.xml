@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group
+        android:id="@+id/menu_currency_group">
+
+        <item
+            android:id="@+id/menu_currency"
+            android:title="@string/menu_currency">
+            <menu>
+                <item
+                    android:id="@+id/menu_dolar"
+                    android:title="$" />
+                <item
+                    android:id="@+id/menu_bob"
+                    android:title="BOB" />
+                <item
+                    android:id="@+id/menu_yen"
+                    android:title="¥" />
+                <item
+                    android:id="@+id/menu_euro"
+                    android:title="€" />
+            </menu>
+        </item>
+
+        <item
+            android:id="@+id/menu_themes"
+            android:title="@string/menu_themes" />
+
+    </group>
+
+</menu>

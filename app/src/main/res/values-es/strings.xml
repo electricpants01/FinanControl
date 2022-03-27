@@ -27,4 +27,9 @@
     <string name="insight_item_tapped">%s: %s en %s</string>
     <string name="insight_point_item_tapped">Seleccionaste: %s</string>
     <string name="empty_insight_screen">Presiona sobre el botón de ➕  para añadir un nuevo Ingreso/Egreso</string>
+
+    <!-- Menus -->
+    <string name="menu_currency">Moneda</string>
+    <string name="menu_themes">Temas</string>
+    <string name="still_working">Seguimos trabajando en ello</string>
 </resources>

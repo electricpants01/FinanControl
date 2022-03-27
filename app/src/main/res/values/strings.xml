@@ -26,4 +26,9 @@
     <string name="insight_item_tapped">%s: %s on %s</string>
     <string name="insight_point_item_tapped">This item is: %s</string>
     <string name="empty_insight_screen">Tap on the ➕ button to add a new Income/Expense</string>
+
+    <!-- Menus -->
+    <string name="menu_currency">Currency</string>
+    <string name="menu_themes">Themes</string>
+    <string name="still_working">We are working on this</string>
 </resources>

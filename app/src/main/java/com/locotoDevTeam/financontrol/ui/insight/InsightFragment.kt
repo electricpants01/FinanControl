@@ -1,10 +1,8 @@
 package com.locotoDevTeam.financontrol.ui.insight
 
 import android.os.Bundle
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.navArgs
@@ -48,6 +46,7 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
         val view = inflater.inflate(R.layout.fragment_insight, container, false)
         binding = FragmentInsightBinding.bind(view)
         (activity as MainActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        setHasOptionsMenu(true)
         insightViewModel.setCategoryId(args.categoryId)
         chart = binding.insightFancyChart
         initSubscriptions()
@@ -63,7 +62,12 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
         initListeners()
     }
 
-    fun initRecycler(){
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        menu.setGroupVisible(R.id.menu_currency_group, false)
+        inflater.inflate(R.menu.menu_insight, menu)
+    }
+
+    private fun initRecycler(){
         recycler = binding.rvSection
         adapter = SectionAdapter(emptyList(), emptyList(), requireContext(), this)
         recycler.layoutManager = LinearLayoutManager(context,LinearLayoutManager.VERTICAL, false)
@@ -92,7 +96,7 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
         }
     }
 
-    fun initSubscriptions(){
+    private fun initSubscriptions(){
         val categoryId = insightViewModel.categoryId.value
         categoryId?.let {
             FinancialDB.getAppDataBase(requireContext())?.incomeDao()?.getAllByCategoryId(it)?.observe(viewLifecycleOwner,{ incomes ->
@@ -126,12 +130,9 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
     private fun updateRecyclerViewIncomeList(incomes: List<Income>) {
         var sections = incomes.map { it -> it.timestamp.formatDateString() }
         sections = sections.distinct()
-        if (sections.isEmpty()) {
-            binding.txtEmptyScreen.visibility = View.VISIBLE
-        }
-        else {
-            binding.txtEmptyScreen.visibility = View.GONE
-        }
+        sections = sections.reversed()
+        if (sections.isEmpty()) binding.txtEmptyScreen.visibility = View.VISIBLE
+        else binding.txtEmptyScreen.visibility = View.GONE
         insightViewModel.splitIncomeAndExpenses(incomes)
         adapter.setSectionIncomeList(sections, incomes)
     }

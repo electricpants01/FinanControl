@@ -19,10 +19,8 @@ import com.locotoDevTeam.financontrol.data.dialog.MaterialAlert
 import com.locotoDevTeam.financontrol.database.FinancialDB
 import com.locotoDevTeam.financontrol.database.entity.Category
 import com.locotoDevTeam.financontrol.databinding.FragmentCategoryBinding
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.locotoDevTeam.financontrol.ui.MainActivity
+import kotlinx.coroutines.*
 import kotlin.math.exp
 
 class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
@@ -38,6 +36,7 @@ class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
     ): View {
         val view = inflater.inflate(R.layout.fragment_category, container, false)
         binding = FragmentCategoryBinding.bind(view)
+        (activity as MainActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
         return binding.root
     }
 
@@ -54,6 +53,8 @@ class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
         recycler.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         recycler.adapter = adapter
     }
+
+    
 
     private fun initSubscriptions(){
 

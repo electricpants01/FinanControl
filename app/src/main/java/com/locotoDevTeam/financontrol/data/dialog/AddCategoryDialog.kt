@@ -6,10 +6,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.locotoDevTeam.financontrol.R
 import com.locotoDevTeam.financontrol.databinding.DialogAddCategoryBinding
 
-class AddCategoryDialog: DialogFragment() {
+class AddCategoryDialog: BottomSheetDialogFragment() {
 
     lateinit var binding: DialogAddCategoryBinding
     lateinit var listener: AddCategoryListener
@@ -54,6 +55,9 @@ class AddCategoryDialog: DialogFragment() {
             dismiss()
         }
         binding.btnCancelCategory.setOnClickListener {
+            dismiss()
+        }
+        binding.ivClose.setOnClickListener {
             dismiss()
         }
     }

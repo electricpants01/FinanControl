@@ -17,7 +17,7 @@ fun String.formatDateAndTimeString(): String {
 
 fun String.formatDateString(): String {
     val date = Date(this.toLong())
-    val simple = SimpleDateFormat("MM', 'dd",Locale.getDefault())
+    val simple = SimpleDateFormat("MM', 'dd' 'yyyy",Locale.getDefault())
     return simple.format(date)
 }
 

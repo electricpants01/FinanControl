@@ -12,9 +12,10 @@ import kotlinx.coroutines.launch
 
 class InsightViewModel: ViewModel() {
 
-    val dispatcher = Dispatchers.IO
+    private val dispatcher = Dispatchers.IO
     var categoryId = MutableLiveData<Long>()
     val incomeExpenseGraphList = MutableLiveData<List<Income>>()
+    val incomeList = MutableLiveData<List<Income>>()
 
     // first, we need to set up the id the of category
     fun setCategoryId(newCategoryId: Long){

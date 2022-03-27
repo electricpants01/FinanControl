@@ -22,7 +22,7 @@ class AddIncomeDialog: BottomSheetDialogFragment() {
     private val insightViewModel: InsightViewModel by activityViewModels()
     private lateinit var binding: DialogAddIncomeBinding
     private lateinit var listener: AddIncomeListener
-    private var spinnerItemSelected: String = ""
+    private var chipSelected: String = Insight.Income.name
 
     enum class Insight{
         Income, Expense;
@@ -51,7 +51,6 @@ class AddIncomeDialog: BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initButtonListener()
-        initSpinner()
     }
 
     private fun initButtonListener(){
@@ -67,30 +66,21 @@ class AddIncomeDialog: BottomSheetDialogFragment() {
             }
             val amount = binding.editTextAddIncomeExpense.text.toString().toDouble()
             insightViewModel.categoryId.value?.let { categoryId ->
-                listener.onAddIncomeTapped(categoryId, amount, spinnerItemSelected)
+                listener.onAddIncomeTapped(categoryId, amount, chipSelected)
             }
             dismiss()
         }
+
         binding.btnCancelIncomeExpense.setOnClickListener {
             dismiss()
         }
-    }
 
-    private fun initSpinner(){
-        val spinnerItems = arrayListOf<String>(requireContext().getString(R.string.income),requireContext().getString(R.string.expense))
-        val adapter = ArrayAdapter(requireContext(),android.R.layout.simple_spinner_dropdown_item, spinnerItems)
-        binding.spinner.adapter = adapter
+        binding.chipIncome.setOnClickListener {
+            chipSelected = Insight.Income.name
+        }
 
-        binding.spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, id: Long) {
-                spinnerItemSelected = when(position){
-                    Insight.Income.ordinal -> Insight.Income.name
-                    Insight.Expense.ordinal -> Insight.Expense.name
-                    else -> Insight.Income.name
-                }
-            }
-            override fun onNothingSelected(p0: AdapterView<*>?) {
-            }
+        binding.chipExpense.setOnClickListener {
+            chipSelected = Insight.Expense.name
         }
     }
 

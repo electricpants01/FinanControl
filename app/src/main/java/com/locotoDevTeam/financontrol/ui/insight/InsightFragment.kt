@@ -75,22 +75,37 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
             val dialog = AddIncomeDialog()
             dialog.show(parentFragmentManager,"IncomeDialog")
         }
+
+        binding.chipAll.setOnClickListener {
+            val incomes = insightViewModel.incomeList.value
+            updateRecyclerViewIncomeList(incomes ?: emptyList())
+        }
+
+        binding.chipIncome.setOnClickListener {
+            val incomes = insightViewModel.incomeList.value?.filter { it.type ==  AddIncomeDialog.Insight.Income.name}
+            updateRecyclerViewIncomeList(incomes ?: emptyList())
+        }
+
+        binding.chipExpense.setOnClickListener {
+            val incomes = insightViewModel.incomeList.value?.filter { it.type ==  AddIncomeDialog.Insight.Expense.name}
+            updateRecyclerViewIncomeList(incomes ?: emptyList())
+        }
     }
 
     fun initSubscriptions(){
         val categoryId = insightViewModel.categoryId.value
         categoryId?.let {
             FinancialDB.getAppDataBase(requireContext())?.incomeDao()?.getAllByCategoryId(it)?.observe(viewLifecycleOwner,{ incomes ->
-                var sections = incomes.map { it -> it.timestamp.formatDateString() }
-                sections = sections.distinct()
-                println(sections)
-                insightViewModel.splitIncomeAndExpenses(incomes)
-                adapter.setSectionIncomeList(sections, incomes)
+                insightViewModel.incomeList.postValue(incomes)
             })
         }
 
         insightViewModel.incomeExpenseGraphList.observe(viewLifecycleOwner,{
            MyFancyChartBuilder.createChart(it,chart)
+        })
+
+        insightViewModel.incomeList.observe(viewLifecycleOwner, { incomes ->
+            updateRecyclerViewIncomeList(incomes)
         })
     }
 
@@ -106,5 +121,18 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
             resources.getString(R.string.insight_delete_description), requireContext()){
             insightViewModel.deleteInsight(income, requireContext())
         }
+    }
+
+    private fun updateRecyclerViewIncomeList(incomes: List<Income>) {
+        var sections = incomes.map { it -> it.timestamp.formatDateString() }
+        sections = sections.distinct()
+        if (sections.isEmpty()) {
+            binding.txtEmptyScreen.visibility = View.VISIBLE
+        }
+        else {
+            binding.txtEmptyScreen.visibility = View.GONE
+        }
+        insightViewModel.splitIncomeAndExpenses(incomes)
+        adapter.setSectionIncomeList(sections, incomes)
     }
 }

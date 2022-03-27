@@ -2,7 +2,7 @@
     <string name="app_name">FinanControl</string>
     <string name="add_category">Add Category</string>
     <string name="ex_salary">Ex. Salary</string>
-    <string name="basic_number">100</string>
+    <string name="basic_number">Ex. 100</string>
     <string name="add_income_expense">Add Income/Expense</string>
     <string name="add">Add</string>
     <string name="cancel">Cancel</string>
@@ -21,7 +21,9 @@
     <string name="expenses">Expenses</string>
     <string name="income">Income</string>
     <string name="expense">Expense</string>
+    <string name="all">All</string>
     <!-- Insight Fragment view -->
     <string name="insight_item_tapped">%s: %s on %s</string>
     <string name="insight_point_item_tapped">This item is: %s</string>
+    <string name="empty_insight_screen">Tap on the ➕ button to add a new Income/Expense</string>
 </resources>

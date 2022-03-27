@@ -2,8 +2,8 @@
 <resources>
     <string name="app_name">FinanControl</string>
     <string name="add_category">Añadir Categoría</string>
-    <string name="ex_salary">ejemplo: Salario</string>
-    <string name="basic_number">100</string>
+    <string name="ex_salary">Ejemplo: Salario</string>
+    <string name="basic_number">Ejemplo: 100</string>
     <string name="add_income_expense">Añadir Ingreso o Egreso</string>
     <string name="add">Crear</string>
     <string name="cancel">Cancelar</string>
@@ -22,7 +22,9 @@
     <string name="expenses">Egresos</string>
     <string name="income">Ingreso</string>
     <string name="expense">Egreso</string>
+    <string name="all">Todo</string>
     <!-- Insight Fragment view -->
     <string name="insight_item_tapped">%s: %s en %s</string>
     <string name="insight_point_item_tapped">Seleccionaste: %s</string>
+    <string name="empty_insight_screen">Presiona sobre el botón de ➕  para añadir un nuevo Ingreso/Egreso</string>
 </resources>

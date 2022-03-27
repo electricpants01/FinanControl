@@ -12,6 +12,6 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="income">#00e676</color>
-    <color name="expense">#ff6f00</color>
+    <color name="expense">#B7FF0000</color>
     <color name="container_view_background_color">#E4F9F5</color>
 </resources>

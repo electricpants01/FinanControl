@@ -10,6 +10,10 @@ import com.locotoDevTeam.financontrol.R
 import com.locotoDevTeam.financontrol.database.entity.Income
 import com.locotoDevTeam.financontrol.databinding.RvSectionsBinding
 import com.locotoDevTeam.financontrol.util.formatDateString
+import com.locotoDevTeam.financontrol.util.toStringSectionName
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class SectionAdapter(var sections: List<String>, var incomes: List<Income>, val context: Context, val listener: InsightAdapter.InsightListener): RecyclerView.Adapter<SectionAdapter.Holder>(){
 
@@ -23,7 +27,9 @@ class SectionAdapter(var sections: List<String>, var incomes: List<Income>, val 
         private val binding = RvSectionsBinding.bind(view)
 
         fun render(sectionName: String, incomes: List<Income>,context: Context, listener: InsightAdapter.InsightListener ) {
-            binding.sectionName.text = sectionName
+            val formatter = SimpleDateFormat("MM', 'dd' 'yyyy")
+            val date = formatter.parse(sectionName)
+            binding.sectionName.text = date.toStringSectionName()
             initRecyclerView(listener, context, incomes)
         }
 

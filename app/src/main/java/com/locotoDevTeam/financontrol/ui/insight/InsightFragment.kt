@@ -21,6 +21,7 @@ import com.locotoDevTeam.financontrol.databinding.FragmentInsightBinding
 import com.locotoDevTeam.financontrol.fancyChart.FancyChart
 import com.locotoDevTeam.financontrol.fancyChart.MyFancyChartBuilder
 import com.locotoDevTeam.financontrol.fancyChart.data.ChartData
+import com.locotoDevTeam.financontrol.ui.MainActivity
 import com.locotoDevTeam.financontrol.util.formatDateAndTimeString
 import com.locotoDevTeam.financontrol.util.toDate
 import java.text.SimpleDateFormat
@@ -44,6 +45,7 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
     ): View {
         val view = inflater.inflate(R.layout.fragment_insight, container, false)
         binding = FragmentInsightBinding.bind(view)
+        (activity as MainActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
         insightViewModel.setCategoryId(args.categoryId)
         chart = binding.insightFancyChart
         initSubscriptions()

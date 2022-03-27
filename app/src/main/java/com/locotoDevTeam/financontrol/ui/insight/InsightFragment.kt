@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.locotoDevTeam.financontrol.R
 import com.locotoDevTeam.financontrol.data.adapter.InsightAdapter
+import com.locotoDevTeam.financontrol.data.adapter.SectionAdapter
 import com.locotoDevTeam.financontrol.data.dialog.AddIncomeDialog
 import com.locotoDevTeam.financontrol.data.dialog.MaterialAlert
 import com.locotoDevTeam.financontrol.database.FinancialDB
@@ -23,6 +24,7 @@ import com.locotoDevTeam.financontrol.fancyChart.MyFancyChartBuilder
 import com.locotoDevTeam.financontrol.fancyChart.data.ChartData
 import com.locotoDevTeam.financontrol.ui.MainActivity
 import com.locotoDevTeam.financontrol.util.formatDateAndTimeString
+import com.locotoDevTeam.financontrol.util.formatDateString
 import com.locotoDevTeam.financontrol.util.toDate
 import java.text.SimpleDateFormat
 import java.time.format.DateTimeFormatter
@@ -36,7 +38,7 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
     private val insightViewModel: InsightViewModel by activityViewModels()
     lateinit var binding: FragmentInsightBinding
     lateinit var recycler: RecyclerView
-    lateinit var adapter: InsightAdapter
+    lateinit var adapter: SectionAdapter
     lateinit var chart: FancyChart
 
     override fun onCreateView(
@@ -62,8 +64,8 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
     }
 
     fun initRecycler(){
-        recycler = binding.rvInsight
-        adapter = InsightAdapter(emptyList(), this)
+        recycler = binding.rvSection
+        adapter = SectionAdapter(emptyList(), emptyList(), requireContext(), this)
         recycler.layoutManager = LinearLayoutManager(context,LinearLayoutManager.VERTICAL, false)
         recycler.adapter = adapter
     }
@@ -78,9 +80,12 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
     fun initSubscriptions(){
         val categoryId = insightViewModel.categoryId.value
         categoryId?.let {
-            FinancialDB.getAppDataBase(requireContext())?.incomeDao()?.getAllByCategoryId(it)?.observe(viewLifecycleOwner,{
-                insightViewModel.splitIncomeAndExpenses(it)
-                adapter.setNewIncomeList(it)
+            FinancialDB.getAppDataBase(requireContext())?.incomeDao()?.getAllByCategoryId(it)?.observe(viewLifecycleOwner,{ incomes ->
+                var sections = incomes.map { it -> it.timestamp.formatDateString() }
+                sections = sections.distinct()
+                println(sections)
+                insightViewModel.splitIncomeAndExpenses(incomes)
+                adapter.setSectionIncomeList(sections, incomes)
             })
         }
 

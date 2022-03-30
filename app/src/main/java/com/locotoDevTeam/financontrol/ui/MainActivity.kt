@@ -58,6 +58,7 @@ class MainActivity : AppCompatActivity(), AddCategoryDialog.AddCategoryListener,
     }
 
     override fun onSupportNavigateUp(): Boolean {
+        println("chris el homeasupenabled")
         return findNavController(binding.fragmentContainerView.id).navigateUp() || super.onSupportNavigateUp()
     }
 

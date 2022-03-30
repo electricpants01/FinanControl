@@ -4,6 +4,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 fun Date.toStringSectionName(): String {
-    val dateFormatter = SimpleDateFormat("MMMM', 'dd", Locale.getDefault())
+    val dateFormatter = SimpleDateFormat(Constants.monthDay, Locale.getDefault())
     return dateFormatter.format(this)
 }

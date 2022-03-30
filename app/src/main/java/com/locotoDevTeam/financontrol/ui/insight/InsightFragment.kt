@@ -8,6 +8,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.snackbar.Snackbar
 import com.locotoDevTeam.financontrol.R
 import com.locotoDevTeam.financontrol.data.adapter.InsightAdapter
@@ -21,6 +22,7 @@ import com.locotoDevTeam.financontrol.fancyChart.FancyChart
 import com.locotoDevTeam.financontrol.fancyChart.MyFancyChartBuilder
 import com.locotoDevTeam.financontrol.fancyChart.data.ChartData
 import com.locotoDevTeam.financontrol.ui.MainActivity
+import com.locotoDevTeam.financontrol.util.Constants
 import com.locotoDevTeam.financontrol.util.formatDateAndTimeString
 import com.locotoDevTeam.financontrol.util.formatDateString
 import com.locotoDevTeam.financontrol.util.toDate
@@ -65,6 +67,18 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         menu.setGroupVisible(R.id.menu_currency_group, false)
         inflater.inflate(R.menu.menu_insight, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId){
+            R.id.menu_calendar -> {
+                showCalendar()
+            }
+            android.R.id.home -> {
+                (activity as MainActivity).onSupportNavigateUp()
+            }
+        }
+        return true
     }
 
     private fun initRecycler(){
@@ -135,5 +149,32 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
         else binding.txtEmptyScreen.visibility = View.GONE
         insightViewModel.splitIncomeAndExpenses(incomes)
         adapter.setSectionIncomeList(sections, incomes)
+    }
+
+    private fun showCalendar(){
+        // TODO: restart button on calendar and do this calendar a range
+        val picker = MaterialDatePicker.Builder.datePicker()
+                .setTitleText("Select date")
+                .build()
+        picker.isCancelable = false
+        picker.addOnPositiveButtonClickListener {
+            val date = Date(it)
+            val simple = SimpleDateFormat(Constants.monthDayYear)
+            simple.timeZone = TimeZone.getTimeZone("UTC")
+            val sectionName = listOf<String>(simple.format(date))
+            val incomeList = insightViewModel.incomeList.value ?: emptyList()
+            adapter.setSectionIncomeList(sectionName, incomeList)
+            println("chris ${simple.format(date)}")
+        }
+        picker.addOnNegativeButtonClickListener {
+            // Respond to negative button click.
+        }
+        picker.addOnCancelListener {
+            // Respond to cancel button click.
+        }
+        picker.addOnDismissListener {
+            // Respond to dismiss events.
+        }
+        picker.show(parentFragmentManager, "DatePicker")
     }
 }

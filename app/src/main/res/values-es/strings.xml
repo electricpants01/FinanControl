@@ -32,4 +32,6 @@
     <string name="menu_currency">Moneda</string>
     <string name="menu_themes">Temas</string>
     <string name="still_working">Seguimos trabajando en ello</string>
+    <string name="welcome">Bienvenido</string>
+    <string name="welcome_description">Empecemos añadiendo una nueva categoría! 🤑</string>
 </resources>

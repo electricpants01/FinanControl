@@ -59,14 +59,14 @@ class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
 
     private fun initSubscriptions(){
 
-        FinancialDB.getAppDataBase(requireContext())?.categoryDao()?.getAll()?.observe(viewLifecycleOwner,{
+        FinancialDB.getAppDataBase(requireContext())?.categoryDao()?.getAll()?.observe(viewLifecycleOwner) {
             initExpenseIncomeOverview()
-            if(it.isNotEmpty()) {
+            if (it.isNotEmpty()) {
                 // all welcome components
                 binding.viewContainer.visibility = View.GONE
                 binding.txtWelcome.visibility = View.GONE
                 binding.txtWelcomeDescription.visibility = View.GONE
-                binding.ivWelcomeArrow.visibility = View.GONE
+                binding.arrowAnimation.visibility = View.GONE
                 // all overview components
                 binding.ivOverviewExpense.visibility = View.VISIBLE
                 binding.ivOverviewIncome.visibility = View.VISIBLE
@@ -84,7 +84,7 @@ class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
                 binding.viewContainer.visibility = View.VISIBLE
                 binding.txtWelcome.visibility = View.VISIBLE
                 binding.txtWelcomeDescription.visibility = View.VISIBLE
-                binding.ivWelcomeArrow.visibility = View.VISIBLE
+                binding.arrowAnimation.visibility = View.VISIBLE
                 // all overview components
                 binding.ivOverviewExpense.visibility = View.GONE
                 binding.ivOverviewIncome.visibility = View.GONE
@@ -97,7 +97,7 @@ class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
                 // make rv visible
                 binding.rvCategory.visibility = View.GONE
             }
-        })
+        }
     }
 
     private fun initExpenseIncomeOverview(){

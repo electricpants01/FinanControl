@@ -95,17 +95,17 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
         }
 
         binding.chipAll.setOnClickListener {
-            val incomes = insightViewModel.incomeList.value
+            val incomes = insightViewModel.filteredList.value
             updateRecyclerViewIncomeList(incomes ?: emptyList())
         }
 
         binding.chipIncome.setOnClickListener {
-            val incomes = insightViewModel.incomeList.value?.filter { it.type ==  AddIncomeDialog.Insight.Income.name}
+            val incomes = insightViewModel.filteredList.value?.filter { it.type ==  AddIncomeDialog.Insight.Income.name}
             updateRecyclerViewIncomeList(incomes ?: emptyList())
         }
 
         binding.chipExpense.setOnClickListener {
-            val incomes = insightViewModel.incomeList.value?.filter { it.type ==  AddIncomeDialog.Insight.Expense.name}
+            val incomes = insightViewModel.filteredList.value?.filter { it.type ==  AddIncomeDialog.Insight.Expense.name}
             updateRecyclerViewIncomeList(incomes ?: emptyList())
         }
     }
@@ -113,18 +113,26 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
     private fun initSubscriptions(){
         val categoryId = insightViewModel.categoryId.value
         categoryId?.let {
-            FinancialDB.getAppDataBase(requireContext())?.incomeDao()?.getAllByCategoryId(it)?.observe(viewLifecycleOwner,{ incomes ->
-                insightViewModel.incomeList.postValue(incomes)
-            })
+            FinancialDB.getAppDataBase(requireContext())?.incomeDao()?.getAllByCategoryId(it)?.observe(viewLifecycleOwner) { incomes ->
+                val isEmpty = incomes.isEmpty()
+                binding.txtEmptyIncomes.visibility = if(isEmpty) View.VISIBLE else View.GONE
+                binding.incomeAnimation.visibility = if(isEmpty) View.VISIBLE else View.GONE
+                insightViewModel.setIncomeList(incomes)
+                if(!isEmpty){
+                    var sections = incomes.map { it -> it.timestamp.formatDateString() }
+                    sections = sections.distinct()
+                    sections = sections.reversed()
+                    insightViewModel.splitIncomeAndExpenses(incomes)
+                    adapter.setSectionIncomeList(sections, incomes)
+                }else {
+                    adapter.setSectionIncomeList(emptyList(), emptyList())
+                }
+            }
         }
 
-        insightViewModel.incomeExpenseGraphList.observe(viewLifecycleOwner,{
-           MyFancyChartBuilder.createChart(it,chart)
-        })
-
-        insightViewModel.incomeList.observe(viewLifecycleOwner, { incomes ->
-            updateRecyclerViewIncomeList(incomes)
-        })
+//        insightViewModel.incomeExpenseGraphList.observe(viewLifecycleOwner,{
+//           MyFancyChartBuilder.createChart(it,chart)
+//        })
     }
 
     override fun onInsightTapped(income: Income) {
@@ -142,13 +150,16 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
     }
 
     private fun updateRecyclerViewIncomeList(incomes: List<Income>) {
-        var sections = incomes.map { it -> it.timestamp.formatDateString() }
-        sections = sections.distinct()
-        sections = sections.reversed()
-        if (sections.isEmpty()) binding.txtEmptyScreen.visibility = View.VISIBLE
-        else binding.txtEmptyScreen.visibility = View.GONE
-        insightViewModel.splitIncomeAndExpenses(incomes)
-        adapter.setSectionIncomeList(sections, incomes)
+        val originalList = insightViewModel.incomeList.value ?: emptyList()
+        if(originalList.isNotEmpty()){
+            var sections = incomes.map { it -> it.timestamp.formatDateString() }
+            sections = sections.distinct()
+            sections = sections.reversed()
+            if (sections.isEmpty()) binding.emptyAnimation.visibility = View.VISIBLE
+            else binding.emptyAnimation.visibility = View.GONE
+            insightViewModel.splitIncomeAndExpenses(incomes)
+            adapter.setSectionIncomeList(sections, incomes)
+        }
     }
 
     private fun showCalendar(){
@@ -162,9 +173,10 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
             val simple = SimpleDateFormat(Constants.monthDayYear)
             simple.timeZone = TimeZone.getTimeZone("UTC")
             val sectionName = listOf<String>(simple.format(date))
-            val incomeList = insightViewModel.incomeList.value ?: emptyList()
-            adapter.setSectionIncomeList(sectionName, incomeList)
-            println("chris ${simple.format(date)}")
+            val myFilteredList = insightViewModel.incomeList.value?.filter { it.timestamp.formatDateString() == sectionName[0] }
+            insightViewModel.filteredList.postValue(myFilteredList)
+            updateRecyclerViewIncomeList(myFilteredList ?: emptyList())
+            binding.myChipGroup.check(binding.chipAll.id)
         }
         picker.addOnNegativeButtonClickListener {
             // Respond to negative button click.

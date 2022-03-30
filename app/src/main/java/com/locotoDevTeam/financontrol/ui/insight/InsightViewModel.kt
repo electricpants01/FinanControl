@@ -16,6 +16,7 @@ class InsightViewModel: ViewModel() {
     var categoryId = MutableLiveData<Long>()
     val incomeExpenseGraphList = MutableLiveData<List<Income>>()
     val incomeList = MutableLiveData<List<Income>>()
+    val filteredList = MutableLiveData<List<Income>>()
 
     // first, we need to set up the id the of category
     fun setCategoryId(newCategoryId: Long){
@@ -27,6 +28,11 @@ class InsightViewModel: ViewModel() {
         viewModelScope.launch(dispatcher) {
             FinancialDB.getAppDataBase(context)?.incomeDao()?.delete(income)
         }
+    }
+
+    fun setIncomeList(incomes: List<Income>){
+        this.incomeList.postValue(incomes)
+        this.filteredList.postValue(incomes)
     }
 
     // first we split into to arrays, oen of income and other of expenses

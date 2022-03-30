@@ -31,4 +31,6 @@
     <string name="menu_currency">Currency</string>
     <string name="menu_themes">Themes</string>
     <string name="still_working">We are working on this</string>
+    <string name="welcome">Welcome</string>
+    <string name="welcome_description">Let\'s start adding a new category for your Income/Expenses 🤑</string>
 </resources>

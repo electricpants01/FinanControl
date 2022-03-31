@@ -20,6 +20,7 @@ import com.locotoDevTeam.financontrol.database.FinancialDB
 import com.locotoDevTeam.financontrol.database.entity.Category
 import com.locotoDevTeam.financontrol.databinding.FragmentCategoryBinding
 import com.locotoDevTeam.financontrol.ui.MainActivity
+import com.locotoDevTeam.financontrol.ui.SharePreference
 import kotlinx.coroutines.*
 import kotlin.math.exp
 
@@ -58,14 +59,14 @@ class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
 
     private fun initSubscriptions(){
 
-        FinancialDB.getAppDataBase(requireContext())?.categoryDao()?.getAll()?.observe(viewLifecycleOwner,{
+        FinancialDB.getAppDataBase(requireContext())?.categoryDao()?.getAll()?.observe(viewLifecycleOwner) {
             initExpenseIncomeOverview()
-            if(it.isNotEmpty()) {
+            if (it.isNotEmpty()) {
                 // all welcome components
                 binding.viewContainer.visibility = View.GONE
                 binding.txtWelcome.visibility = View.GONE
                 binding.txtWelcomeDescription.visibility = View.GONE
-                binding.ivWelcomeArrow.visibility = View.GONE
+                binding.arrowAnimation.visibility = View.GONE
                 // all overview components
                 binding.ivOverviewExpense.visibility = View.VISIBLE
                 binding.ivOverviewIncome.visibility = View.VISIBLE
@@ -83,7 +84,7 @@ class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
                 binding.viewContainer.visibility = View.VISIBLE
                 binding.txtWelcome.visibility = View.VISIBLE
                 binding.txtWelcomeDescription.visibility = View.VISIBLE
-                binding.ivWelcomeArrow.visibility = View.VISIBLE
+                binding.arrowAnimation.visibility = View.VISIBLE
                 // all overview components
                 binding.ivOverviewExpense.visibility = View.GONE
                 binding.ivOverviewIncome.visibility = View.GONE
@@ -96,19 +97,21 @@ class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
                 // make rv visible
                 binding.rvCategory.visibility = View.GONE
             }
-        })
+        }
     }
 
     private fun initExpenseIncomeOverview(){
         CoroutineScope(Dispatchers.IO).launch {
             val incomeSum = FinancialDB.getAppDataBase(requireContext())?.incomeDao()?.getSumIncome()
             val expenseSum = FinancialDB.getAppDataBase(requireContext())?.incomeDao()?.getSumExpense()
+            val currency = SharePreference(requireContext()).getCurrencyPreference() ?: "$"
             withContext(Dispatchers.Main){
-                binding.txtIncomeAmount.text = incomeSum.toString()
-                binding.txtExpenseAmount.text = expenseSum.toString()
+                binding.txtIncomeAmount.text = "$incomeSum $currency"
+                binding.txtExpenseAmount.text = "$expenseSum $currency"
                 incomeSum?.let { incomeSum ->
                     expenseSum?.let { expenseSum ->
-                        binding.txtOverviewAmount.text = (incomeSum - expenseSum).toString()
+                        val total = (incomeSum - expenseSum).toString()
+                        binding.txtOverviewAmount.text = "$total $currency"
                     }
                 }
             }

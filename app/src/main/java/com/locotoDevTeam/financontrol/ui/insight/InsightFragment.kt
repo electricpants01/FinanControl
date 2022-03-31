@@ -1,15 +1,14 @@
 package com.locotoDevTeam.financontrol.ui.insight
 
 import android.os.Bundle
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.snackbar.Snackbar
 import com.locotoDevTeam.financontrol.R
 import com.locotoDevTeam.financontrol.data.adapter.InsightAdapter
@@ -23,6 +22,7 @@ import com.locotoDevTeam.financontrol.fancyChart.FancyChart
 import com.locotoDevTeam.financontrol.fancyChart.MyFancyChartBuilder
 import com.locotoDevTeam.financontrol.fancyChart.data.ChartData
 import com.locotoDevTeam.financontrol.ui.MainActivity
+import com.locotoDevTeam.financontrol.util.Constants
 import com.locotoDevTeam.financontrol.util.formatDateAndTimeString
 import com.locotoDevTeam.financontrol.util.formatDateString
 import com.locotoDevTeam.financontrol.util.toDate
@@ -48,6 +48,7 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
         val view = inflater.inflate(R.layout.fragment_insight, container, false)
         binding = FragmentInsightBinding.bind(view)
         (activity as MainActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        setHasOptionsMenu(true)
         insightViewModel.setCategoryId(args.categoryId)
         chart = binding.insightFancyChart
         initSubscriptions()
@@ -63,7 +64,24 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
         initListeners()
     }
 
-    fun initRecycler(){
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        menu.setGroupVisible(R.id.menu_currency_group, false)
+        inflater.inflate(R.menu.menu_insight, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId){
+            R.id.menu_calendar -> {
+                showCalendar()
+            }
+            android.R.id.home -> {
+                (activity as MainActivity).onSupportNavigateUp()
+            }
+        }
+        return true
+    }
+
+    private fun initRecycler(){
         recycler = binding.rvSection
         adapter = SectionAdapter(emptyList(), emptyList(), requireContext(), this)
         recycler.layoutManager = LinearLayoutManager(context,LinearLayoutManager.VERTICAL, false)
@@ -77,36 +95,45 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
         }
 
         binding.chipAll.setOnClickListener {
-            val incomes = insightViewModel.incomeList.value
+            val incomes = insightViewModel.filteredList.value
             updateRecyclerViewIncomeList(incomes ?: emptyList())
         }
 
         binding.chipIncome.setOnClickListener {
-            val incomes = insightViewModel.incomeList.value?.filter { it.type ==  AddIncomeDialog.Insight.Income.name}
+            val incomes = insightViewModel.filteredList.value?.filter { it.type ==  AddIncomeDialog.Insight.Income.name}
             updateRecyclerViewIncomeList(incomes ?: emptyList())
         }
 
         binding.chipExpense.setOnClickListener {
-            val incomes = insightViewModel.incomeList.value?.filter { it.type ==  AddIncomeDialog.Insight.Expense.name}
+            val incomes = insightViewModel.filteredList.value?.filter { it.type ==  AddIncomeDialog.Insight.Expense.name}
             updateRecyclerViewIncomeList(incomes ?: emptyList())
         }
     }
 
-    fun initSubscriptions(){
+    private fun initSubscriptions(){
         val categoryId = insightViewModel.categoryId.value
         categoryId?.let {
-            FinancialDB.getAppDataBase(requireContext())?.incomeDao()?.getAllByCategoryId(it)?.observe(viewLifecycleOwner,{ incomes ->
-                insightViewModel.incomeList.postValue(incomes)
-            })
+            FinancialDB.getAppDataBase(requireContext())?.incomeDao()?.getAllByCategoryId(it)?.observe(viewLifecycleOwner) { incomes ->
+                val isEmpty = incomes.isEmpty()
+                binding.txtEmptyIncomes.visibility = if(isEmpty) View.VISIBLE else View.GONE
+                binding.incomeAnimation.visibility = if(isEmpty) View.VISIBLE else View.GONE
+                insightViewModel.setIncomeList(incomes)
+                binding.myChipGroup.check(binding.chipAll.id)
+                if(!isEmpty){
+                    var sections = incomes.map { it -> it.timestamp.formatDateString() }
+                    sections = sections.distinct()
+                    sections = sections.reversed()
+                    insightViewModel.splitIncomeAndExpenses(incomes)
+                    adapter.setSectionIncomeList(sections, incomes)
+                }else {
+                    adapter.setSectionIncomeList(emptyList(), emptyList())
+                }
+            }
         }
 
-        insightViewModel.incomeExpenseGraphList.observe(viewLifecycleOwner,{
-           MyFancyChartBuilder.createChart(it,chart)
-        })
-
-        insightViewModel.incomeList.observe(viewLifecycleOwner, { incomes ->
-            updateRecyclerViewIncomeList(incomes)
-        })
+//        insightViewModel.incomeExpenseGraphList.observe(viewLifecycleOwner,{
+//           MyFancyChartBuilder.createChart(it,chart)
+//        })
     }
 
     override fun onInsightTapped(income: Income) {
@@ -124,15 +151,43 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
     }
 
     private fun updateRecyclerViewIncomeList(incomes: List<Income>) {
-        var sections = incomes.map { it -> it.timestamp.formatDateString() }
-        sections = sections.distinct()
-        if (sections.isEmpty()) {
-            binding.txtEmptyScreen.visibility = View.VISIBLE
+        val originalList = insightViewModel.incomeList.value ?: emptyList()
+        if(originalList.isNotEmpty()){
+            var sections = incomes.map { it -> it.timestamp.formatDateString() }
+            sections = sections.distinct()
+            sections = sections.reversed()
+            if (sections.isEmpty()) binding.emptyAnimation.visibility = View.VISIBLE
+            else binding.emptyAnimation.visibility = View.GONE
+            insightViewModel.splitIncomeAndExpenses(incomes)
+            adapter.setSectionIncomeList(sections, incomes)
         }
-        else {
-            binding.txtEmptyScreen.visibility = View.GONE
+    }
+
+    private fun showCalendar(){
+        // TODO: restart button on calendar and do this calendar a range
+        val picker = MaterialDatePicker.Builder.datePicker()
+                .setTitleText("Select date")
+                .build()
+        picker.isCancelable = false
+        picker.addOnPositiveButtonClickListener {
+            val date = Date(it)
+            val simple = SimpleDateFormat(Constants.monthDayYear)
+            simple.timeZone = TimeZone.getTimeZone("UTC")
+            val sectionName = listOf<String>(simple.format(date))
+            val myFilteredList = insightViewModel.incomeList.value?.filter { it.timestamp.formatDateString() == sectionName[0] }
+            insightViewModel.filteredList.postValue(myFilteredList)
+            updateRecyclerViewIncomeList(myFilteredList ?: emptyList())
+            binding.myChipGroup.check(binding.chipAll.id)
         }
-        insightViewModel.splitIncomeAndExpenses(incomes)
-        adapter.setSectionIncomeList(sections, incomes)
+        picker.addOnNegativeButtonClickListener {
+            // Respond to negative button click.
+        }
+        picker.addOnCancelListener {
+            // Respond to cancel button click.
+        }
+        picker.addOnDismissListener {
+            // Respond to dismiss events.
+        }
+        picker.show(parentFragmentManager, "DatePicker")
     }
 }

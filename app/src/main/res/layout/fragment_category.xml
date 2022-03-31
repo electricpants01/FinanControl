@@ -47,7 +47,7 @@
         android:textStyle="bold"
         android:layout_marginStart="36dp"
         android:layout_marginTop="180dp"
-        android:text="Welcome"
+        android:text="@string/welcome"
         android:textSize="36sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -59,20 +59,10 @@
         android:visibility="gone"
         android:layout_marginStart="36dp"
         android:layout_marginTop="28dp"
-        android:text="Let's start adding a new category for your Income/Expenses 🤑"
+        android:text="@string/welcome_description"
         android:textSize="28sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txt_welcome" />
-
-    <ImageView
-        android:id="@+id/iv_welcome_arrow"
-        android:layout_width="match_parent"
-        android:layout_height="332dp"
-        android:visibility="gone"
-        android:layout_marginBottom="-36dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/arrow" />
 
     <View
         android:id="@+id/view_container_header"
@@ -159,7 +149,7 @@
         android:id="@+id/iv_overview_income"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_marginStart="25dp"
+        android:layout_marginStart="20dp"
         android:layout_marginTop="80dp"
         android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
@@ -171,11 +161,25 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginTop="80dp"
-        android:layout_marginEnd="104dp"
+        android:layout_marginEnd="136dp"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_arrow_circle_down" />
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/arrowAnimation"
+        android:layout_width="match_parent"
+        android:layout_height="500dp"
+        android:layout_marginEnd="50dp"
+        android:layout_marginBottom="-100dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:lottie_autoPlay="true"
+        app:lottie_fileName="arrow.json"
+        app:lottie_loop="true"
+        app:lottie_speed="1" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

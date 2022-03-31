@@ -69,7 +69,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/editTextAddIncomeExpense" />
 
             <ImageView
-                android:id="@+id/imageView2"
+                android:id="@+id/iv_close"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"

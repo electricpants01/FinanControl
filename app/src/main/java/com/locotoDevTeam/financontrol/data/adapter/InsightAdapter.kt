@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.locotoDevTeam.financontrol.R
 import com.locotoDevTeam.financontrol.database.entity.Income
 import com.locotoDevTeam.financontrol.databinding.RvInsightBinding
+import com.locotoDevTeam.financontrol.ui.SharePreference
 
 class InsightAdapter(var incomeList: List<Income>,val listener: InsightListener): RecyclerView.Adapter<InsightAdapter.Holder>() {
 
@@ -25,7 +26,8 @@ class InsightAdapter(var incomeList: List<Income>,val listener: InsightListener)
         val binding = RvInsightBinding.bind(view)
 
         fun render(income: Income, listener: InsightListener){
-            binding.txtAmount.text = income.amount.toString()
+            val currency = SharePreference(view.context).getCurrencyPreference() ?: "$"
+            binding.txtAmount.text = "${income.amount} $currency"
             if( income.type == "Income"){
                 binding.ivInsightType.setImageResource(R.drawable.ic_twotone_arrow_circle_up)
             } else {

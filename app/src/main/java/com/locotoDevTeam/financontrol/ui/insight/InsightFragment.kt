@@ -118,6 +118,7 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
                 binding.txtEmptyIncomes.visibility = if(isEmpty) View.VISIBLE else View.GONE
                 binding.incomeAnimation.visibility = if(isEmpty) View.VISIBLE else View.GONE
                 insightViewModel.setIncomeList(incomes)
+                binding.myChipGroup.check(binding.chipAll.id)
                 if(!isEmpty){
                     var sections = incomes.map { it -> it.timestamp.formatDateString() }
                     sections = sections.distinct()

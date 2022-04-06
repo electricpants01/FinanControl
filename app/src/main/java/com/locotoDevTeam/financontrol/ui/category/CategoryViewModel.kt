@@ -21,13 +21,6 @@ class CategoryViewModel: ViewModel() {
         }
     }
 
-    fun insertNewIncomeExpense(categoryId: Long, amount: Double, type: String, context: Context){
-        val date = Date()
-        viewModelScope.launch(dispatcher) {
-            FinancialDB.getAppDataBase(context)?.incomeDao()?.insert(Income(type = type,amount = amount,categoryId = categoryId, timestamp = date.time.toString()))
-        }
-    }
-
     fun deleteACategoryById(categoryId: Long, context: Context){
         viewModelScope.launch(dispatcher) {
             FinancialDB.getAppDataBase(context)?.categoryDao()?.deleteIncomesFromACategory(categoryId)

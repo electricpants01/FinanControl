@@ -9,6 +9,7 @@ import com.locotoDevTeam.financontrol.database.entity.Income
 import com.locotoDevTeam.financontrol.util.toDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.*
 
 class InsightViewModel: ViewModel() {
 
@@ -27,6 +28,13 @@ class InsightViewModel: ViewModel() {
     fun deleteInsight(income: Income, context: Context){
         viewModelScope.launch(dispatcher) {
             FinancialDB.getAppDataBase(context)?.incomeDao()?.delete(income)
+        }
+    }
+
+    fun insertNewIncomeExpense(categoryId: Long, amount: Double, type: String, context: Context){
+        viewModelScope.launch(dispatcher) {
+            FinancialDB.getAppDataBase(context)?.incomeDao()?.insert(
+                Income(type = type,amount = amount,categoryId = categoryId, timestamp = Date().time.toString()))
         }
     }
 

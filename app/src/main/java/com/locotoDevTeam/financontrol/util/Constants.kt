@@ -9,5 +9,10 @@ class Constants {
         const val monthDayYear = "MM', 'dd' 'yyyy"
         const val hour = "H':'mm"
         const val monthDay = "MMMM', 'dd"
+
+
+        // type of income model
+        const val INCOME = "Income"
+        const val EXPENSE = "Expense"
     }
 }

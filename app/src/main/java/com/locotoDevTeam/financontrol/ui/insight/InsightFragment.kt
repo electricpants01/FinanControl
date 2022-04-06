@@ -173,6 +173,8 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
             val date = Date(it)
             val simple = SimpleDateFormat(Constants.monthDayYear)
             simple.timeZone = TimeZone.getTimeZone("UTC")
+            // update dateSelected from its viewmodel
+
             val sectionName = listOf<String>(simple.format(date))
             val myFilteredList = insightViewModel.incomeList.value?.filter { it.timestamp.formatDateString() == sectionName[0] }
             insightViewModel.filteredList.postValue(myFilteredList)

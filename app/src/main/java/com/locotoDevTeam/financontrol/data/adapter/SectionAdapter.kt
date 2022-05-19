@@ -9,6 +9,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.locotoDevTeam.financontrol.R
 import com.locotoDevTeam.financontrol.database.entity.Income
 import com.locotoDevTeam.financontrol.databinding.RvSectionsBinding
+import com.locotoDevTeam.financontrol.ui.SharePreference
+import com.locotoDevTeam.financontrol.util.Constants
 import com.locotoDevTeam.financontrol.util.formatDateString
 import com.locotoDevTeam.financontrol.util.toStringSectionName
 import java.text.SimpleDateFormat
@@ -27,6 +29,11 @@ class SectionAdapter(var sections: List<String>, var incomes: List<Income>, val 
         private val binding = RvSectionsBinding.bind(view)
 
         fun render(sectionName: String, incomes: List<Income>,context: Context, listener: InsightAdapter.InsightListener ) {
+            val income = incomes.filter { it.type == Constants.INCOME }.sumOf { it.amount }
+            val expense = incomes.filter { it.type == Constants.EXPENSE }.sumOf { it.amount }
+            val total = income - expense
+            val currency = SharePreference(view.context).getCurrencyPreference() ?: "$"
+            binding.txtTotalAmount.text = "$total $currency"
             val formatter = SimpleDateFormat("MM', 'dd' 'yyyy")
             val date = formatter.parse(sectionName)
             binding.sectionName.text = date.toStringSectionName()

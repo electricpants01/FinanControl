@@ -13,12 +13,14 @@ import com.locotoDevTeam.financontrol.data.dialog.AddCategoryDialog
 import com.locotoDevTeam.financontrol.data.dialog.AddIncomeDialog
 import com.locotoDevTeam.financontrol.databinding.ActivityMainBinding
 import com.locotoDevTeam.financontrol.ui.category.CategoryViewModel
+import com.locotoDevTeam.financontrol.ui.insight.InsightViewModel
 
 
 class MainActivity : AppCompatActivity(), AddCategoryDialog.AddCategoryListener, AddIncomeDialog.AddIncomeListener {
 
     lateinit var binding: ActivityMainBinding
     private val categoryViewModel: CategoryViewModel by viewModels()
+    private val insightViewModel: InsightViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,7 +71,7 @@ class MainActivity : AppCompatActivity(), AddCategoryDialog.AddCategoryListener,
 
     // added a new income from a category
     override fun onAddIncomeTapped(categoryId: Long, amount: Double, type: String) {
-        categoryViewModel.insertNewIncomeExpense(categoryId,amount,type, this)
+        insightViewModel.insertNewIncomeExpense(categoryId,amount,type, this)
     }
 
     fun rebootScreen(){

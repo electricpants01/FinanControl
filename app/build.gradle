@@ -15,8 +15,9 @@ android {
         applicationId "com.locotoDevTeam.financontrol"
         minSdk 21
         targetSdk 32
-        versionCode 8
-        versionName "2.1.0"
+        versionCode 9
+        versionName "2.2.0"
+        setProperty("archivesBaseName", "financontrol-${versionName}")
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -27,7 +28,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }

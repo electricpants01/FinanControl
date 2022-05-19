@@ -18,7 +18,6 @@ android {
         versionCode 9
         versionName "2.2.0"
         setProperty("archivesBaseName", "financontrol-${versionName}")
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 

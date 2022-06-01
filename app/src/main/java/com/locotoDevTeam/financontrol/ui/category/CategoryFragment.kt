@@ -74,6 +74,7 @@ class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
                 binding.txtWelcomeDescription.visibility = View.GONE
                 binding.arrowAnimation.visibility = View.GONE
                 // all overview components
+                binding.ivShowOverviewTotal.visibility = View.VISIBLE
                 binding.ivOverviewExpense.visibility = View.VISIBLE
                 binding.ivOverviewIncome.visibility = View.VISIBLE
                 binding.txtOverview.visibility = View.VISIBLE
@@ -92,6 +93,7 @@ class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
                 binding.txtWelcomeDescription.visibility = View.VISIBLE
                 binding.arrowAnimation.visibility = View.VISIBLE
                 // all overview components
+                binding.ivShowOverviewTotal.visibility = View.GONE
                 binding.ivOverviewExpense.visibility = View.GONE
                 binding.ivOverviewIncome.visibility = View.GONE
                 binding.txtOverview.visibility = View.GONE
@@ -112,14 +114,11 @@ class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
             val expenseSum = FinancialDB.getAppDataBase(requireContext())?.incomeDao()?.getSumExpense()
             val currency = SharePreference(requireContext()).getCurrencyPreference() ?: "$"
             withContext(Dispatchers.Main){
-//                binding.txtExpenseAmount.text = "$expenseSum $currency"
-//                binding.txtIncomeAmount.text = "$incomeSum $currency"
                 startCountAnimation(incomeSum?.toFloat() ?: 0f, binding.txtIncomeAmount, currency)
                 startCountAnimation(expenseSum?.toFloat() ?: 0f, binding.txtExpenseAmount, currency)
                 incomeSum?.let { incomeSum ->
                     expenseSum?.let { expenseSum ->
                         val total = (incomeSum - expenseSum).toString()
-//                        binding.txtOverviewAmount.text = "$total $currency"
                         startCountAnimation(total.toFloat() ?: 0f, binding.txtOverviewAmount, currency)
                     }
                 }

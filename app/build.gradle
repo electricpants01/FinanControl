@@ -15,8 +15,8 @@ android {
         applicationId "com.locotoDevTeam.financontrol"
         minSdk 21
         targetSdk 32
-        versionCode 9
-        versionName "2.2.0"
+        versionCode 10
+        versionName "2.2.1"
         setProperty("archivesBaseName", "financontrol-${versionName}")
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

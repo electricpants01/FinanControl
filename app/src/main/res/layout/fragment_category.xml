@@ -76,7 +76,7 @@
         android:id="@+id/txt_overview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
+        android:visibility="gone"
         android:layout_marginTop="10dp"
         android:text="@string/overview"
         android:textSize="26sp"
@@ -90,7 +90,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
-
+        android:visibility="gone"
         android:layout_marginTop="75dp"
         android:text="@string/incomes"
         android:textSize="16sp"
@@ -115,7 +115,7 @@
         android:id="@+id/txt_overview_amount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
+        android:visibility="gone"
         android:text="$120000"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -185,6 +185,7 @@
         android:id="@+id/iv_show_overview_total"
         android:layout_width="30dp"
         android:layout_height="30dp"
+        android:visibility="gone"
         android:layout_marginStart="10dp"
         android:layout_marginTop="15dp"
         app:layout_constraintStart_toEndOf="@+id/txt_overview"

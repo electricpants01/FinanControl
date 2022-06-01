@@ -9,6 +9,7 @@ class SharePreference(val context: Context) {
     companion object {
         const val SHARE_PREFERENCE_NAME = "FinanControlPreference"
         const val CURRENCY = "Currency"
+        const val SHOW_OVERVIEW_TOTAL = "ShowOverviewTotal"
     }
 
     fun saveCurrency(currency: String) {
@@ -19,6 +20,17 @@ class SharePreference(val context: Context) {
 
     fun getCurrencyPreference(): String? {
         return preferences.getString(CURRENCY, "$")
+    }
+
+    // show overview total
+    fun saveShowOverviewTotal(show: Boolean) {
+        val editor = preferences.edit()
+        editor.putBoolean(SHOW_OVERVIEW_TOTAL, show)
+        editor.commit()
+    }
+
+    fun getShowOverviewTotal(): Boolean {
+        return preferences.getBoolean(SHOW_OVERVIEW_TOTAL, true)
     }
 
 

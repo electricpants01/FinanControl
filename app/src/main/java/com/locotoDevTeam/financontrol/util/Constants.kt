@@ -14,5 +14,8 @@ class Constants {
         // type of income model
         const val INCOME = "Income"
         const val EXPENSE = "Expense"
+
+        // in-app updated
+        const val UPDATE_IN_APP = 1001
     }
 }

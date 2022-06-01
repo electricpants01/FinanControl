@@ -8,12 +8,17 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.navigation.findNavController
+import com.google.android.play.core.appupdate.AppUpdateManager
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory
+import com.google.android.play.core.install.model.AppUpdateType
+import com.google.android.play.core.install.model.UpdateAvailability
 import com.locotoDevTeam.financontrol.R
 import com.locotoDevTeam.financontrol.data.dialog.AddCategoryDialog
 import com.locotoDevTeam.financontrol.data.dialog.AddIncomeDialog
 import com.locotoDevTeam.financontrol.databinding.ActivityMainBinding
 import com.locotoDevTeam.financontrol.ui.category.CategoryViewModel
 import com.locotoDevTeam.financontrol.ui.insight.InsightViewModel
+import com.locotoDevTeam.financontrol.util.Constants
 
 
 class MainActivity : AppCompatActivity(), AddCategoryDialog.AddCategoryListener, AddIncomeDialog.AddIncomeListener {
@@ -26,6 +31,7 @@ class MainActivity : AppCompatActivity(), AddCategoryDialog.AddCategoryListener,
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        checkUpdate()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -60,7 +66,6 @@ class MainActivity : AppCompatActivity(), AddCategoryDialog.AddCategoryListener,
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        println("chris el homeasupenabled")
         return findNavController(binding.fragmentContainerView.id).navigateUp() || super.onSupportNavigateUp()
     }
 
@@ -77,6 +82,22 @@ class MainActivity : AppCompatActivity(), AddCategoryDialog.AddCategoryListener,
     fun rebootScreen(){
         startActivity(Intent(this, MainActivity::class.java))
         this.finish()
+    }
+
+    private fun checkUpdate() {
+        println("chris checkUpdate")
+        val appUpdateManager: AppUpdateManager? = AppUpdateManagerFactory.create(this)
+        val appUpdateInfoTask = appUpdateManager?.appUpdateInfo
+        appUpdateInfoTask?.addOnSuccessListener { appUpdateInfo ->
+            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
+                && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
+                appUpdateManager.startUpdateFlowForResult(
+                    appUpdateInfo,
+                    AppUpdateType.FLEXIBLE,
+                    this,
+                    Constants.UPDATE_IN_APP)
+            }
+        }
     }
 
 }

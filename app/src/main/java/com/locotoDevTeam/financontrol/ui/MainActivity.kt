@@ -45,8 +45,8 @@ class MainActivity : AppCompatActivity(), AddCategoryDialog.AddCategoryListener,
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as NavHostFragment
         navController = navHostFragment.navController
         appBarConfig = AppBarConfiguration(navController.graph, binding.myDrawerLayout)
-        binding.navigationView.setupWithNavController(navController)
         setupActionBarWithNavController(navController, appBarConfig)
+        binding.navigationView.setupWithNavController(navController)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

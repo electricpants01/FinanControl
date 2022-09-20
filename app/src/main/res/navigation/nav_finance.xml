@@ -7,7 +7,7 @@
     <fragment
         android:id="@+id/categoryFragment"
         android:name="com.locotoDevTeam.financontrol.ui.category.CategoryFragment"
-        android:label="CategoryFragment" >
+        android:label="Category" >
         <action
             android:id="@+id/action_categoryFragment_to_insightFragment"
             app:destination="@id/insightFragment" />
@@ -15,7 +15,7 @@
     <fragment
         android:id="@+id/insightFragment"
         android:name="com.locotoDevTeam.financontrol.ui.insight.InsightFragment"
-        android:label="fragment_insight"
+        android:label="Insight"
         tools:layout="@layout/fragment_insight" >
         <argument
             android:name="categoryId"

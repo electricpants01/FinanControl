@@ -5,14 +5,18 @@ import android.view.*
 import androidx.fragment.app.Fragment
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.snackbar.Snackbar
 import com.locotoDevTeam.financontrol.R
+import com.locotoDevTeam.financontrol.data.adapter.CategoryAdapter
 import com.locotoDevTeam.financontrol.data.adapter.InsightAdapter
 import com.locotoDevTeam.financontrol.data.adapter.SectionAdapter
+import com.locotoDevTeam.financontrol.data.adapter.SwipeToDeleteCallback
 import com.locotoDevTeam.financontrol.data.dialog.AddIncomeDialog
 import com.locotoDevTeam.financontrol.data.dialog.MaterialAlert
 import com.locotoDevTeam.financontrol.database.FinancialDB
@@ -145,8 +149,10 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
 
     override fun onDeleteInsightTapped(income: Income) {
         MaterialAlert.showDialog(resources.getString(R.string.insight_deletion_title),
-            resources.getString(R.string.insight_delete_description), requireContext()){
-            insightViewModel.deleteInsight(income, requireContext())
+            resources.getString(R.string.insight_delete_description), requireContext(), {
+                insightViewModel.deleteInsight(income, requireContext())
+            }){
+            adapter.notifyDataSetChanged()
         }
     }
 
@@ -192,4 +198,5 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
         }
         picker.show(parentFragmentManager, "DatePicker")
     }
+
 }

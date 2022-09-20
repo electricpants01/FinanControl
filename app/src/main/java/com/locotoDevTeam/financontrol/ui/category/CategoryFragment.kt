@@ -9,10 +9,13 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import com.locotoDevTeam.financontrol.R
 import com.locotoDevTeam.financontrol.data.adapter.CategoryAdapter
+import com.locotoDevTeam.financontrol.data.adapter.SwipeToDeleteCallback
 import com.locotoDevTeam.financontrol.data.dialog.AddCategoryDialog
 import com.locotoDevTeam.financontrol.data.dialog.MaterialAlert
 import com.locotoDevTeam.financontrol.database.FinancialDB
@@ -20,6 +23,7 @@ import com.locotoDevTeam.financontrol.databinding.FragmentCategoryBinding
 import com.locotoDevTeam.financontrol.ui.MainActivity
 import com.locotoDevTeam.financontrol.ui.SharePreference
 import kotlinx.coroutines.*
+
 
 class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
 
@@ -46,6 +50,7 @@ class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
         openAddNewCategory()
         initSubscriptions()
         shouldShowOverviewTotal()
+        initSwipe()
     }
 
     private fun initRecycler(){
@@ -66,6 +71,7 @@ class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
     private fun initSubscriptions(){
 
         FinancialDB.getAppDataBase(requireContext())?.categoryDao()?.getAll()?.observe(viewLifecycleOwner) {
+            categoryViewModel.setCategories(it)
             initExpenseIncomeOverview()
             if (it.isNotEmpty()) {
                 // all welcome components
@@ -163,9 +169,24 @@ class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
 
     override fun onDeleteCategoryTapped(categoryId: Long) {
         MaterialAlert.showDialog(resources.getString(R.string.category_deletion_title),
-                resources.getString(R.string.category_deletion_description), requireContext()){
+                resources.getString(R.string.category_deletion_description), requireContext(),{
             categoryViewModel.deleteACategoryById(categoryId, requireContext())
+            }){
+            adapter.notifyDataSetChanged()
         }
     }
 
+    // add swipe gesture to recycler view
+    private fun initSwipe(){
+        val swipeHandler = object : SwipeToDeleteCallback(requireContext()) {
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val adapter = recycler.adapter as CategoryAdapter
+                categoryViewModel.getCategory(viewHolder.adapterPosition).uid?.let { categoryId ->
+                    onDeleteCategoryTapped(categoryId)
+                }
+            }
+        }
+        val itemTouchHelper = ItemTouchHelper(swipeHandler)
+        itemTouchHelper.attachToRecyclerView(recycler)
+    }
 }

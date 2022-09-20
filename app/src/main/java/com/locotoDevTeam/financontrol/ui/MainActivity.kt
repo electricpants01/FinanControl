@@ -7,7 +7,14 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.NavigationUI
+import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.navigation.ui.setupWithNavController
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.AppUpdateType
@@ -26,12 +33,20 @@ class MainActivity : AppCompatActivity(), AddCategoryDialog.AddCategoryListener,
     lateinit var binding: ActivityMainBinding
     private val categoryViewModel: CategoryViewModel by viewModels()
     private val insightViewModel: InsightViewModel by viewModels()
+    private lateinit var navController: NavController
+    private lateinit var appBarConfig: AppBarConfiguration
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         checkUpdate()
+        //  drawer configuration
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as NavHostFragment
+        navController = navHostFragment.navController
+        appBarConfig = AppBarConfiguration(navController.graph, binding.myDrawerLayout)
+        binding.navigationView.setupWithNavController(navController)
+        setupActionBarWithNavController(navController, appBarConfig)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

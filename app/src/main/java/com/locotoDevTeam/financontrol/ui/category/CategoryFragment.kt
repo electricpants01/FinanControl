@@ -39,7 +39,6 @@ class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
     ): View {
         val view = inflater.inflate(R.layout.fragment_category, container, false)
         binding = FragmentCategoryBinding.bind(view)
-        (activity as MainActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
         return binding.root
     }
 

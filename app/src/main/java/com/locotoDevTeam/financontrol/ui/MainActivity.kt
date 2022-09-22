@@ -8,11 +8,10 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.navigation.NavController
-import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.NavigationUI
+import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.play.core.appupdate.AppUpdateManager
@@ -41,48 +40,51 @@ class MainActivity : AppCompatActivity(), AddCategoryDialog.AddCategoryListener,
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         checkUpdate()
-        //  drawer configuration
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as NavHostFragment
+        configureDrawer()
+    }
+
+    private fun configureDrawer() {
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.myFragmentContainerView) as NavHostFragment
         navController = navHostFragment.navController
         appBarConfig = AppBarConfiguration(navController.graph, binding.myDrawerLayout)
         setupActionBarWithNavController(navController, appBarConfig)
-        binding.navigationView.setupWithNavController(navController)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        val inflater = menuInflater
-        inflater.inflate(R.menu.toolbar_menu, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId){
-            R.id.menu_dolar -> {
-                SharePreference(this).saveCurrency("$")
-                rebootScreen()
-            }
-            R.id.menu_bob -> {
-                SharePreference(this).saveCurrency("BOB")
-                rebootScreen()
-            }
-            R.id.menu_yen -> {
-                SharePreference(this).saveCurrency("¥")
-                rebootScreen()
-            }
-            R.id.menu_euro -> {
-                SharePreference(this).saveCurrency("€")
-                rebootScreen()
-            }
-            R.id.menu_themes -> {
-                Toast.makeText(this,getString(R.string.still_working), Toast.LENGTH_SHORT).show()
-            }
-        }
-        return super.onOptionsItemSelected(item)
+        binding.myNavigationView.setupWithNavController(navController)
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        return findNavController(binding.fragmentContainerView.id).navigateUp() || super.onSupportNavigateUp()
+        return navController.navigateUp(appBarConfig) || super.onSupportNavigateUp()
     }
+
+//    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+//        val inflater = menuInflater
+//        inflater.inflate(R.menu.toolbar_menu, menu)
+//        return true
+//    }
+//
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        when (item.itemId){
+//            R.id.menu_dolar -> {
+//                SharePreference(this).saveCurrency("$")
+//                rebootScreen()
+//            }
+//            R.id.menu_bob -> {
+//                SharePreference(this).saveCurrency("BOB")
+//                rebootScreen()
+//            }
+//            R.id.menu_yen -> {
+//                SharePreference(this).saveCurrency("¥")
+//                rebootScreen()
+//            }
+//            R.id.menu_euro -> {
+//                SharePreference(this).saveCurrency("€")
+//                rebootScreen()
+//            }
+//            R.id.menu_themes -> {
+//                Toast.makeText(this,getString(R.string.still_working), Toast.LENGTH_SHORT).show()
+//            }
+//        }
+//        return super.onOptionsItemSelected(item)
+//    }
 
     // added a new category
     override fun onAddCategoryTapped(categoryName: String) {
@@ -94,7 +96,7 @@ class MainActivity : AppCompatActivity(), AddCategoryDialog.AddCategoryListener,
         insightViewModel.insertNewIncomeExpense(categoryId,amount,type, this)
     }
 
-    fun rebootScreen(){
+    private fun rebootScreen(){
         startActivity(Intent(this, MainActivity::class.java))
         this.finish()
     }

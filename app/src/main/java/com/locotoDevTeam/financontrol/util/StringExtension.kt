@@ -1,8 +1,8 @@
 package com.locotoDevTeam.financontrol.util
 
 import java.text.SimpleDateFormat
-import java.time.LocalDate
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 
 fun String.toDate(): Date{

@@ -1,10 +1,10 @@
 package com.locotoDevTeam.financontrol.fancyChart.data;
 
+import android.graphics.Color;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import android.graphics.Color;
 
 public class ChartData {
 

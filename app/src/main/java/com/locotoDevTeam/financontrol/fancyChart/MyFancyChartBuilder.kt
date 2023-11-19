@@ -2,7 +2,6 @@ package com.locotoDevTeam.financontrol.fancyChart
 
 import com.locotoDevTeam.financontrol.database.entity.Income
 import com.locotoDevTeam.financontrol.fancyChart.data.ChartData
-import com.locotoDevTeam.financontrol.util.formatDateString
 import com.locotoDevTeam.financontrol.util.formatHourString
 
 

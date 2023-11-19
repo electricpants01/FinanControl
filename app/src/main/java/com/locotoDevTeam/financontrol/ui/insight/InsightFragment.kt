@@ -1,39 +1,35 @@
 package com.locotoDevTeam.financontrol.ui.insight
 
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import android.widget.Toast
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.navArgs
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.snackbar.Snackbar
 import com.locotoDevTeam.financontrol.R
-import com.locotoDevTeam.financontrol.data.adapter.CategoryAdapter
 import com.locotoDevTeam.financontrol.data.adapter.InsightAdapter
 import com.locotoDevTeam.financontrol.data.adapter.SectionAdapter
-import com.locotoDevTeam.financontrol.data.adapter.SwipeToDeleteCallback
 import com.locotoDevTeam.financontrol.data.dialog.AddIncomeDialog
 import com.locotoDevTeam.financontrol.data.dialog.MaterialAlert
 import com.locotoDevTeam.financontrol.database.FinancialDB
 import com.locotoDevTeam.financontrol.database.entity.Income
 import com.locotoDevTeam.financontrol.databinding.FragmentInsightBinding
 import com.locotoDevTeam.financontrol.fancyChart.FancyChart
-import com.locotoDevTeam.financontrol.fancyChart.MyFancyChartBuilder
-import com.locotoDevTeam.financontrol.fancyChart.data.ChartData
 import com.locotoDevTeam.financontrol.ui.MainActivity
 import com.locotoDevTeam.financontrol.util.Constants
 import com.locotoDevTeam.financontrol.util.formatDateAndTimeString
 import com.locotoDevTeam.financontrol.util.formatDateString
-import com.locotoDevTeam.financontrol.util.toDate
 import java.text.SimpleDateFormat
-import java.time.format.DateTimeFormatter
-import java.util.*
-import kotlin.math.exp
+import java.util.Date
+import java.util.TimeZone
 
 
 class InsightFragment : Fragment(), InsightAdapter.InsightListener {

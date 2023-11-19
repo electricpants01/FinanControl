@@ -1,8 +1,5 @@
 package com.locotoDevTeam.financontrol.fancyChart;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -17,6 +14,9 @@ import android.view.View;
 import com.locotoDevTeam.financontrol.fancyChart.data.AxisValue;
 import com.locotoDevTeam.financontrol.fancyChart.data.ChartData;
 import com.locotoDevTeam.financontrol.fancyChart.data.Point;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class FancyChart extends View {

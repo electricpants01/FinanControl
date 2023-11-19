@@ -5,19 +5,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Adapter
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.locotoDevTeam.financontrol.R
-import com.locotoDevTeam.financontrol.databinding.DialogAddCategoryBinding
 import com.locotoDevTeam.financontrol.databinding.DialogAddIncomeBinding
 import com.locotoDevTeam.financontrol.ui.insight.InsightViewModel
-import java.sql.SQLOutput
 
 class AddIncomeDialog: BottomSheetDialogFragment() {
 

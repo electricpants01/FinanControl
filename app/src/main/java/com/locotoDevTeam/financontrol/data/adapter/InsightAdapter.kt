@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.locotoDevTeam.financontrol.R
 import com.locotoDevTeam.financontrol.database.entity.Income
-import com.locotoDevTeam.financontrol.databinding.RvInsightBinding
+import com.locotoDevTeam.financontrol.databinding.InsightItemBinding
 import com.locotoDevTeam.financontrol.ui.SharePreference
 
 class InsightAdapter(var incomeList: List<Income>,val listener: InsightListener): RecyclerView.Adapter<InsightAdapter.Holder>() {
@@ -23,7 +23,7 @@ class InsightAdapter(var incomeList: List<Income>,val listener: InsightListener)
 
     class Holder(val view: View): RecyclerView.ViewHolder(view) {
 
-        val binding = RvInsightBinding.bind(view)
+        val binding = InsightItemBinding.bind(view)
 
         fun render(income: Income, listener: InsightListener){
             val currency = SharePreference(view.context).getCurrencyPreference() ?: "$"
@@ -43,7 +43,7 @@ class InsightAdapter(var incomeList: List<Income>,val listener: InsightListener)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): InsightAdapter.Holder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.rv_insight,parent,false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.insight_item,parent,false)
         return Holder(view)
     }
 

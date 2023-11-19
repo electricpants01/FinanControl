@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.locotoDevTeam.financontrol.R
 import com.locotoDevTeam.financontrol.database.entity.Category
-import com.locotoDevTeam.financontrol.databinding.RvCategoryBinding
+import com.locotoDevTeam.financontrol.databinding.CategoryItemBinding
 
 class CategoryAdapter(var categories: List<Category>,val listener: CategoryListener): RecyclerView.Adapter<CategoryAdapter.CategoryHolder>() {
 
@@ -22,7 +22,7 @@ class CategoryAdapter(var categories: List<Category>,val listener: CategoryListe
     }
 
     open class CategoryHolder(view: View,val listener: CategoryListener): RecyclerView.ViewHolder(view) {
-        val rvCategoryBinding: RvCategoryBinding = RvCategoryBinding.bind(view)
+        val rvCategoryBinding: CategoryItemBinding = CategoryItemBinding.bind(view)
 
         fun render(category: Category){
             rvCategoryBinding.cvCategory.setOnClickListener { listener.onCategoryTapped(category.uid!!) }
@@ -39,7 +39,7 @@ class CategoryAdapter(var categories: List<Category>,val listener: CategoryListe
         parent: ViewGroup,
         viewType: Int
     ): CategoryAdapter.CategoryHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.rv_category, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.category_item, parent, false)
         return CategoryHolder(view, listener)
     }
 

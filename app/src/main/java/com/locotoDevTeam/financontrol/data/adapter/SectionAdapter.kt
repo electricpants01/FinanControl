@@ -8,14 +8,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.locotoDevTeam.financontrol.R
 import com.locotoDevTeam.financontrol.database.entity.Income
-import com.locotoDevTeam.financontrol.databinding.RvSectionsBinding
+import com.locotoDevTeam.financontrol.databinding.SectionsItemBinding
 import com.locotoDevTeam.financontrol.ui.SharePreference
 import com.locotoDevTeam.financontrol.util.Constants
 import com.locotoDevTeam.financontrol.util.formatDateString
 import com.locotoDevTeam.financontrol.util.toStringSectionName
 import java.text.SimpleDateFormat
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 class SectionAdapter(var sections: List<String>, var incomes: List<Income>, val context: Context, val listener: InsightAdapter.InsightListener): RecyclerView.Adapter<SectionAdapter.Holder>(){
 
@@ -26,7 +24,7 @@ class SectionAdapter(var sections: List<String>, var incomes: List<Income>, val 
     }
 
     class Holder(val view: View): RecyclerView.ViewHolder(view) {
-        private val binding = RvSectionsBinding.bind(view)
+        private val binding = SectionsItemBinding.bind(view)
 
         fun render(sectionName: String, incomes: List<Income>,context: Context, listener: InsightAdapter.InsightListener ) {
             val income = incomes.filter { it.type == Constants.INCOME }.sumOf { it.amount }
@@ -50,7 +48,7 @@ class SectionAdapter(var sections: List<String>, var incomes: List<Income>, val 
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.rv_sections,parent,false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.sections_item,parent,false)
         return Holder(view)
     }
 

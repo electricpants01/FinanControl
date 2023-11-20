@@ -34,4 +34,8 @@
     <string name="still_working">Seguimos trabajando en ello</string>
     <string name="welcome">Bienvenido</string>
     <string name="welcome_description">Empecemos añadiendo una nueva categoría! 🤑</string>
+
+    <!-- Drawer -->
+    <string name="open_drawer">abrir navegacion drawer</string>
+    <string name="close_drawer">cerrar navegacion drawer</string>
 </resources>

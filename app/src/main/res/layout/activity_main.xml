@@ -7,6 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:openDrawer="start"
+    android:fitsSystemWindows="true"
     tools:context=".ui.MainActivity">
 
     <com.google.android.material.navigation.NavigationView
@@ -15,16 +16,21 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         app:headerLayout="@layout/drawer_header"
-        android:fitsSystemWindows="true"
         app:menu="@menu/drawer_menu" />
 
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/myFragmentContainerView"
-        android:name="androidx.navigation.fragment.NavHostFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:defaultNavHost="true"
-        app:navGraph="@navigation/nav_finance"
-        tools:layout="@layout/fragment_category" />
+   <androidx.constraintlayout.widget.ConstraintLayout
+       android:layout_width="match_parent"
+       android:layout_height="match_parent">
+
+       <androidx.fragment.app.FragmentContainerView
+           android:id="@+id/myFragmentContainerView"
+           android:name="androidx.navigation.fragment.NavHostFragment"
+           android:layout_width="match_parent"
+           android:layout_height="match_parent"
+           app:defaultNavHost="true"
+           app:navGraph="@navigation/nav_finance"
+           tools:layout="@layout/fragment_category" />
+
+   </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.drawerlayout.widget.DrawerLayout>

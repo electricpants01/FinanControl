@@ -9,12 +9,14 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.google.android.material.navigation.NavigationView
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.AppUpdateType
@@ -31,7 +33,7 @@ import com.locotoDevTeam.financontrol.util.Constants
 class MainActivity : AppCompatActivity(), AddCategoryDialog.AddCategoryListener,
     AddIncomeDialog.AddIncomeListener {
 
-    lateinit var binding: ActivityMainBinding
+    private lateinit var binding: ActivityMainBinding
     private val categoryViewModel: CategoryViewModel by viewModels()
     private val insightViewModel: InsightViewModel by viewModels()
     private lateinit var navController: NavController
@@ -61,8 +63,10 @@ class MainActivity : AppCompatActivity(), AddCategoryDialog.AddCategoryListener,
         drawerToggle.syncState()
 
         // Handle navigation drawer item clicks
-        binding.drawerNavigationView.setupWithNavController(navController)
-        binding.drawerNavigationView.setNavigationItemSelectedListener { menuItem ->
+        val navHost: NavigationView = binding.drawerNavigationView
+
+        navHost.setupWithNavController(navController)
+        navHost.setNavigationItemSelectedListener { menuItem ->
             println("chris tapped menuItem ${menuItem.itemId}")
             when (menuItem.itemId) {
                 R.id.drawerMenuLogin -> {
@@ -137,7 +141,6 @@ class MainActivity : AppCompatActivity(), AddCategoryDialog.AddCategoryListener,
     }
 
     private fun checkUpdate() {
-        println("chris checkUpdate")
         val appUpdateManager: AppUpdateManager? = AppUpdateManagerFactory.create(this)
         val appUpdateInfoTask = appUpdateManager?.appUpdateInfo
         appUpdateInfoTask?.addOnSuccessListener { appUpdateInfo ->

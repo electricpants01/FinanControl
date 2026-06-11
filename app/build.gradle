@@ -14,10 +14,26 @@ android {
         applicationId "com.locotoDevTeam.financontrol"
         minSdk 21
         targetSdk 36
-        versionCode 6
-        versionName "1.2.0"
+        versionCode 1
+        versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        release {
+            def keystorePassword = System.getenv("KEYSTORE_PASSWORD")
+            def keyAlias = System.getenv("KEY_ALIAS")
+            def keyPassword = System.getenv("KEY_PASSWORD") ?: keystorePassword
+            def keystoreFile = rootProject.file("financontrol.jks")
+
+            if (keystoreFile.exists() && keystorePassword != null && keyAlias != null) {
+                storeFile keystoreFile
+                storePassword keystorePassword
+                keyAlias keyAlias
+                keyPassword keyPassword
+            }
+        }
     }
 
     buildFeatures {
@@ -26,6 +42,9 @@ android {
 
     buildTypes {
         release {
+            if (signingConfigs.release.storeFile != null) {
+                signingConfig signingConfigs.release
+            }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }

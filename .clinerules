@@ -1,0 +1,58 @@
+# Cline Rules for FinanControl
+
+## AI-Powered Project Knowledge Base
+
+Before performing any task on this project, always read and reference the AI folder for complete project context. This ensures all code changes align with the established architecture, conventions, and patterns.
+
+### Required Reading (Always Load First)
+
+When starting any task, read these skill files from `AI/skills/`:
+
+| Priority | File | Purpose |
+|----------|------|---------|
+| 1 | `AI/skills/project-overview.md` | Understand the app's purpose, features, and entry points |
+| 2 | `AI/skills/architecture.md` | MVVM pattern, package structure, and data flow |
+| 3 | `AI/skills/tech-stack.md` | Libraries, versions, and dependencies in use |
+| 4 | `AI/skills/coding-conventions.md` | Kotlin patterns, ViewBinding, coroutines, naming |
+| 5 | `AI/skills/database-schema.md` | Room entities, DAOs, and relationships |
+| 6 | `AI/skills/navigation-flow.md` | Nav graph, Safe Args, and dialog flow |
+| 7 | `AI/skills/ui-components.md` | Fragments, adapters, dialogs, and FancyChart |
+| 8 | `AI/skills/firebase-integration.md` | Firebase services and configuration |
+| 9 | `AI/skills/strings-localization.md` | String resources and Spanish localization |
+
+### Agent Role Definitions
+
+When you need to act in a specific role, load the corresponding agent file from `AI/agents/`:
+
+| Agent File | Use When |
+|------------|----------|
+| `AI/agents/android-developer.md` | General development, bug fixes, or implementing features |
+| `AI/agents/feature-builder.md` | Building a complete new feature end-to-end |
+| `AI/agents/code-reviewer.md` | Reviewing code for correctness and conventions |
+| `AI/agents/test-writer.md` | Writing unit or instrumentation tests |
+
+### Additional Rule: READ AI FOLDER FIRST
+
+**CRITICAL**: If the `AI/` directory exists and you haven't read it yet during this conversation, always read all files in `AI/skills/` before making any code changes. This is non-negotiable — the AI folder contains the ground truth for how this project is structured and built.
+
+### Project Quick Facts (from project-overview.md)
+
+- **App**: FinanControl — Personal finance tracking Android app
+- **Package**: `com.locotoDevTeam.financontrol`
+- **Language**: Kotlin (JVM target 1.8), with some Java chart classes
+- **Architecture**: MVVM with Room, LiveData, ViewModel, Navigation, ViewBinding
+- **Min SDK**: 21, **Target/Compile SDK**: 32
+- **Version**: 1.2.0 (versionCode 6)
+- **Database**: Room with `Category` and `Income` entities
+- **Firebase**: Analytics, Auth, Crashlytics, Cloud Messaging (BOM 29.1.0)
+
+### Key Conventions (from coding-conventions.md)
+
+- Use `activityViewModels()` for ViewModels shared between fragments and MainActivity
+- Use `ViewBinding.bind(view)` — never `inflate()`
+- Database singleton: `FinancialDB.getAppDataBase(context)`
+- Coroutines: `CoroutineScope(Dispatchers.IO).launch` for DB + `withContext(Dispatchers.Main)` for UI
+- Dialogs communicate results via listener interfaces on `MainActivity`
+- New adapters → `data/adapter/`, new dialogs → `data/dialog/`
+- New strings must be added to both `values/strings.xml` and `values-es/strings.xml`
+- Always use string resources, never hardcoded strings

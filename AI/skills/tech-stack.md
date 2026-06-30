@@ -4,23 +4,27 @@
 
 | Technology | Version / Details |
 |---|---|
-| **Kotlin** | JVM target 1.8 |
+| **Kotlin** | 2.0.21 (JVM target 1.8) |
 | **Java** | Some legacy chart classes in Java (FancyChart, ChartData, etc.) |
-| **Android** | compileSdk 32, targetSdk 32, minSdk 21 |
+| **Android** | compileSdk 36, targetSdk 36, minSdk 21 |
+| **JDK** | 21 (Temurin on CI, Android Studio bundled locally) |
 
 ## Build System
 
 | Tool | Details |
 |---|---|
-| **Gradle** | Kotlin DSL (`build.gradle` files) |
-| **Plugins** | `com.android.application`, `kotlin-android`, `kotlin-kapt`, `androidx.navigation.safeargs.kotlin`, `com.google.firebase.crashlytics`, `com.google.gms.google-services` |
+| **Gradle** | 8.13 (via wrapper) |
+| **DSL** | Kotlin DSL (`build.gradle.kts`, `settings.gradle.kts`) |
+| **Version Catalog** | `gradle/libs.versions.toml` |
+| **AGP** | 8.13.2 |
+| **Plugins** | `com.android.application`, `org.jetbrains.kotlin.android`, `org.jetbrains.kotlin.kapt`, `androidx.navigation.safeargs.kotlin`, `com.google.firebase.crashlytics`, `com.google.gms.google-services` |
 
 ## Core Libraries
 
 | Library | Version | Purpose |
 |---|---|---|
-| **Jetpack Navigation** | 2.4.1 | Fragment navigation with Safe Args |
-| **Room** | 2.4.1 | Local SQLite database |
+| **Jetpack Navigation** | 2.8.7 | Fragment navigation with Safe Args |
+| **Room** | 2.4.1 | Local SQLite database (kapt) |
 | **Lifecycle (ViewModel + LiveData)** | 2.5.0-alpha02 | MVVM architecture |
 | **ViewBinding** | Built-in (enabled) | Type-safe view access |
 | **Material Design** | 1.5.0 | UI components (MaterialAlertDialogBuilder, themes) |
@@ -48,21 +52,18 @@
 | **CircleImageView** | 3.1.0 | Circular image views |
 | **FancyChart** (custom) | — | Custom charting for income/expense visualization |
 
-## Key Plugins (Gradle)
-
-```kotlin
-plugins {
-    id 'com.android.application'
-    id 'kotlin-android'
-    id 'kotlin-kapt'                         // For Room annotation processing
-    id 'androidx.navigation.safeargs.kotlin' // Type-safe navigation arguments
-    id 'com.google.firebase.crashlytics'     // Crashlytics
-    id 'com.google.gms.google-services'      // Google Services
-}
-```
-
 ## Repository Configuration
 
 - `google()`
 - `mavenCentral()`
-- `jcenter()` (⚠️ deprecated/shutting down)
+- `gradlePluginPortal()` (for plugin resolution)
+- ❌ `jcenter()` removed (deprecated)
+
+## CI/CD
+
+| Tool | Details |
+|---|---|
+| **Platform** | GitHub Actions |
+| **Workflows** | `build.yml` (push/PR → debug APK + tests), `release.yml` (tag `v*` → signed release APK → GitHub Release) |
+| **Signing** | Env-var-based (`KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`), conditional (only on CI) |
+| **Keystore** | `financontrol.jks` at project root |

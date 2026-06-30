@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "335346949171",
+    "project_id": "financontrol-8ded9",
+    "storage_bucket": "financontrol-8ded9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:335346949171:android:d4547eba584247907a5746",
+        "android_client_info": {
+          "package_name": "com.locotoDevTeam.financontrol"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2j79noPlj09BAeaiW_FCtsXMEKUMIL0U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

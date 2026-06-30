@@ -9,13 +9,16 @@
 |---|---|
 | **Package** | `com.locotoDevTeam.financontrol` |
 | **Application ID** | `com.locotoDevTeam.financontrol` |
-| **Current Version** | `1.2.0` (versionCode 6) |
-| **Language** | Kotlin |
+| **Current Version** | `2026.06.11` (versionCode 1) |
+| **Language** | Kotlin 2.0.21 |
 | **Min SDK** | 21 |
-| **Target / Compile SDK** | 32 |
+| **Target / Compile SDK** | 36 |
 | **Root Project Name** | `FinanControl` |
 | **Module** | Single module (`:app`) |
 | **Team** | locotoDevTeam |
+| **Build System** | Gradle 8.13 with Kotlin DSL (`.kts`) + Version Catalog (`libs.versions.toml`) |
+| **CI/CD** | GitHub Actions (build + release workflows) |
+| **JDK** | 21 (Android Studio bundled locally, Temurin on CI) |
 
 ## Core Features
 
@@ -38,3 +41,14 @@ SplashActivity → MainActivity
 ## Entry Points
 - **Launcher Activity**: `SplashActivity` (`intent-filter` ACTION_MAIN, CATEGORY_LAUNCHER)
 - **Main Activity**: `MainActivity` hosts the NavHostFragment with the navigation graph
+
+## Key Build Files
+| File | Purpose |
+|---|---|
+| `app/build.gradle.kts` | App module build config (Kotlin DSL) |
+| `build.gradle.kts` | Root build config, plugin declarations |
+| `settings.gradle.kts` | Project settings, repository config |
+| `gradle/libs.versions.toml` | Centralized version catalog |
+| `gradle.properties` | JVM args, AndroidX config, JDK path |
+| `.github/workflows/build.yml` | CI: build + test on push/PR |
+| `.github/workflows/release.yml` | CD: signed release APK on `v*` tags |

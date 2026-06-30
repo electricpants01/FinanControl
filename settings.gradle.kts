@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "FinanControl"
-include ':app'
+include(":app")

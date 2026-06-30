@@ -12,13 +12,14 @@ When starting any task, read these skill files from `AI/skills/`:
 |----------|------|---------|
 | 1 | `AI/skills/project-overview.md` | Understand the app's purpose, features, and entry points |
 | 2 | `AI/skills/architecture.md` | MVVM pattern, package structure, and data flow |
-| 3 | `AI/skills/tech-stack.md` | Libraries, versions, and dependencies in use |
-| 4 | `AI/skills/coding-conventions.md` | Kotlin patterns, ViewBinding, coroutines, naming |
+| 3 | `AI/skills/tech-stack.md` | Libraries, versions, dependencies, and CI/CD |
+| 4 | `AI/skills/coding-conventions.md` | Kotlin patterns, Kotlin DSL, ViewBinding, coroutines, naming |
 | 5 | `AI/skills/database-schema.md` | Room entities, DAOs, and relationships |
 | 6 | `AI/skills/navigation-flow.md` | Nav graph, Safe Args, and dialog flow |
 | 7 | `AI/skills/ui-components.md` | Fragments, adapters, dialogs, and FancyChart |
 | 8 | `AI/skills/firebase-integration.md` | Firebase services and configuration |
 | 9 | `AI/skills/strings-localization.md` | String resources and Spanish localization |
+| 10 | `AI/skills/cicd-github-actions.md` | CI/CD workflows, signing config, GitHub Releases |
 
 ### Agent Role Definitions
 
@@ -35,19 +36,25 @@ When you need to act in a specific role, load the corresponding agent file from 
 
 **CRITICAL**: If the `AI/` directory exists and you haven't read it yet during this conversation, always read all files in `AI/skills/` before making any code changes. This is non-negotiable — the AI folder contains the ground truth for how this project is structured and built.
 
-### Project Quick Facts (from project-overview.md)
+### Project Quick Facts
 
 - **App**: FinanControl — Personal finance tracking Android app
 - **Package**: `com.locotoDevTeam.financontrol`
-- **Language**: Kotlin (JVM target 1.8), with some Java chart classes
-- **Architecture**: MVVM with Room, LiveData, ViewModel, Navigation, ViewBinding
-- **Min SDK**: 21, **Target/Compile SDK**: 32
-- **Version**: 1.2.0 (versionCode 6)
-- **Database**: Room with `Category` and `Income` entities
+- **Language**: Kotlin 2.0.21 (JVM target 1.8), with some Java chart classes
+- **Build System**: Gradle 8.13 with **Kotlin DSL** (`.gradle.kts`) + **Version Catalog** (`libs.versions.toml`)
+- **Architecture**: MVVM with Room, LiveData, ViewModel, Navigation 2.8.7, ViewBinding
+- **AGP**: 8.13.2 — **compileSdk 36**, **targetSdk 36**, minSdk 21
+- **JDK**: 21 (Android Studio bundled locally, Temurin 21 on CI)
+- **Database**: Room 2.4.1 with `Category` and `Income` entities
 - **Firebase**: Analytics, Auth, Crashlytics, Cloud Messaging (BOM 29.1.0)
+- **CI/CD**: GitHub Actions — `build.yml` (debug APK + tests on push/PR) and `release.yml` (signed release APK on `v*` tags)
 
-### Key Conventions (from coding-conventions.md)
+### Key Conventions
 
+- Build files are **Kotlin DSL** (`.kts`), not Groovy — use `=` for properties, `()` for function calls
+- Dependencies use **version catalog** accessors: `implementation(libs.core.ktx)`
+- Plugins use **alias**: `alias(libs.plugins.kotlin.android)`
+- Never hardcode version strings in build files — always use `libs.versions.toml`
 - Use `activityViewModels()` for ViewModels shared between fragments and MainActivity
 - Use `ViewBinding.bind(view)` — never `inflate()`
 - Database singleton: `FinancialDB.getAppDataBase(context)`
@@ -56,3 +63,4 @@ When you need to act in a specific role, load the corresponding agent file from 
 - New adapters → `data/adapter/`, new dialogs → `data/dialog/`
 - New strings must be added to both `values/strings.xml` and `values-es/strings.xml`
 - Always use string resources, never hardcoded strings
+- Signing variables: `myKeystorePassword`, `myKeyAlias`, `myKeyPassword`, `myKeystoreFile`, `canSign`

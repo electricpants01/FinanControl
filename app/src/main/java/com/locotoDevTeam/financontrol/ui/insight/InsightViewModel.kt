@@ -1,19 +1,20 @@
 package com.locotoDevTeam.financontrol.ui.insight
 
 import android.content.Context
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.locotoDevTeam.financontrol.database.FinancialDB
 import com.locotoDevTeam.financontrol.database.entity.Income
-import com.locotoDevTeam.financontrol.util.toDate
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class InsightViewModel: ViewModel() {
 
-    private val dispatcher = Dispatchers.IO
+    private var dispatcher: CoroutineDispatcher = Dispatchers.IO
     var categoryId = MutableLiveData<Long>()
     val incomeExpenseGraphList = MutableLiveData<List<Income>>()
 
@@ -25,6 +26,22 @@ class InsightViewModel: ViewModel() {
             insightRepository = InsightRepository(db.incomeDao())
         }
         return insightRepository!!
+    }
+
+    /**
+     * Set mock repository for unit testing. Bypasses FinancialDB initialization.
+     */
+    @VisibleForTesting
+    internal fun setTestRepository(repository: InsightRepository) {
+        this.insightRepository = repository
+    }
+
+    /**
+     * Set test dispatcher for unit testing to avoid flaky async behavior.
+     */
+    @VisibleForTesting
+    internal fun setTestDispatcher(dispatcher: CoroutineDispatcher) {
+        this.dispatcher = dispatcher
     }
 
     /**

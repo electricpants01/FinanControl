@@ -1,6 +1,7 @@
 package com.locotoDevTeam.financontrol.ui.category
 
 import android.content.Context
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
@@ -8,13 +9,14 @@ import androidx.lifecycle.viewModelScope
 import com.locotoDevTeam.financontrol.database.FinancialDB
 import com.locotoDevTeam.financontrol.database.entity.Category
 import com.locotoDevTeam.financontrol.database.entity.Income
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
 
 class CategoryViewModel: ViewModel() {
 
-    private val dispatcher = Dispatchers.IO
+    private var dispatcher: CoroutineDispatcher = Dispatchers.IO
 
     private var categoryRepository: CategoryRepository? = null
 
@@ -38,6 +40,22 @@ class CategoryViewModel: ViewModel() {
             categoryRepository = CategoryRepository(db.categoryDao(), db.incomeDao())
         }
         return categoryRepository!!
+    }
+
+    /**
+     * Set mock repository for unit testing. Bypasses FinancialDB initialization.
+     */
+    @VisibleForTesting
+    internal fun setTestRepository(repository: CategoryRepository) {
+        this.categoryRepository = repository
+    }
+
+    /**
+     * Set test dispatcher for unit testing to avoid flaky async behavior.
+     */
+    @VisibleForTesting
+    internal fun setTestDispatcher(dispatcher: CoroutineDispatcher) {
+        this.dispatcher = dispatcher
     }
 
     /**

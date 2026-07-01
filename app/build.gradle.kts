@@ -97,4 +97,10 @@ dependencies {
     // Room
     implementation(libs.room.runtime)
     kapt(libs.room.compiler)
+
+    // Unit test
+    testImplementation(libs.junit)
+    testImplementation(libs.mockk)
+    testImplementation(libs.coroutines.test)
+    testImplementation(libs.core.testing)
 }

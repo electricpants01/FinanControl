@@ -86,3 +86,34 @@ When you need to act in a specific role, load the corresponding agent file from 
 - Test class naming: `[ClassUnderTest]Test`, Page Object: `[ClassUnderTest]Page`
 - Test method naming: backtick-enclosed descriptive names
 - Run tests with: `./gradlew testDebugUnitTest`
+
+### Environment Setup
+
+Before running any Gradle commands, ensure these environment variables are set:
+
+```bash
+export ANDROID_HOME="$HOME/Android/Sdk"
+export JAVA_HOME="$HOME/.local/share/android-studio/jbr"
+export PATH="$ANDROID_HOME/platform-tools:$JAVA_HOME/bin:$PATH"
+```
+
+Also ensure `local.properties` exists at project root:
+```properties
+sdk.dir=/home/locotito-linux/Android/Sdk
+```
+
+These should be configured in `~/.bashrc` for persistence across terminal sessions.
+
+### Build Commands
+
+| Command | Purpose |
+|---|---|
+| `./gradlew assembleDebug` | Build debug APK |
+| `./gradlew testDebugUnitTest` | Run all unit tests |
+| `./gradlew clean testDebugUnitTest` | Clean + run tests (use after adding new test files) |
+| `./gradlew compileDebugKotlin` | Compile production code only |
+| `./gradlew compileDebugUnitTestKotlin` | Compile test code only |
+
+> ⚠️ First build after adding test dependencies will download libraries (MockK, etc.) and may take 1-2 minutes.
+> ⚠️ After adding new test source files, always run `clean` first — Gradle incremental build may skip new test source sets.
+> ⚠️ Long-running builds may time out in some shell environments; use `nohup ./gradlew ... > /tmp/build.log 2>&1 &disown` to run in background.

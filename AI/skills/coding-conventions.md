@@ -189,3 +189,31 @@ class CategoryRepositoryTest {
 ## Known Future Work
 - CHRIS-230: Add Hilt DI to remove `FinancialDB.getAppDataBase()` from ViewModels
 - CHRIS-231: Remove `Context` parameter from ViewModel methods via DI
+
+## Testing Gotchas
+
+### coEvery vs every
+- **`coEvery`** — for stubbing `suspend` functions (Repository methods)
+- **`every`** — for stubbing regular functions (DAO methods, LiveData)
+- Compile error if you use `every` on a suspend function:
+  `Suspend function should be called only from a coroutine or another suspend function`
+
+### coVerify vs verify
+- **`coVerify`** — for verifying `suspend` function calls were made
+- **`verify`** — for verifying regular function calls
+- Same compile error if you mix them up
+
+### ViewModel Dispatcher
+- ViewModels use `private var dispatcher: CoroutineDispatcher = Dispatchers.IO`
+- Tests MUST inject a `StandardTestDispatcher` via `setTestDispatcher()` and call `advanceUntilIdle()`
+- Without this, coroutines launched on `Dispatchers.IO` run asynchronously and verifications may fail non-deterministically
+
+### Gradle Clean After Adding Test Sources
+- When adding brand-new test source files (new directories under `test/`), Gradle incremental compilation may skip them
+- Symptom: `28 actionable tasks: 2 executed, 26 up-to-date` but stale compile errors persist
+- Fix: `./gradlew clean compileDebugUnitTestKotlin` forces full recompilation
+
+### LiveData Testing
+- Always use `InstantTaskExecutorRule` to make LiveData synchronous
+- For custom MediatorLiveData, use `getOrAwaitValue()` helper (see test-writer.md)
+- `LiveData.value` is null until observed; use `observeForever` + CountDownLatch pattern

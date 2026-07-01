@@ -5,7 +5,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,19 +14,12 @@ import com.locotoDevTeam.financontrol.R
 import com.locotoDevTeam.financontrol.data.adapter.InsightAdapter
 import com.locotoDevTeam.financontrol.data.dialog.AddIncomeDialog
 import com.locotoDevTeam.financontrol.data.dialog.MaterialAlert
-import com.locotoDevTeam.financontrol.database.FinancialDB
 import com.locotoDevTeam.financontrol.database.entity.Income
 import com.locotoDevTeam.financontrol.databinding.FragmentInsightBinding
 import com.locotoDevTeam.financontrol.fancyChart.FancyChart
 import com.locotoDevTeam.financontrol.fancyChart.MyFancyChartBuilder
-import com.locotoDevTeam.financontrol.fancyChart.data.ChartData
 import com.locotoDevTeam.financontrol.ui.MainActivity
 import com.locotoDevTeam.financontrol.util.formatDateAndTimeString
-import com.locotoDevTeam.financontrol.util.toDate
-import java.text.SimpleDateFormat
-import java.time.format.DateTimeFormatter
-import java.util.*
-import kotlin.math.exp
 
 
 class InsightFragment : Fragment(), InsightAdapter.InsightListener {
@@ -48,9 +40,11 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
         (activity as MainActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
         insightViewModel.setCategoryId(args.categoryId)
         chart = binding.insightFancyChart
+        // Initialize the repository so data access methods are available
+        insightViewModel.initRepository(requireContext())
         initSubscriptions()
         chart.setOnPointClickListener {
-            Snackbar.make(binding.floatAddInsight,getString(R.string.insight_point_item_tapped, it.y.toString()),Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(binding.floatAddInsight, getString(R.string.insight_point_item_tapped, it.y.toString()), Snackbar.LENGTH_SHORT).show()
         }
         return binding.root
     }
@@ -61,44 +55,45 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
         initListeners()
     }
 
-    fun initRecycler(){
+    fun initRecycler() {
         recycler = binding.rvInsight
         adapter = InsightAdapter(emptyList(), this)
-        recycler.layoutManager = LinearLayoutManager(context,LinearLayoutManager.VERTICAL, false)
+        recycler.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         recycler.adapter = adapter
     }
 
-    fun initListeners(){ // FloatActionButton
+    fun initListeners() { // FloatActionButton
         binding.floatAddInsight.setOnClickListener {
             val dialog = AddIncomeDialog()
-            dialog.show(parentFragmentManager,"IncomeDialog")
+            dialog.show(parentFragmentManager, "IncomeDialog")
         }
     }
 
-    fun initSubscriptions(){
+    fun initSubscriptions() {
         val categoryId = insightViewModel.categoryId.value
         categoryId?.let {
-            FinancialDB.getAppDataBase(requireContext())?.incomeDao()?.getAllByCategoryId(it)?.observe(viewLifecycleOwner,{
-                insightViewModel.splitIncomeAndExpenses(it)
-                adapter.setNewIncomeList(it)
-            })
+            // Observe incomes via InsightRepository (through ViewModel), NOT directly from DAO
+            insightViewModel.getIncomesByCategoryId(it, requireContext()).observe(viewLifecycleOwner) { incomes ->
+                insightViewModel.splitIncomeAndExpenses(incomes)
+                adapter.setNewIncomeList(incomes)
+            }
         }
 
-        insightViewModel.incomeExpenseGraphList.observe(viewLifecycleOwner,{
-           MyFancyChartBuilder.createChart(it,chart)
-        })
+        insightViewModel.incomeExpenseGraphList.observe(viewLifecycleOwner) {
+            MyFancyChartBuilder.createChart(it, chart)
+        }
     }
 
     override fun onInsightTapped(income: Income) {
-        val type = if(income.type == "Income") getString(R.string.income) else { getString(R.string.expense) }
-        var text = getString(R.string.insight_item_tapped, type, income.amount.toString(), income.timestamp.formatDateAndTimeString())
+        val type = if (income.type == "Income") getString(R.string.income) else getString(R.string.expense)
+        val text = getString(R.string.insight_item_tapped, type, income.amount.toString(), income.timestamp.formatDateAndTimeString())
         Snackbar.make(binding.floatAddInsight, text, Snackbar.LENGTH_LONG)
             .show()
     }
 
     override fun onDeleteInsightTapped(income: Income) {
         MaterialAlert.showDialog(resources.getString(R.string.insight_deletion_title),
-            resources.getString(R.string.insight_delete_description), requireContext()){
+            resources.getString(R.string.insight_delete_description), requireContext()) {
             insightViewModel.deleteInsight(income, requireContext())
         }
     }

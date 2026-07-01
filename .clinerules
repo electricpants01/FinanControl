@@ -11,9 +11,9 @@ When starting any task, read these skill files from `AI/skills/`:
 | Priority | File | Purpose |
 |----------|------|---------|
 | 1 | `AI/skills/project-overview.md` | Understand the app's purpose, features, and entry points |
-| 2 | `AI/skills/architecture.md` | MVVM pattern, package structure, and data flow |
-| 3 | `AI/skills/tech-stack.md` | Libraries, versions, dependencies, and CI/CD |
-| 4 | `AI/skills/coding-conventions.md` | Kotlin patterns, Kotlin DSL, ViewBinding, coroutines, naming |
+| 2 | `AI/skills/architecture.md` | MVVM + Repository pattern, package structure, data flow |
+| 3 | `AI/skills/tech-stack.md` | Libraries, versions, dependencies, test libs, and CI/CD |
+| 4 | `AI/skills/coding-conventions.md` | Kotlin patterns, Kotlin DSL, ViewBinding, coroutines, repos, naming, testing |
 | 5 | `AI/skills/database-schema.md` | Room entities, DAOs, and relationships |
 | 6 | `AI/skills/navigation-flow.md` | Nav graph, Safe Args, and dialog flow |
 | 7 | `AI/skills/ui-components.md` | Fragments, adapters, dialogs, and FancyChart |
@@ -30,7 +30,7 @@ When you need to act in a specific role, load the corresponding agent file from 
 | `AI/agents/android-developer.md` | General development, bug fixes, or implementing features |
 | `AI/agents/feature-builder.md` | Building a complete new feature end-to-end |
 | `AI/agents/code-reviewer.md` | Reviewing code for correctness and conventions |
-| `AI/agents/test-writer.md` | Writing unit or instrumentation tests |
+| `AI/agents/test-writer.md` | Writing unit tests with MockK + Page Object pattern |
 
 ### Additional Rule: READ AI FOLDER FIRST
 
@@ -42,25 +42,78 @@ When you need to act in a specific role, load the corresponding agent file from 
 - **Package**: `com.locotoDevTeam.financontrol`
 - **Language**: Kotlin 2.0.21 (JVM target 1.8), with some Java chart classes
 - **Build System**: Gradle 8.13 with **Kotlin DSL** (`.gradle.kts`) + **Version Catalog** (`libs.versions.toml`)
-- **Architecture**: MVVM with Room, LiveData, ViewModel, Navigation 2.8.7, ViewBinding
+- **Architecture**: MVVM + Repository with Room, LiveData, ViewModel, Navigation 2.8.7, ViewBinding
 - **AGP**: 8.13.2 — **compileSdk 36**, **targetSdk 36**, minSdk 21
 - **JDK**: 21 (Android Studio bundled locally, Temurin 21 on CI)
 - **Database**: Room 2.4.1 with `Category` and `Income` entities
 - **Firebase**: Analytics, Auth, Crashlytics, Cloud Messaging (BOM 29.1.0)
 - **CI/CD**: GitHub Actions — `build.yml` (debug APK + tests on push/PR) and `release.yml` (signed release APK on `v*` tags)
+- **Testing**: JUnit 4.13.2, MockK 1.13.13, Kotlinx Coroutines Test 1.8.1, Arch Core Testing 2.2.0
 
 ### Key Conventions
 
+#### Build
 - Build files are **Kotlin DSL** (`.kts`), not Groovy — use `=` for properties, `()` for function calls
 - Dependencies use **version catalog** accessors: `implementation(libs.core.ktx)`
 - Plugins use **alias**: `alias(libs.plugins.kotlin.android)`
 - Never hardcode version strings in build files — always use `libs.versions.toml`
+- Test deps: `testImplementation(libs.junit)`, `testImplementation(libs.mockk)`, etc.
+
+#### Architecture
+- **Data flow**: `Fragment → ViewModel → Repository → DAO → Room DB`
+- **Never** call DAOs directly from Fragments or ViewModels — always go through Repository
+- Repositories take DAOs as constructor params (ready for Hilt DI)
+- ViewModels lazily initialize repositories from `FinancialDB` (will be replaced by Hilt)
 - Use `activityViewModels()` for ViewModels shared between fragments and MainActivity
+
+#### Kotlin
 - Use `ViewBinding.bind(view)` — never `inflate()`
+- Coroutines: `viewModelScope.launch(dispatcher)` with injectable dispatcher for testing
 - Database singleton: `FinancialDB.getAppDataBase(context)`
-- Coroutines: `CoroutineScope(Dispatchers.IO).launch` for DB + `withContext(Dispatchers.Main)` for UI
 - Dialogs communicate results via listener interfaces on `MainActivity`
 - New adapters → `data/adapter/`, new dialogs → `data/dialog/`
 - New strings must be added to both `values/strings.xml` and `values-es/strings.xml`
 - Always use string resources, never hardcoded strings
+
+#### Signing
 - Signing variables: `myKeystorePassword`, `myKeyAlias`, `myKeyPassword`, `myKeystoreFile`, `canSign`
+
+#### Testing (MockK + Page Object Pattern)
+- **Page Objects** in `test/page/` encapsulate mock setup, SUT creation, stubs, and verifications
+- Use `mockk(relaxed = true)` for mocks, `coEvery`/`coVerify` for suspend functions, `every`/`verify` for regular
+- ViewModel testability: `@VisibleForTesting internal fun setTestRepository()` and `setTestDispatcher()`
+- Use `InstantTaskExecutorRule` for LiveData, `StandardTestDispatcher` + `advanceUntilIdle()` for coroutines
+- Test class naming: `[ClassUnderTest]Test`, Page Object: `[ClassUnderTest]Page`
+- Test method naming: backtick-enclosed descriptive names
+- Run tests with: `./gradlew testDebugUnitTest`
+
+### Environment Setup
+
+Before running any Gradle commands, ensure these environment variables are set:
+
+```bash
+export ANDROID_HOME="$HOME/Android/Sdk"
+export JAVA_HOME="$HOME/.local/share/android-studio/jbr"
+export PATH="$ANDROID_HOME/platform-tools:$JAVA_HOME/bin:$PATH"
+```
+
+Also ensure `local.properties` exists at project root:
+```properties
+sdk.dir=/home/locotito-linux/Android/Sdk
+```
+
+These should be configured in `~/.bashrc` for persistence across terminal sessions.
+
+### Build Commands
+
+| Command | Purpose |
+|---|---|
+| `./gradlew assembleDebug` | Build debug APK |
+| `./gradlew testDebugUnitTest` | Run all unit tests |
+| `./gradlew clean testDebugUnitTest` | Clean + run tests (use after adding new test files) |
+| `./gradlew compileDebugKotlin` | Compile production code only |
+| `./gradlew compileDebugUnitTestKotlin` | Compile test code only |
+
+> ⚠️ First build after adding test dependencies will download libraries (MockK, etc.) and may take 1-2 minutes.
+> ⚠️ After adding new test source files, always run `clean` first — Gradle incremental build may skip new test source sets.
+> ⚠️ Long-running builds may time out in some shell environments; use `nohup ./gradlew ... > /tmp/build.log 2>&1 &disown` to run in background.

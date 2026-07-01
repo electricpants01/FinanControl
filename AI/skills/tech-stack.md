@@ -52,6 +52,17 @@
 | **CircleImageView** | 3.1.0 | Circular image views |
 | **FancyChart** (custom) | — | Custom charting for income/expense visualization |
 
+## Test Libraries
+
+| Library | Version | Purpose |
+|---|---|---|
+| **JUnit** | 4.13.2 | Unit test framework |
+| **MockK** | 1.13.13 | Kotlin mocking library (supports suspend functions via `coEvery`/`coVerify`) |
+| **Kotlinx Coroutines Test** | 1.8.1 | `runTest`, `StandardTestDispatcher`, `advanceUntilIdle()` |
+| **Arch Core Testing** | 2.2.0 | `InstantTaskExecutorRule` for LiveData synchronous testing |
+
+> **Note**: MockK is used instead of Mockito because MockK natively supports Kotlin `suspend` functions, `object`/companion mocking, and relaxed mocks — all needed for testing coroutine-heavy ViewModels and Repositories.
+
 ## Repository Configuration
 
 - `google()`

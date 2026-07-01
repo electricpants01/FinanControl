@@ -1,159 +1,283 @@
 # Agent: Test Writer
 
 ## Role
-You are a **Test Writer** for the FinanControl Android app. Your job is to write unit tests and instrumentation tests that validate the app's functionality, following the project's conventions and patterns.
+You are a **Test Writer** for the FinanControl Android app. Your job is to write unit tests using **MockK** with the **Page Object pattern** following the project's conventions.
 
 ## Project Context
-**FinanControl** is a Kotlin-based Android personal finance tracker (package: `com.locotoDevTeam.financontrol`) using MVVM, Room, Navigation, ViewBinding, and Firebase. Target SDK 32, min SDK 21.
+**FinanControl** is a Kotlin-based Android personal finance tracker (package: `com.locotoDevTeam.financontrol`) using MVVM + Repository, Room, Navigation, ViewBinding, and Firebase. Target SDK 36, min SDK 21.
 
 ## Reference Skills
 When writing tests, reference the following from `AI/skills/`:
-- `architecture.md` — Understand the layers to test
+- `architecture.md` — Understand the Fragment → ViewModel → Repository → DAO layers
 - `database-schema.md` — Understand entities, DAOs, and relationships
-- `ui-components.md` — Understand fragment/adapter/dialog patterns
-- `coding-conventions.md` — Match naming and patterns
+- `coding-conventions.md` — Testing conventions, MockK patterns
+- `tech-stack.md` — Test library versions
 
 ## Test Configuration
 
-### Build Configuration
+### Build Dependencies (already added)
 ```kotlin
-// app/build.gradle
-defaultConfig {
-    testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-}
+// app/build.gradle.kts
+testImplementation(libs.junit)           // JUnit 4.13.2
+testImplementation(libs.mockk)            // MockK 1.13.13
+testImplementation(libs.coroutines.test)  // kotlinx-coroutines-test 1.8.1
+testImplementation(libs.core.testing)     // android.arch.core:core-testing 2.2.0
 ```
 
 ### Test Directories
 | Directory | Purpose |
 |---|---|
-| `app/src/test/java/com/locotoDevTeam/financontrol/` | Unit tests (JVM) |
-| `app/src/androidTest/java/com/locotoDevTeam/financontrol/` | Instrumentation tests (Android) |
+| `app/src/test/.../page/` | Page Object classes (mock factories + assertion helpers) |
+| `app/src/test/.../repository/` | Repository unit tests |
+| `app/src/test/.../viewmodel/` | ViewModel unit tests |
+| `app/src/androidTest/.../` | Instrumentation tests (Android) |
 
-### Existing Tests
-- `ExampleUnitTest.kt` — Placeholder unit test
-- `ExampleInstrumentedTest.kt` — Placeholder instrumentation test
+## Testing Architecture: Page Object Pattern
 
-## Unit Test Template (ViewModel)
+Every test subject has a corresponding **Page Object** class that encapsulates:
+1. Mock creation (`mockk(relaxed = true)`)
+2. SUT (System Under Test) instantiation
+3. Stub helpers (setup mock behavior)
+4. Assertion/verification helpers (verify mock interactions)
+
+This keeps test classes thin, readable, and focused on test scenarios.
+
+```
+test/
+├── page/
+│   ├── CategoryRepositoryPage.kt    # Mock DAOs + create CategoryRepository
+│   ├── InsightRepositoryPage.kt     # Mock DAO + create InsightRepository
+│   ├── CategoryViewModelPage.kt     # Mock repository + inject into ViewModel
+│   └── InsightViewModelPage.kt      # Mock repository + inject into ViewModel
+├── repository/
+│   ├── CategoryRepositoryTest.kt    # 11 tests
+│   └── InsightRepositoryTest.kt     # 5 tests
+└── viewmodel/
+    ├── CategoryViewModelTest.kt     # 8 tests
+    └── InsightViewModelTest.kt      # 10 tests
+```
+
+## Page Object Template (Repository)
 
 ```kotlin
-// src/test/.../XxxViewModelTest.kt
-package com.locotoDevTeam.financontrol
+package com.locotoDevTeam.financontrol.page
+
+import com.locotoDevTeam.financontrol.database.dao.CategoryDao
+import com.locotoDevTeam.financontrol.database.dao.IncomeDao
+import com.locotoDevTeam.financontrol.database.entity.Category
+import com.locotoDevTeam.financontrol.ui.category.CategoryRepository
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
+
+class CategoryRepositoryPage {
+
+    val categoryDao: CategoryDao = mockk(relaxed = true)
+    val incomeDao: IncomeDao = mockk(relaxed = true)
+    val repository = CategoryRepository(categoryDao, incomeDao)
+
+    // ── Stub helpers ──
+
+    fun stubGetAllCategories(vararg categories: Category) {
+        every { categoryDao.getAll() } returns mockk {
+            every { value } returns categories.toList()
+        }
+    }
+
+    // ── Assertion helpers ──
+
+    fun verifyInsertCategoryCalled(name: String) {
+        verify { categoryDao.insert(match { it.name == name }) }
+    }
+}
+```
+
+## Page Object Template (ViewModel)
+
+```kotlin
+package com.locotoDevTeam.financontrol.page
+
+import com.locotoDevTeam.financontrol.ui.category.CategoryRepository
+import com.locotoDevTeam.financontrol.ui.category.CategoryViewModel
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.mockk
+import kotlinx.coroutines.CoroutineDispatcher
+
+class CategoryViewModelPage {
+
+    val repository: CategoryRepository = mockk(relaxed = true)
+    val viewModel = CategoryViewModel()
+
+    init {
+        viewModel.setTestRepository(repository)
+    }
+
+    fun setTestDispatcher(dispatcher: CoroutineDispatcher) {
+        viewModel.setTestDispatcher(dispatcher)
+    }
+
+    // ── Stub helpers (coEvery for suspend functions) ──
+
+    fun stubInsertCategory() {
+        coEvery { repository.insertCategory(any()) } returns Unit
+    }
+
+    // ── Assertion helpers (coVerify for suspend functions) ──
+
+    fun verifyInsertCategoryCalled(name: String) {
+        coVerify { repository.insertCategory(match { it.name == name }) }
+    }
+}
+```
+
+## Test Class Template (Repository)
+
+```kotlin
+package com.locotoDevTeam.financontrol.repository
+
+import com.locotoDevTeam.financontrol.page.CategoryRepositoryPage
+import kotlinx.coroutines.test.runTest
+import org.junit.Test
+
+class CategoryRepositoryTest {
+
+    private val page = CategoryRepositoryPage()
+
+    @Test
+    fun `descriptive test name in backticks`() = runTest {
+        // Arrange
+        page.stubGetAllCategories(Category(1L, "Salary"))
+
+        // Act
+        val result = page.repository.getAllCategories()
+
+        // Assert
+        assertEquals(1, result.value!!.size)
+    }
+}
+```
+
+## Test Class Template (ViewModel)
+
+```kotlin
+package com.locotoDevTeam.financontrol.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.locotoDevTeam.financontrol.page.CategoryViewModelPage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-class XxxViewModelTest {
+@OptIn(ExperimentalCoroutinesApi::class)
+class CategoryViewModelTest {
 
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
-    private lateinit var viewModel: XxxViewModel
+    private val page = CategoryViewModelPage()
+    private val testDispatcher = StandardTestDispatcher()
 
     @Before
     fun setUp() {
-        viewModel = XxxViewModel()
-    }
-
-    @Test
-    fun `test description`() {
-        // Given
-        // ...
-
-        // When
-        // ...
-
-        // Then
-        // ...
-    }
-}
-```
-
-## Instrumentation Test Template (Room DAO)
-
-```kotlin
-// src/androidTest/.../XxxDaoTest.kt
-package com.locotoDevTeam.financontrol
-
-import androidx.room.Room
-import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.locotoDevTeam.financontrol.database.FinancialDB
-import com.locotoDevTeam.financontrol.database.entity.Category
-import kotlinx.coroutines.runBlocking
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
-
-@RunWith(AndroidJUnit4::class)
-class CategoryDaoTest {
-
-    private lateinit var db: FinancialDB
-
-    @Before
-    fun setUp() {
-        db = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            FinancialDB::class.java
-        ).build()
+        Dispatchers.setMain(testDispatcher)
+        page.setTestDispatcher(testDispatcher)
     }
 
     @After
     fun tearDown() {
-        db.close()
+        Dispatchers.resetMain()
     }
 
     @Test
-    fun testInsertAndGetAll() = runBlocking {
-        val category = Category(name = "Salary")
-        db.categoryDao().insertNewCategory(category)
-        // Assert using LiveDataTestUtil or observe
+    fun `insertNewCategory delegates to repository`() = runTest {
+        page.stubInsertCategory()
+
+        page.viewModel.insertNewCategory("Salary", mockkContext())
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        page.verifyInsertCategoryCalled("Salary")
     }
+
+    private fun mockkContext() = io.mockk.mockk<android.content.Context>(relaxed = true)
 }
 ```
 
+## MockK Patterns Quick Reference
+
+| Pattern | Use Case | Example |
+|---|---|---|
+| `mockk(relaxed = true)` | Create mock that returns defaults | `val dao: CategoryDao = mockk(relaxed = true)` |
+| `every { ... } returns` | Stub regular function | `every { dao.getAll() } returns mockLiveData` |
+| `coEvery { ... } returns` | Stub suspend function | `coEvery { repo.insertCategory(any()) } returns Unit` |
+| `verify { ... }` | Verify regular function was called | `verify { dao.insert(match { ... }) }` |
+| `coVerify { ... }` | Verify suspend function was called | `coVerify { repo.deleteCategoryById(42L) }` |
+| `verify(exactly = 0) { ... }` | Verify function was NOT called | `verify(exactly = 0) { dao.delete(any()) }` |
+| `match { ... }` | Custom argument matcher | `match { it.name == "Salary" }` |
+| `any()` | Match any argument | `any<Category>()` |
+
+## ⚠️ Assertions: Use JUnit Assert, NOT Kotlin `assert()`
+
+**Kotlin's `assert()` is JVM-level and disabled by default** — it only runs when `-ea` is explicitly passed, which is NOT the case in standard Gradle/Android test runs. All `assert()` calls are silently skipped (dead code).
+
+### ✅ Always use JUnit `Assert` methods:
+
+| Instead of… | Use… |
+|---|---|
+| `assert(x == y)` | `assertEquals(y, x)` |
+| `assert(x == y)` for `Double` | `assertEquals(y, x, 0.0)` |
+| `assert(condition)` (boolean) | `assertTrue(condition)` |
+| `assert(x.isEmpty())` | `assertTrue(x.isEmpty())` |
+| `assert(x != null)` | `assertNotNull(x)` |
+| `assert(list == expected)` | `assertEquals(expected, list)` |
+
+### Required imports:
+```kotlin
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Assert.assertNotNull
+```
+
+> **Do NOT use** `import org.junit.Assert.*` (wildcard) — prefer explicit imports for clarity.
+
 ## Test Categories to Cover
 
-### Room DAOs
-- [ ] Insert and retrieve entities
-- [ ] Delete entities
-- [ ] Sum queries (`getSumIncome()`, `getSumExpense()`)
-- [ ] Get by foreign key (`getAllByCategoryId()`)
-- [ ] Empty database queries return expected defaults
+### Repositories
+- [x] Read operations return correct LiveData
+- [x] Write operations delegate to correct DAO method
+- [x] Delete operations handle cascade correctly
+- [x] Sum queries return expected values (including zero)
+- [x] Edge cases: empty name, null uid, empty results
 
 ### ViewModels
-- [ ] Business logic (income/expense splitting)
-- [ ] State transformations
-- [ ] Validation logic
-- [ ] Navigation state changes
+- [x] Write operations delegate to repository (with coroutine control)
+- [x] LiveData fields expose repository data
+- [x] Business logic (splitIncomeAndExpenses: sorting, 15-item limit, empty)
+- [x] State transformations (overview LiveData updates)
+- [x] Edge cases: empty strings, zero values, empty lists
 
-### Adapters
-- [ ] Correct item count
-- [ ] Correct ViewHolder binding
-- [ ] Click listener invocation
-
-### Utility Extensions
-- [ ] Date formatting (`formatDateAndTimeString()`)
-- [ ] String extensions
-
-## Test Dependencies to Consider Adding
-
+### LiveData Helper
 ```kotlin
-// Recommended additions to app/build.gradle
-testImplementation "junit:junit:4.13.2"
-testImplementation "org.mockito:mockito-core:4.x"
-testImplementation "org.mockito.kotlin:mockito-kotlin:4.x"
-testImplementation "androidx.arch.core:core-testing:2.1.0"
-testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.x"
-
-androidTestImplementation "androidx.test.ext:junit:1.1.3"
-androidTestImplementation "androidx.test:runner:1.4.0"
-androidTestImplementation "androidx.room:room-testing:2.4.1"
+fun <T> LiveData<T>.getOrAwaitValue(): T {
+    var value: T? = null
+    val latch = CountDownLatch(1)
+    val observer = Observer<T> { value = it; latch.countDown() }
+    observeForever(observer)
+    latch.await(2, TimeUnit.SECONDS)
+    removeObserver(observer)
+    return value!!
+}
 ```
 
 ## Naming Convention
 - Test class: `[ClassUnderTest]Test`
+- Page Object: `[ClassUnderTest]Page`
 - Test method: `` `descriptive name in backticks` `` (Kotlin convention)
-- Given/When/Then comments inside test body for clarity
+- Test file location mirrors production package structure under `test/`

@@ -1,8 +1,8 @@
 # Architecture: FinanControl
 
-## Pattern: MVVM (Model-View-ViewModel)
+## Pattern: MVVM + Repository (Model-View-ViewModel-Repository)
 
-The project follows the **MVVM** architecture pattern, although the `Model` layer is represented by Room DAOs accessed directly rather than through a formal Repository class in all cases.
+The project follows the **MVVM + Repository** architecture pattern. The `Repository` layer wraps Room DAO calls — ViewModels and Fragments never access DAOs directly.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -26,6 +26,12 @@ The project follows the **MVVM** architecture pattern, although the `Model` laye
 └────────┬──────────┘    └────────┬──────────┘
          │                        │
          ▼                        ▼
+┌───────────────────┐    ┌───────────────────┐
+│CategoryRepository │    │ InsightRepository │
+│ (Repository)      │    │ (Repository)      │
+└────────┬──────────┘    └────────┬──────────┘
+         │                        │
+         ▼                        ▼
 ┌─────────────────────────────────────────────────┐
 │              FinancialDB (Room Database)         │
 │  ┌──────────────┐  ┌──────────────┐             │
@@ -39,6 +45,15 @@ The project follows the **MVVM** architecture pattern, although the `Model` laye
 │  └──────────┘      └──────────┘                 │
 └─────────────────────────────────────────────────┘
 ```
+
+## Data Flow Rule
+```
+Fragment → ViewModel → Repository → DAO → Room DB
+```
+- **Fragments** observe LiveData from ViewModels only — never call DAOs or DB directly
+- **ViewModels** use Repository methods — never access FinancialDB or DAOs directly (except for lazy repo initialization)
+- **Repositories** wrap DAO calls and expose `LiveData` for reads, `suspend` functions for writes
+- **DAOs** are only called from within Repositories
 
 ## Package Structure
 
@@ -77,11 +92,11 @@ com.locotoDevTeam.financontrol/
 ├── ui/
 │   ├── category/
 │   │   ├── CategoryFragment.kt
-│   │   ├── CategoryRepository.kt
+│   │   ├── CategoryRepository.kt    # Wraps CategoryDao + IncomeDao
 │   │   └── CategoryViewModel.kt
 │   ├── insight/
 │   │   ├── InsightFragment.kt
-│   │   ├── InsightRepository.kt
+│   │   ├── InsightRepository.kt     # Wraps IncomeDao
 │   │   └── InsightViewModel.kt
 │   ├── MainActivity.kt
 │   └── SplashActivity.kt
@@ -90,13 +105,33 @@ com.locotoDevTeam.financontrol/
     └── StringExtension.kt           # Extension functions (date formatting)
 ```
 
+## Repository Layer
+
+### CategoryRepository
+- **Location**: `ui/category/CategoryRepository.kt`
+- **Wraps**: `CategoryDao` + `IncomeDao`
+- **Methods**:
+  - `getAllCategories(): LiveData<List<Category>>` — reactive list for UI
+  - `insertCategory(category: Category)` — suspend
+  - `deleteCategoryById(categoryId: Long)` — suspend (deletes incomes first, then category)
+  - `insertIncome(income: Income)` — suspend
+  - `getSumIncome(): Double` — suspend
+  - `getSumExpense(): Double` — suspend
+
+### InsightRepository
+- **Location**: `ui/insight/InsightRepository.kt`
+- **Wraps**: `IncomeDao`
+- **Methods**:
+  - `getAllByCategoryId(categoryId: Long): LiveData<List<Income>>` — reactive per-category list
+  - `deleteIncome(income: Income)` — suspend
+
 ## Data Flow
 
 ### Adding a Category
 1. User taps FAB → `AddCategoryDialog` opens
 2. User enters category name, taps "Add"
 3. `MainActivity.onAddCategoryTapped(categoryName)` is called
-4. `CategoryViewModel.insertNewCategory(categoryName, context)` inserts via DAO
+4. `CategoryViewModel.insertNewCategory(categoryName, context)` calls `CategoryRepository.insertCategory()`
 5. Room LiveData triggers observer in `CategoryFragment.initSubscriptions()`
 6. RecyclerView updates automatically
 
@@ -104,14 +139,27 @@ com.locotoDevTeam.financontrol/
 1. User taps FAB in `InsightFragment` → `AddIncomeDialog` opens
 2. User enters amount, selects Income/Expense type
 3. `MainActivity.onAddIncomeTapped(categoryId, amount, type)` is called
-4. `CategoryViewModel.insertNewIncomeExpense(categoryId, amount, type, context)` inserts
+4. `CategoryViewModel.insertNewIncomeExpense(categoryId, amount, type, context)` calls `CategoryRepository.insertIncome()`
 5. Room LiveData triggers observer in `InsightFragment.initSubscriptions()`
 6. List + chart updates automatically
+
+### Financial Overview Refresh
+1. `CategoryFragment` observes `categoryViewModel.overview: LiveData<Triple<Double,Double,Double>>`
+2. When categories change, `CategoryViewModel.refreshOverview(context)` is called
+3. ViewModel calls `CategoryRepository.getSumIncome()` and `getSumExpense()`
+4. Results posted to `_overview` MediatorLiveData as `(incomeSum, expenseSum, balance)`
+5. Fragment updates UI from the LiveData
 
 ### ViewModel Sharing
 - Both fragments use `activityViewModels()` to share ViewModels with `MainActivity`
 - `InsightViewModel` receives the `categoryId` via Safe Args from `CategoryFragment`
 
 ## Coroutine Usage
-- Database operations use `CoroutineScope(Dispatchers.IO).launch` for background work
-- UI updates use `withContext(Dispatchers.Main)` to switch back to main thread
+- ViewModels use `Dispatchers.IO` (injectable via `setTestDispatcher()` for testing)
+- Repository suspend functions run on the caller's dispatcher
+- UI updates use `LiveData.postValue()` or `withContext(Dispatchers.Main)`
+
+## Testability Hooks
+- ViewModels expose `@VisibleForTesting internal fun setTestRepository(repo)` to inject mock repos
+- ViewModels expose `@VisibleForTesting internal fun setTestDispatcher(dispatcher)` for async control
+- This allows unit testing without Android framework dependencies (no FinancialDB, no Context)

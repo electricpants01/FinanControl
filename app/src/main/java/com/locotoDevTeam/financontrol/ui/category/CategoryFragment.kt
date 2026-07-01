@@ -1,6 +1,5 @@
 package com.locotoDevTeam.financontrol.ui.category
 
-import android.opengl.Visibility
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -10,18 +9,12 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.Room
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.locotoDevTeam.financontrol.R
 import com.locotoDevTeam.financontrol.data.adapter.CategoryAdapter
 import com.locotoDevTeam.financontrol.data.dialog.AddCategoryDialog
 import com.locotoDevTeam.financontrol.data.dialog.MaterialAlert
-import com.locotoDevTeam.financontrol.database.FinancialDB
-import com.locotoDevTeam.financontrol.database.entity.Category
 import com.locotoDevTeam.financontrol.databinding.FragmentCategoryBinding
 import com.locotoDevTeam.financontrol.ui.MainActivity
-import kotlinx.coroutines.*
-import kotlin.math.exp
 
 class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
 
@@ -56,11 +49,14 @@ class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
 
     
 
-    private fun initSubscriptions(){
+    private fun initSubscriptions() {
+        // Initialize the repository so LiveData fields are available
+        categoryViewModel.initRepository(requireContext())
 
-        FinancialDB.getAppDataBase(requireContext())?.categoryDao()?.getAll()?.observe(viewLifecycleOwner,{
-            initExpenseIncomeOverview()
-            if(it.isNotEmpty()) {
+        // Observe categories from the ViewModel (sourced from CategoryRepository, not directly from DAO)
+        categoryViewModel.categories.observe(viewLifecycleOwner) { categories ->
+            categoryViewModel.refreshOverview(requireContext())
+            if (categories.isNotEmpty()) {
                 // all welcome components
                 binding.viewContainer.visibility = View.GONE
                 binding.txtWelcome.visibility = View.GONE
@@ -77,7 +73,7 @@ class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
                 binding.txtExpense.visibility = View.VISIBLE
                 // make rv visible
                 binding.rvCategory.visibility = View.VISIBLE
-                adapter.setCategoryList(it)
+                adapter.setCategoryList(categories)
             } else {
                 // all welcome components
                 binding.viewContainer.visibility = View.VISIBLE
@@ -96,22 +92,13 @@ class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
                 // make rv visible
                 binding.rvCategory.visibility = View.GONE
             }
-        })
-    }
+        }
 
-    private fun initExpenseIncomeOverview(){
-        CoroutineScope(Dispatchers.IO).launch {
-            val incomeSum = FinancialDB.getAppDataBase(requireContext())?.incomeDao()?.getSumIncome()
-            val expenseSum = FinancialDB.getAppDataBase(requireContext())?.incomeDao()?.getSumExpense()
-            withContext(Dispatchers.Main){
-                binding.txtIncomeAmount.text = incomeSum.toString()
-                binding.txtExpenseAmount.text = expenseSum.toString()
-                incomeSum?.let { incomeSum ->
-                    expenseSum?.let { expenseSum ->
-                        binding.txtOverviewAmount.text = (incomeSum - expenseSum).toString()
-                    }
-                }
-            }
+        // Observe overview (income sum, expense sum, balance) from ViewModel
+        categoryViewModel.overview.observe(viewLifecycleOwner) { (incomeSum, expenseSum, balance) ->
+            binding.txtIncomeAmount.text = incomeSum.toString()
+            binding.txtExpenseAmount.text = expenseSum.toString()
+            binding.txtOverviewAmount.text = balance.toString()
         }
     }
 

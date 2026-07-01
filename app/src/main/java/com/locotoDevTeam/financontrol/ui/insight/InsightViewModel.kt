@@ -1,6 +1,7 @@
 package com.locotoDevTeam.financontrol.ui.insight
 
 import android.content.Context
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,19 +13,47 @@ import kotlinx.coroutines.launch
 
 class InsightViewModel: ViewModel() {
 
-    val dispatcher = Dispatchers.IO
+    private val dispatcher = Dispatchers.IO
     var categoryId = MutableLiveData<Long>()
     val incomeExpenseGraphList = MutableLiveData<List<Income>>()
 
+    private var insightRepository: InsightRepository? = null
+
+    private fun getRepository(context: Context): InsightRepository {
+        if (insightRepository == null) {
+            val db = FinancialDB.getAppDataBase(context)!!
+            insightRepository = InsightRepository(db.incomeDao())
+        }
+        return insightRepository!!
+    }
+
+    /**
+     * Initialize the repository from context. Call once from Fragment.
+     * After this, LiveData methods become available for observation.
+     */
+    fun initRepository(context: Context) {
+        getRepository(context)
+    }
+
+    /**
+     * Returns LiveData of income/expense entries for the given category,
+     * sourced from the InsightRepository (not directly from DAO).
+     */
+    fun getIncomesByCategoryId(categoryId: Long, context: Context): LiveData<List<Income>> {
+        val repo = getRepository(context)
+        return repo.getAllByCategoryId(categoryId)
+    }
+
     // first, we need to set up the id the of category
-    fun setCategoryId(newCategoryId: Long){
+    fun setCategoryId(newCategoryId: Long) {
         this.categoryId.value = newCategoryId
     }
 
     // delete an insight
-    fun deleteInsight(income: Income, context: Context){
+    fun deleteInsight(income: Income, context: Context) {
+        val repo = getRepository(context)
         viewModelScope.launch(dispatcher) {
-            FinancialDB.getAppDataBase(context)?.incomeDao()?.delete(income)
+            repo.deleteIncome(income)
         }
     }
 
@@ -39,10 +68,10 @@ class InsightViewModel: ViewModel() {
         var finalIncomes = mutableListOf<Income>()
         var finalExpenses = mutableListOf<Income>()
         for (i in 0..14) {
-            if( i < incomes.size ){
+            if (i < incomes.size) {
                 finalIncomes.add(incomes[i])
             }
-            if( i < expenses.size) {
+            if (i < expenses.size) {
                 finalExpenses.add(expenses[i])
             }
         }

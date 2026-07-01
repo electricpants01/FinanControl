@@ -1,38 +1,85 @@
 package com.locotoDevTeam.financontrol.ui.category
 
 import android.content.Context
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.locotoDevTeam.financontrol.database.FinancialDB
 import com.locotoDevTeam.financontrol.database.entity.Category
 import com.locotoDevTeam.financontrol.database.entity.Income
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
 
 class CategoryViewModel: ViewModel() {
 
-    val dispatcher = Dispatchers.IO
+    private val dispatcher = Dispatchers.IO
 
-    fun insertNewCategory(categoryName: String, context: Context){
+    private var categoryRepository: CategoryRepository? = null
+
+    /**
+     * LiveData of all categories, sourced from the repository.
+     * Fragments observe this instead of calling DAOs directly.
+     */
+    val categories: LiveData<List<Category>>
+        get() = categoryRepository?.getAllCategories() ?: MediatorLiveData()
+
+    /**
+     * LiveData for the financial overview totals.
+     * Exposes a Triple of (incomeSum, expenseSum, balance).
+     */
+    private val _overview = MediatorLiveData<Triple<Double, Double, Double>>()
+    val overview: LiveData<Triple<Double, Double, Double>> get() = _overview
+
+    private fun getRepository(context: Context): CategoryRepository {
+        if (categoryRepository == null) {
+            val db = FinancialDB.getAppDataBase(context)!!
+            categoryRepository = CategoryRepository(db.categoryDao(), db.incomeDao())
+        }
+        return categoryRepository!!
+    }
+
+    /**
+     * Initialize the repository from context. Call once from Fragment/Activity.
+     * After this, LiveData fields become available for observation.
+     */
+    fun initRepository(context: Context) {
+        getRepository(context)
+    }
+
+    fun insertNewCategory(categoryName: String, context: Context) {
+        val repo = getRepository(context)
         viewModelScope.launch(dispatcher) {
-            FinancialDB.getAppDataBase(context)?.categoryDao()?.insert(Category(name = categoryName))
+            repo.insertCategory(Category(name = categoryName))
         }
     }
 
-    fun insertNewIncomeExpense(categoryId: Long, amount: Double, type: String, context: Context){
+    fun insertNewIncomeExpense(categoryId: Long, amount: Double, type: String, context: Context) {
         val date = Date()
+        val repo = getRepository(context)
         viewModelScope.launch(dispatcher) {
-            FinancialDB.getAppDataBase(context)?.incomeDao()?.insert(Income(type = type,amount = amount,categoryId = categoryId, timestamp = date.time.toString()))
+            repo.insertIncome(Income(type = type, amount = amount, categoryId = categoryId, timestamp = date.time.toString()))
         }
     }
 
-    fun deleteACategoryById(categoryId: Long, context: Context){
+    fun deleteACategoryById(categoryId: Long, context: Context) {
+        val repo = getRepository(context)
         viewModelScope.launch(dispatcher) {
-            FinancialDB.getAppDataBase(context)?.categoryDao()?.deleteIncomesFromACategory(categoryId)
-            FinancialDB.getAppDataBase(context)?.categoryDao()?.deleteCategoryById(categoryId)
+            repo.deleteCategoryById(categoryId)
         }
     }
 
+    /**
+     * Refreshes the financial overview (income sum, expense sum, balance).
+     * Called from the Fragment to update total amounts reactively.
+     */
+    fun refreshOverview(context: Context) {
+        val repo = getRepository(context)
+        viewModelScope.launch(dispatcher) {
+            val incomeSum = repo.getSumIncome()
+            val expenseSum = repo.getSumExpense()
+            _overview.postValue(Triple(incomeSum, expenseSum, incomeSum - expenseSum))
+        }
+    }
 }

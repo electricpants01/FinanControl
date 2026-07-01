@@ -70,4 +70,5 @@ When reviewing code, reference the following from `AI/skills/`:
 | Wrong import (`android.opengl.Visibility`) | 🟢 Low | Use `android.view.View` |
 | Hardcoded dimension/color | 🟡 Medium | Move to `dimens.xml` or `colors.xml` |
 | No null safety on DAO sum queries | 🟡 Medium | Add null safety (`?.let`) or default to 0.0 |
+| Kotlin `assert()` in test files | 🔴 High | Replace with JUnit `assertEquals`/`assertTrue`/`assertNotNull` — Kotlin's `assert()` is disabled by default |
 | `lateinit` on non-initialized property | 🔴 High | Initialize or mark as nullable |

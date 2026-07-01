@@ -10,6 +10,8 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -37,14 +39,14 @@ class InsightViewModelTest {
     @Test
     fun `setCategoryId updates categoryId LiveData`() {
         page.viewModel.setCategoryId(42L)
-        assert(page.viewModel.categoryId.value == 42L)
+        assertEquals(42L, page.viewModel.categoryId.value)
     }
 
     @Test
     fun `setCategoryId overwrites previous categoryId`() {
         page.viewModel.setCategoryId(1L)
         page.viewModel.setCategoryId(99L)
-        assert(page.viewModel.categoryId.value == 99L)
+        assertEquals(99L, page.viewModel.categoryId.value)
     }
 
     @Test
@@ -76,7 +78,7 @@ class InsightViewModelTest {
 
         val result = page.viewModel.getIncomesByCategoryId(7L, mockkContext())
 
-        assert(result.value == incomes)
+        assertEquals(incomes, result.value)
         page.verifyGetAllByCategoryIdCalled(7L)
     }
 
@@ -86,7 +88,7 @@ class InsightViewModelTest {
 
         val result = page.viewModel.getIncomesByCategoryId(999L, mockkContext())
 
-        assert(result.value!!.isEmpty())
+        assertTrue(result.value!!.isEmpty())
     }
 
     @Test
@@ -100,8 +102,8 @@ class InsightViewModelTest {
         page.viewModel.splitIncomeAndExpenses(list)
 
         val result = page.viewModel.incomeExpenseGraphList.value!!
-        assert(result.size == 3)
-        assert(result.all { it.type in listOf("Income", "Expense") })
+        assertEquals(3, result.size)
+        assertTrue(result.all { it.type in listOf("Income", "Expense") })
     }
 
     @Test
@@ -113,9 +115,9 @@ class InsightViewModelTest {
         page.viewModel.splitIncomeAndExpenses(list)
 
         val result = page.viewModel.incomeExpenseGraphList.value!!
-        assert(result.count { it.type == "Income" } == 15)
-        assert(result.count { it.type == "Expense" } == 15)
-        assert(result.size == 30)
+        assertEquals(15, result.count { it.type == "Income" })
+        assertEquals(15, result.count { it.type == "Expense" })
+        assertEquals(30, result.size)
     }
 
     @Test
@@ -130,14 +132,14 @@ class InsightViewModelTest {
 
         val result = page.viewModel.incomeExpenseGraphList.value!!
         val timestamps = result.map { it.timestamp }
-        assert(timestamps == listOf("100", "200", "300"))
+        assertEquals(listOf("100", "200", "300"), timestamps)
     }
 
     @Test
     fun `splitIncomeAndExpenses handles empty list`() {
         page.viewModel.splitIncomeAndExpenses(emptyList())
         val result = page.viewModel.incomeExpenseGraphList.value!!
-        assert(result.isEmpty())
+        assertTrue(result.isEmpty())
     }
 
     private fun mockkContext(): android.content.Context = io.mockk.mockk(relaxed = true)

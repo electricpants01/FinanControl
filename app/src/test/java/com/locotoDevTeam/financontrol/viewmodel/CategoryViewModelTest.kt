@@ -9,9 +9,12 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runners.JUnit4
 
 /**
  * Unit tests for CategoryViewModel.
@@ -107,9 +110,9 @@ class CategoryViewModelTest {
         page.verifyGetSumIncomeCalled()
         page.verifyGetSumExpenseCalled()
         val overview = page.viewModel.overview.getOrAwaitValue()
-        assert(overview.first == 1000.0)
-        assert(overview.second == 400.0)
-        assert(overview.third == 600.0)
+        assertEquals(1000.0, overview.first, 0.0)
+        assertEquals(400.0, overview.second, 0.0)
+        assertEquals(600.0, overview.third, 0.0)
     }
 
     @Test
@@ -121,9 +124,9 @@ class CategoryViewModelTest {
         testDispatcher.scheduler.advanceUntilIdle()
 
         val overview = page.viewModel.overview.getOrAwaitValue()
-        assert(overview.first == 0.0)
-        assert(overview.second == 0.0)
-        assert(overview.third == 0.0)
+        assertEquals(0.0, overview.first, 0.0)
+        assertEquals(0.0, overview.second, 0.0)
+        assertEquals(0.0, overview.third, 0.0)
     }
 
     // ── categories LiveData ──
@@ -131,7 +134,7 @@ class CategoryViewModelTest {
     @Test
     fun `categories returns LiveData from repository when initialized`() {
         val categories = page.viewModel.categories
-        assert(categories != null)
+        assertNotNull(categories)
     }
 
     // ── Helper ──

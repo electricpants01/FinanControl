@@ -153,7 +153,7 @@ class CategoryRepositoryTest {
         val result = page.repository.getAllCategories()
 
         // Assert
-        assert(result.value!!.size == 1)
+        assertEquals(1, result.value!!.size)
     }
 }
 ```
@@ -222,6 +222,30 @@ class CategoryViewModelTest {
 | `verify(exactly = 0) { ... }` | Verify function was NOT called | `verify(exactly = 0) { dao.delete(any()) }` |
 | `match { ... }` | Custom argument matcher | `match { it.name == "Salary" }` |
 | `any()` | Match any argument | `any<Category>()` |
+
+## ⚠️ Assertions: Use JUnit Assert, NOT Kotlin `assert()`
+
+**Kotlin's `assert()` is JVM-level and disabled by default** — it only runs when `-ea` is explicitly passed, which is NOT the case in standard Gradle/Android test runs. All `assert()` calls are silently skipped (dead code).
+
+### ✅ Always use JUnit `Assert` methods:
+
+| Instead of… | Use… |
+|---|---|
+| `assert(x == y)` | `assertEquals(y, x)` |
+| `assert(x == y)` for `Double` | `assertEquals(y, x, 0.0)` |
+| `assert(condition)` (boolean) | `assertTrue(condition)` |
+| `assert(x.isEmpty())` | `assertTrue(x.isEmpty())` |
+| `assert(x != null)` | `assertNotNull(x)` |
+| `assert(list == expected)` | `assertEquals(expected, list)` |
+
+### Required imports:
+```kotlin
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Assert.assertNotNull
+```
+
+> **Do NOT use** `import org.junit.Assert.*` (wildcard) — prefer explicit imports for clarity.
 
 ## Test Categories to Cover
 

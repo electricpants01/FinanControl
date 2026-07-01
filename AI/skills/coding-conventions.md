@@ -190,6 +190,21 @@ class CategoryRepositoryTest {
 - CHRIS-230: Add Hilt DI to remove `FinancialDB.getAppDataBase()` from ViewModels
 - CHRIS-231: Remove `Context` parameter from ViewModel methods via DI
 
+## ⚠️ Assertions: JUnit Assert, NOT Kotlin `assert()`
+
+Kotlin's `assert()` is a JVM assert — **disabled by default** (only active with `-ea` flag, which our test runner does NOT enable). All test files MUST use JUnit's `org.junit.Assert` methods instead:
+
+- `assertEquals(expected, actual)` — equality checks (use `assertEquals(expected, actual, 0.0)` for `Double`)
+- `assertTrue(condition)` — boolean conditions
+- `assertNotNull(value)` — null checks
+
+**Required imports** (explicit, not wildcard):
+```kotlin
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Assert.assertNotNull
+```
+
 ## Testing Gotchas
 
 ### coEvery vs every

@@ -4,6 +4,8 @@ import com.locotoDevTeam.financontrol.database.entity.Category
 import com.locotoDevTeam.financontrol.database.entity.Income
 import com.locotoDevTeam.financontrol.page.CategoryRepositoryPage
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -29,7 +31,7 @@ class CategoryRepositoryTest {
 
         val result = page.repository.getAllCategories()
 
-        assert(result.value == categories)
+        assertEquals(categories, result.value)
     }
 
     @Test
@@ -38,7 +40,7 @@ class CategoryRepositoryTest {
 
         val result = page.repository.getAllCategories()
 
-        assert(result.value!!.isEmpty())
+        assertTrue(result.value!!.isEmpty())
     }
 
     // ── insertCategory ──
@@ -98,7 +100,7 @@ class CategoryRepositoryTest {
 
         val result = page.repository.getSumIncome()
 
-        assert(result == 1500.0)
+        assertEquals(1500.0, result, 0.0)
         page.verifyGetSumIncomeCalled()
     }
 
@@ -108,7 +110,7 @@ class CategoryRepositoryTest {
 
         val result = page.repository.getSumExpense()
 
-        assert(result == 500.0)
+        assertEquals(500.0, result, 0.0)
         page.verifyGetSumExpenseCalled()
     }
 
@@ -118,7 +120,7 @@ class CategoryRepositoryTest {
 
         val result = page.repository.getSumIncome()
 
-        assert(result == 0.0)
+        assertEquals(0.0, result, 0.0)
     }
 
     @Test
@@ -127,6 +129,6 @@ class CategoryRepositoryTest {
 
         val result = page.repository.getSumExpense()
 
-        assert(result == 0.0)
+        assertEquals(0.0, result, 0.0)
     }
 }

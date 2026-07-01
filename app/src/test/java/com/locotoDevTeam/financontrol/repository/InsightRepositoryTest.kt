@@ -3,6 +3,8 @@ package com.locotoDevTeam.financontrol.repository
 import com.locotoDevTeam.financontrol.database.entity.Income
 import com.locotoDevTeam.financontrol.page.InsightRepositoryPage
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -31,7 +33,7 @@ class InsightRepositoryTest {
 
         val result = page.repository.getAllByCategoryId(5L)
 
-        assert(result.value == incomes)
+        assertEquals(incomes, result.value)
         page.verifyGetAllByCategoryIdCalled(5L)
     }
 
@@ -41,7 +43,7 @@ class InsightRepositoryTest {
 
         val result = page.repository.getAllByCategoryId(99L)
 
-        assert(result.value!!.isEmpty())
+        assertTrue(result.value!!.isEmpty())
     }
 
     @Test
@@ -54,8 +56,8 @@ class InsightRepositoryTest {
         val result1 = page.repository.getAllByCategoryId(1L)
         val result2 = page.repository.getAllByCategoryId(2L)
 
-        assert(result1.value == incomesCat1)
-        assert(result2.value == incomesCat2)
+        assertEquals(incomesCat1, result1.value)
+        assertEquals(incomesCat2, result2.value)
     }
 
     // ── deleteIncome ──

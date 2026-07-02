@@ -76,22 +76,26 @@ Fragment → ViewModel → Repository → DAO → Room DB
   )
   ```
 
-### ViewModel Lazy Initialization (current state, before Hilt)
-- Repositories are lazily initialized from `FinancialDB` in ViewModels:
+### ViewModel Repository Injection (CHRIS-231)
+- Repositories are injected via the ViewModel constructor with Hilt — **no `Context` anywhere**:
   ```kotlin
-  private var categoryRepository: CategoryRepository? = null
+  @HiltViewModel
+  class CategoryViewModel @Inject constructor(
+      private val categoryRepository: CategoryRepository
+  ) : ViewModel() {
 
-  private fun getRepository(context: Context): CategoryRepository {
-      if (categoryRepository == null) {
-          val db = FinancialDB.getAppDataBase(context)!!
-          categoryRepository = CategoryRepository(db.categoryDao(), db.incomeDao())
+      fun deleteACategoryById(categoryId: Long) {
+          viewModelScope.launch(dispatcher) {
+              categoryRepository.deleteCategoryById(categoryId)
+          }
       }
-      return categoryRepository!!
   }
   ```
+- ViewModel methods must **not** accept a `context: Context` parameter — the repository is already available on the instance.
+- Fragments/Activities retrieve the ViewModel via `by viewModels()` / `by activityViewModels()`; the host **must** be `@AndroidEntryPoint` so Hilt supplies the constructor-injected repository.
 
 ### Testability Hooks
-- ViewModels expose `@VisibleForTesting internal fun setTestRepository(repo)`
+- Inject a mock repository through the **constructor** (`CategoryViewModel(mockRepo)`) — no `setTestRepository()` hook is needed.
 - ViewModels expose `@VisibleForTesting internal fun setTestDispatcher(dispatcher)`
 - This allows unit testing without Android dependencies (no FinancialDB, no Context)
 
@@ -181,14 +185,14 @@ class CategoryRepositoryTest {
 ```
 
 ### ViewModel Testing
-- Inject mock repository via `viewModel.setTestRepository(mockRepo)`
+- Inject a mock repository via the **constructor** in the Page Object (`CategoryViewModel(mockRepo)`)
 - Inject test dispatcher via `viewModel.setTestDispatcher(testDispatcher)`
 - Use `InstantTaskExecutorRule` for LiveData
 - Use `StandardTestDispatcher` + `advanceUntilIdle()` to control async
 
 ## Known Future Work
-- CHRIS-230: Add Hilt DI to remove `FinancialDB.getAppDataBase()` from ViewModels
-- CHRIS-231: Remove `Context` parameter from ViewModel methods via DI
+- CHRIS-230: Add Hilt DI to remove `FinancialDB.getAppDataBase()` from ViewModels ✅ done
+- CHRIS-231: Remove `Context` parameter from ViewModel methods via DI ✅ done
 
 ## ⚠️ Assertions: JUnit Assert, NOT Kotlin `assert()`
 

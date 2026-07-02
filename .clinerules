@@ -63,7 +63,7 @@ When you need to act in a specific role, load the corresponding agent file from 
 - **Data flow**: `Fragment → ViewModel → Repository → DAO → Room DB`
 - **Never** call DAOs directly from Fragments or ViewModels — always go through Repository
 - Repositories take DAOs as constructor params (injected via Hilt `RepositoryModule`)
-- ViewModels lazily initialize repositories from `FinancialDB` today; migration to constructor injection is tracked in CHRIS-231
+- ViewModels receive their repository via Hilt constructor injection (CHRIS-231); no `Context` is passed to ViewModel methods
 - Use `activityViewModels()` for ViewModels shared between fragments and MainActivity
 
 #### Dependency Injection (Hilt)
@@ -88,7 +88,8 @@ When you need to act in a specific role, load the corresponding agent file from 
 #### Testing (MockK + Page Object Pattern)
 - **Page Objects** in `test/page/` encapsulate mock setup, SUT creation, stubs, and verifications
 - Use `mockk(relaxed = true)` for mocks, `coEvery`/`coVerify` for suspend functions, `every`/`verify` for regular
-- ViewModel testability: `@VisibleForTesting internal fun setTestRepository()` and `setTestDispatcher()`
+- ViewModel testability: inject a mock repository via the constructor (`CategoryViewModel(mockRepo)`); `@VisibleForTesting internal fun setTestDispatcher()` controls coroutines
+- Fragments needing Hilt-injected ViewModels are `@AndroidEntryPoint` (e.g. `CategoryFragment`, `InsightFragment`)
 - Use `InstantTaskExecutorRule` for LiveData, `StandardTestDispatcher` + `advanceUntilIdle()` for coroutines
 - Test class naming: `[ClassUnderTest]Test`, Page Object: `[ClassUnderTest]Page`
 - Test method naming: backtick-enclosed descriptive names

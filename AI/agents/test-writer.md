@@ -107,11 +107,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 class CategoryViewModelPage {
 
     val repository: CategoryRepository = mockk(relaxed = true)
-    val viewModel = CategoryViewModel()
-
-    init {
-        viewModel.setTestRepository(repository)
-    }
+    val viewModel = CategoryViewModel(repository)
 
     fun setTestDispatcher(dispatcher: CoroutineDispatcher) {
         viewModel.setTestDispatcher(dispatcher)

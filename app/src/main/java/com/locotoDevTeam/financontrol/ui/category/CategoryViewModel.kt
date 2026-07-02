@@ -12,7 +12,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -51,9 +50,8 @@ class CategoryViewModel @Inject constructor(
     }
 
     fun insertNewIncomeExpense(categoryId: Long, amount: Double, type: TransactionType) {
-        val date = Date()
         viewModelScope.launch(dispatcher) {
-            categoryRepository.insertIncome(Income(type = type, amount = amount, categoryId = categoryId, timestamp = date.time.toString()))
+            categoryRepository.insertIncome(Income(type = type, amount = amount, categoryId = categoryId, timestamp = System.currentTimeMillis()))
         }
     }
 

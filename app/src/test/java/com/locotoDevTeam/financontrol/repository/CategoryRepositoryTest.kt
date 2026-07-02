@@ -2,6 +2,7 @@ package com.locotoDevTeam.financontrol.repository
 
 import com.locotoDevTeam.financontrol.database.entity.Category
 import com.locotoDevTeam.financontrol.database.entity.Income
+import com.locotoDevTeam.financontrol.database.entity.TransactionType
 import com.locotoDevTeam.financontrol.page.CategoryRepositoryPage
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -67,20 +68,20 @@ class CategoryRepositoryTest {
 
     @Test
     fun `insertIncome delegates to IncomeDao`() = runTest {
-        val income = Income(type = "Income", amount = 100.0, categoryId = 1L, timestamp = "12345")
+        val income = Income(type = TransactionType.INCOME, amount = 100.0, categoryId = 1L, timestamp = "12345")
 
         page.repository.insertIncome(income)
 
-        page.verifyInsertIncomeCalled("Income", 100.0, 1L)
+        page.verifyInsertIncomeCalled(TransactionType.INCOME, 100.0, 1L)
     }
 
     @Test
     fun `insertIncome delegates Expense type`() = runTest {
-        val income = Income(type = "Expense", amount = 50.0, categoryId = 2L, timestamp = "67890")
+        val income = Income(type = TransactionType.EXPENSE, amount = 50.0, categoryId = 2L, timestamp = "67890")
 
         page.repository.insertIncome(income)
 
-        page.verifyInsertIncomeCalled("Expense", 50.0, 2L)
+        page.verifyInsertIncomeCalled(TransactionType.EXPENSE, 50.0, 2L)
     }
 
     // ── deleteCategoryById ──

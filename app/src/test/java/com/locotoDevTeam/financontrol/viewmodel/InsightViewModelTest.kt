@@ -2,6 +2,7 @@ package com.locotoDevTeam.financontrol.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.locotoDevTeam.financontrol.database.entity.Income
+import com.locotoDevTeam.financontrol.database.entity.TransactionType
 import com.locotoDevTeam.financontrol.page.InsightViewModelPage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -51,7 +52,7 @@ class InsightViewModelTest {
 
     @Test
     fun `deleteInsight delegates to repository`() = runTest {
-        val income = Income(1L, "Test", "Income", 100.0, 5L, "1000")
+        val income = Income(1L, "Test", TransactionType.INCOME, 100.0, 5L, "1000")
         page.stubDeleteIncome(income)
 
         page.viewModel.deleteInsight(income)
@@ -62,7 +63,7 @@ class InsightViewModelTest {
 
     @Test
     fun `deleteInsight with Expense type delegates`() = runTest {
-        val income = Income(2L, null, "Expense", 50.0, 3L, "2000")
+        val income = Income(2L, null, TransactionType.EXPENSE, 50.0, 3L, "2000")
         page.stubDeleteIncome(income)
 
         page.viewModel.deleteInsight(income)
@@ -73,7 +74,7 @@ class InsightViewModelTest {
 
     @Test
     fun `getIncomesByCategoryId returns LiveData from repository`() {
-        val incomes = listOf(Income(1L, null, "Income", 100.0, 7L, "100"))
+        val incomes = listOf(Income(1L, null, TransactionType.INCOME, 100.0, 7L, "100"))
         page.stubGetAllByCategoryId(7L, *incomes.toTypedArray())
 
         val result = page.viewModel.getIncomesByCategoryId(7L)
@@ -94,38 +95,38 @@ class InsightViewModelTest {
     @Test
     fun `splitIncomeAndExpenses separates income from expense`() {
         val list = listOf(
-            Income(1L, null, "Income", 100.0, 1L, "3"),
-            Income(2L, null, "Expense", 50.0, 1L, "1"),
-            Income(3L, null, "Income", 200.0, 1L, "2")
+            Income(1L, null, TransactionType.INCOME, 100.0, 1L, "3"),
+            Income(2L, null, TransactionType.EXPENSE, 50.0, 1L, "1"),
+            Income(3L, null, TransactionType.INCOME, 200.0, 1L, "2")
         )
 
         page.viewModel.splitIncomeAndExpenses(list)
 
         val result = page.viewModel.incomeExpenseGraphList.value!!
         assertEquals(3, result.size)
-        assertTrue(result.all { it.type in listOf("Income", "Expense") })
+        assertTrue(result.all { it.type in listOf(TransactionType.INCOME, TransactionType.EXPENSE) })
     }
 
     @Test
     fun `splitIncomeAndExpenses limits to 15 per type`() {
-        val incomes = (1..20).map { Income(it.toLong(), null, "Income", it * 10.0, 1L, it.toString()) }
-        val expenses = (1..20).map { Income((it + 100).toLong(), null, "Expense", it * 5.0, 1L, it.toString()) }
+        val incomes = (1..20).map { Income(it.toLong(), null, TransactionType.INCOME, it * 10.0, 1L, it.toString()) }
+        val expenses = (1..20).map { Income((it + 100).toLong(), null, TransactionType.EXPENSE, it * 5.0, 1L, it.toString()) }
         val list = incomes + expenses
 
         page.viewModel.splitIncomeAndExpenses(list)
 
         val result = page.viewModel.incomeExpenseGraphList.value!!
-        assertEquals(15, result.count { it.type == "Income" })
-        assertEquals(15, result.count { it.type == "Expense" })
+        assertEquals(15, result.count { it.type == TransactionType.INCOME })
+        assertEquals(15, result.count { it.type == TransactionType.EXPENSE })
         assertEquals(30, result.size)
     }
 
     @Test
     fun `splitIncomeAndExpenses sorts by timestamp ascending`() {
         val list = listOf(
-            Income(1L, null, "Income", 100.0, 1L, "300"),
-            Income(2L, null, "Income", 200.0, 1L, "100"),
-            Income(3L, null, "Income", 300.0, 1L, "200")
+            Income(1L, null, TransactionType.INCOME, 100.0, 1L, "300"),
+            Income(2L, null, TransactionType.INCOME, 200.0, 1L, "100"),
+            Income(3L, null, TransactionType.INCOME, 300.0, 1L, "200")
         )
 
         page.viewModel.splitIncomeAndExpenses(list)

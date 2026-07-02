@@ -2,6 +2,7 @@ package com.locotoDevTeam.financontrol.page
 
 import com.locotoDevTeam.financontrol.database.dao.CategoryDao
 import com.locotoDevTeam.financontrol.database.dao.IncomeDao
+import com.locotoDevTeam.financontrol.database.entity.TransactionType
 import com.locotoDevTeam.financontrol.ui.category.CategoryRepository
 import com.locotoDevTeam.financontrol.ui.category.CategoryViewModel
 import io.mockk.coEvery
@@ -49,7 +50,7 @@ class CategoryViewModelPage {
         coVerify { repository.insertCategory(match { it.name == name }) }
     }
 
-    fun verifyInsertIncomeCalled(type: String, amount: Double, categoryId: Long) {
+    fun verifyInsertIncomeCalled(type: TransactionType, amount: Double, categoryId: Long) {
         coVerify {
             repository.insertIncome(match {
                 it.type == type && it.amount == amount && it.categoryId == categoryId

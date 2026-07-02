@@ -68,7 +68,7 @@ class CategoryRepositoryTest {
 
     @Test
     fun `insertIncome delegates to IncomeDao`() = runTest {
-        val income = Income(type = TransactionType.INCOME, amount = 100.0, categoryId = 1L, timestamp = "12345")
+        val income = Income(type = TransactionType.INCOME, amount = 100.0, categoryId = 1L, timestamp = 12345L)
 
         page.repository.insertIncome(income)
 
@@ -77,7 +77,7 @@ class CategoryRepositoryTest {
 
     @Test
     fun `insertIncome delegates Expense type`() = runTest {
-        val income = Income(type = TransactionType.EXPENSE, amount = 50.0, categoryId = 2L, timestamp = "67890")
+        val income = Income(type = TransactionType.EXPENSE, amount = 50.0, categoryId = 2L, timestamp = 67890L)
 
         page.repository.insertIncome(income)
 

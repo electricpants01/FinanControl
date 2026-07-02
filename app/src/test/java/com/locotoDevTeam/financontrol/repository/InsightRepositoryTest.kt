@@ -27,8 +27,8 @@ class InsightRepositoryTest {
     @Test
     fun `getAllByCategoryId returns LiveData from DAO for specific category`() {
         val incomes = listOf(
-            Income(1L, null, TransactionType.INCOME, 100.0, 5L, "1000"),
-            Income(2L, "Desc", TransactionType.EXPENSE, 50.0, 5L, "2000")
+            Income(1L, null, TransactionType.INCOME, 100.0, 5L, 1000L),
+            Income(2L, "Desc", TransactionType.EXPENSE, 50.0, 5L, 2000L)
         )
         page.stubGetAllByCategoryId(5L, *incomes.toTypedArray())
 
@@ -49,8 +49,8 @@ class InsightRepositoryTest {
 
     @Test
     fun `getAllByCategoryId isolates results to category`() {
-        val incomesCat1 = listOf(Income(1L, null, TransactionType.INCOME, 100.0, 1L, "100"))
-        val incomesCat2 = listOf(Income(2L, null, TransactionType.EXPENSE, 200.0, 2L, "200"))
+        val incomesCat1 = listOf(Income(1L, null, TransactionType.INCOME, 100.0, 1L, 100L))
+        val incomesCat2 = listOf(Income(2L, null, TransactionType.EXPENSE, 200.0, 2L, 200L))
         page.stubGetAllByCategoryId(1L, *incomesCat1.toTypedArray())
         page.stubGetAllByCategoryId(2L, *incomesCat2.toTypedArray())
 
@@ -65,7 +65,7 @@ class InsightRepositoryTest {
 
     @Test
     fun `deleteIncome delegates to DAO`() = runTest {
-        val income = Income(1L, null, TransactionType.INCOME, 50.0, 1L, "123")
+        val income = Income(1L, null, TransactionType.INCOME, 50.0, 1L, 123L)
 
         page.repository.deleteIncome(income)
 
@@ -74,7 +74,7 @@ class InsightRepositoryTest {
 
     @Test
     fun `deleteIncome with null uid still delegates`() = runTest {
-        val income = Income(null, "desc", TransactionType.EXPENSE, 25.0, 3L, "456")
+        val income = Income(null, "desc", TransactionType.EXPENSE, 25.0, 3L, 456L)
 
         page.repository.deleteIncome(income)
 

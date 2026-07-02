@@ -63,6 +63,8 @@ android {
 
     kotlinOptions {
         jvmTarget = "1.8"
+        // Preserve parameter names for Room annotation processing (KAPT + Kotlin 2.0 compatibility)
+        freeCompilerArgs += "-java-parameters"
     }
 
     namespace = "com.locotoDevTeam.financontrol"

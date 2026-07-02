@@ -11,7 +11,7 @@ import com.locotoDevTeam.financontrol.database.dao.IncomeDao
 import com.locotoDevTeam.financontrol.database.entity.Category
 import com.locotoDevTeam.financontrol.database.entity.Income
 
-@Database(entities = arrayOf(Category::class, Income::class), version = 2)
+@Database(entities = arrayOf(Category::class, Income::class), version = 3)
 @TypeConverters(Converters::class)
 abstract class FinancialDB: RoomDatabase() {
 
@@ -34,6 +34,38 @@ abstract class FinancialDB: RoomDatabase() {
         }
 
         /**
+         * Migration from version 2 to 3: converts the timestamp column from String
+         * (stored as epoch millis text) to INTEGER (epoch millis as Long).
+         * Uses the recreate strategy: create a new table with the correct schema,
+         * copy data with CAST conversion, drop the old table, and rename.
+         */
+        internal val MIGRATION_2_3 = object : androidx.room.migration.Migration(2, 3) {
+            override fun migrate(database: androidx.sqlite.db.SupportSQLiteDatabase) {
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS income_new (
+                        uid INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        description TEXT,
+                        type TEXT NOT NULL,
+                        amount REAL NOT NULL,
+                        categoryId INTEGER NOT NULL,
+                        timestamp INTEGER NOT NULL DEFAULT 0
+                    )
+                """.trimIndent())
+                database.execSQL("""
+                    INSERT INTO income_new (uid, description, type, amount, categoryId, timestamp)
+                    SELECT uid, description, type, amount, categoryId,
+                           CASE WHEN timestamp IS NOT NULL AND timestamp != ''
+                                THEN CAST(timestamp AS INTEGER)
+                                ELSE 0
+                           END
+                    FROM income
+                """.trimIndent())
+                database.execSQL("DROP TABLE income")
+                database.execSQL("ALTER TABLE income_new RENAME TO income")
+            }
+        }
+
+        /**
          * Manual singleton accessor. Deprecated in favor of Hilt injection —
          * inject [FinancialDB] (or a DAO/Repository) instead of calling this.
          * Provided via `DatabaseModule.provideFinancialDB`.
@@ -46,7 +78,7 @@ abstract class FinancialDB: RoomDatabase() {
             if (INSTANCE == null){
                 synchronized(FinancialDB::class){
                     INSTANCE = Room.databaseBuilder(context.applicationContext, FinancialDB::class.java, "financial-db")
-                        .addMigrations(MIGRATION_1_2)
+                        .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                         .build()
                 }
             }

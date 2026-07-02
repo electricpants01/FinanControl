@@ -10,5 +10,5 @@ data class Income(
     val type: TransactionType,
     val amount: Double,
     val categoryId: Long,
-    val timestamp: String,
+    val timestamp: Long,
 )

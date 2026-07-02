@@ -27,7 +27,7 @@ object DatabaseModule {
     @Singleton
     fun provideFinancialDB(@ApplicationContext context: Context): FinancialDB =
         Room.databaseBuilder(context, FinancialDB::class.java, "financial-db")
-            .addMigrations(FinancialDB.MIGRATION_1_2)
+            .addMigrations(FinancialDB.MIGRATION_1_2, FinancialDB.MIGRATION_2_3)
             .build()
 
     @Provides

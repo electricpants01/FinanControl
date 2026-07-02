@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.navigation.safeargs) apply false
     alias(libs.plugins.google.services) apply false
     alias(libs.plugins.firebase.crashlytics) apply false
+    alias(libs.plugins.hilt.android) apply false
 }
 
 tasks.register<Delete>("clean") {

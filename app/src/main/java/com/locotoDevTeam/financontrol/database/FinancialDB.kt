@@ -19,6 +19,15 @@ abstract class FinancialDB: RoomDatabase() {
     companion object {
         var INSTANCE: FinancialDB? = null
 
+        /**
+         * Manual singleton accessor. Deprecated in favor of Hilt injection —
+         * inject [FinancialDB] (or a DAO/Repository) instead of calling this.
+         * Provided via `DatabaseModule.provideFinancialDB`.
+         */
+        @Deprecated(
+            message = "Use Hilt injection (DatabaseModule) instead of the manual singleton.",
+            replaceWith = ReplaceWith("@Inject FinancialDB")
+        )
         fun getAppDataBase(context: Context): FinancialDB? {
             if (INSTANCE == null){
                 synchronized(FinancialDB::class){

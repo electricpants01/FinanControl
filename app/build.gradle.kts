@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.navigation.safeargs)
     alias(libs.plugins.firebase.crashlytics)
     alias(libs.plugins.google.services)
+    alias(libs.plugins.hilt.android)
 }
 
 // Signing configuration from environment variables (CI/CD)
@@ -67,6 +68,11 @@ android {
     namespace = "com.locotoDevTeam.financontrol"
 }
 
+// Required by Hilt so KAPT resolves generated types correctly
+kapt {
+    correctErrorTypes = true
+}
+
 dependencies {
     // Firebase
     implementation(platform(libs.firebase.bom))
@@ -97,6 +103,10 @@ dependencies {
     // Room
     implementation(libs.room.runtime)
     kapt(libs.room.compiler)
+
+    // Hilt (Dependency Injection)
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
 
     // Unit test
     testImplementation(libs.junit)

@@ -8,8 +8,10 @@ import com.locotoDevTeam.financontrol.data.dialog.AddCategoryDialog
 import com.locotoDevTeam.financontrol.data.dialog.AddIncomeDialog
 import com.locotoDevTeam.financontrol.databinding.ActivityMainBinding
 import com.locotoDevTeam.financontrol.ui.category.CategoryViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity(), AddCategoryDialog.AddCategoryListener, AddIncomeDialog.AddIncomeListener {
 
     lateinit var binding: ActivityMainBinding

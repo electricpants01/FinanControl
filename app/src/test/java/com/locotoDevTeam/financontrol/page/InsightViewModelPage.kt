@@ -15,11 +15,7 @@ class InsightViewModelPage {
 
     val incomeDao: IncomeDao = mockk(relaxed = true)
     val repository: InsightRepository = mockk(relaxed = true)
-    val viewModel = InsightViewModel()
-
-    init {
-        viewModel.setTestRepository(repository)
-    }
+    val viewModel = InsightViewModel(repository)
 
     fun setTestDispatcher(dispatcher: CoroutineDispatcher) {
         viewModel.setTestDispatcher(dispatcher)

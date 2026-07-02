@@ -20,8 +20,10 @@ import com.locotoDevTeam.financontrol.fancyChart.FancyChart
 import com.locotoDevTeam.financontrol.fancyChart.MyFancyChartBuilder
 import com.locotoDevTeam.financontrol.ui.MainActivity
 import com.locotoDevTeam.financontrol.util.formatDateAndTimeString
+import dagger.hilt.android.AndroidEntryPoint
 
 
+@AndroidEntryPoint
 class InsightFragment : Fragment(), InsightAdapter.InsightListener {
 
     private val args: InsightFragmentArgs by navArgs()
@@ -40,8 +42,6 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
         (activity as MainActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
         insightViewModel.setCategoryId(args.categoryId)
         chart = binding.insightFancyChart
-        // Initialize the repository so data access methods are available
-        insightViewModel.initRepository(requireContext())
         initSubscriptions()
         chart.setOnPointClickListener {
             Snackbar.make(binding.floatAddInsight, getString(R.string.insight_point_item_tapped, it.y.toString()), Snackbar.LENGTH_SHORT).show()
@@ -73,7 +73,7 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
         val categoryId = insightViewModel.categoryId.value
         categoryId?.let {
             // Observe incomes via InsightRepository (through ViewModel), NOT directly from DAO
-            insightViewModel.getIncomesByCategoryId(it, requireContext()).observe(viewLifecycleOwner) { incomes ->
+            insightViewModel.getIncomesByCategoryId(it).observe(viewLifecycleOwner) { incomes ->
                 insightViewModel.splitIncomeAndExpenses(incomes)
                 adapter.setNewIncomeList(incomes)
             }
@@ -94,7 +94,7 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
     override fun onDeleteInsightTapped(income: Income) {
         MaterialAlert.showDialog(resources.getString(R.string.insight_deletion_title),
             resources.getString(R.string.insight_delete_description), requireContext()) {
-            insightViewModel.deleteInsight(income, requireContext())
+            insightViewModel.deleteInsight(income)
         }
     }
 }

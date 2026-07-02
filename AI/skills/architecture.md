@@ -133,9 +133,10 @@ RepositoryModule ──provides──▶ @Singleton CategoryRepository, InsightR
 - **`DatabaseModule`** (`@InstallIn(SingletonComponent::class)`) — provides `@Singleton FinancialDB` via `Room.databaseBuilder(...)`, plus `CategoryDao`/`IncomeDao`.
 - **`RepositoryModule`** — provides `@Singleton` repository instances built from the injected DAOs.
 - **Activities** — `MainActivity` and `SplashActivity` are `@AndroidEntryPoint`; their ViewModels resolve through the Hilt `ViewModelFactory`.
-- **ViewModels** — `CategoryViewModel` and `InsightViewModel` are `@HiltViewModel` with `@Inject constructor()`.
+- **ViewModels** — `CategoryViewModel` and `InsightViewModel` are `@HiltViewModel` with their repository injected via `@Inject constructor(...)`.
+- **Fragments** — `CategoryFragment` and `InsightFragment` are `@AndroidEntryPoint` so Hilt can supply the constructor-injected ViewModels obtained via `activityViewModels()`.
 
-> **Migration note (CHRIS-230 scope):** DI scaffolding only. ViewModels still lazily build repositories from `Context` (`initRepository`/`getRepository`) for backward compatibility — removing `Context` from ViewModels and switching to constructor-injected repositories is tracked in **CHRIS-231**. The DI graph (modules) already exposes injectable repositories for that follow-up.
+> **Migration note (CHRIS-231, done):** ViewModels now receive their repository through constructor injection — no `Context` is passed to any ViewModel method, and the old `initRepository`/`getRepository` lazy-init helpers have been removed. Repositories are wired by `RepositoryModule` and resolved through the Hilt `ViewModelFactory`.
 
 ## Repository Layer
 
@@ -163,7 +164,7 @@ RepositoryModule ──provides──▶ @Singleton CategoryRepository, InsightR
 1. User taps FAB → `AddCategoryDialog` opens
 2. User enters category name, taps "Add"
 3. `MainActivity.onAddCategoryTapped(categoryName)` is called
-4. `CategoryViewModel.insertNewCategory(categoryName, context)` calls `CategoryRepository.insertCategory()`
+4. `CategoryViewModel.insertNewCategory(categoryName)` calls `CategoryRepository.insertCategory()`
 5. Room LiveData triggers observer in `CategoryFragment.initSubscriptions()`
 6. RecyclerView updates automatically
 
@@ -171,13 +172,13 @@ RepositoryModule ──provides──▶ @Singleton CategoryRepository, InsightR
 1. User taps FAB in `InsightFragment` → `AddIncomeDialog` opens
 2. User enters amount, selects Income/Expense type
 3. `MainActivity.onAddIncomeTapped(categoryId, amount, type)` is called
-4. `CategoryViewModel.insertNewIncomeExpense(categoryId, amount, type, context)` calls `CategoryRepository.insertIncome()`
+4. `CategoryViewModel.insertNewIncomeExpense(categoryId, amount, type)` calls `CategoryRepository.insertIncome()`
 5. Room LiveData triggers observer in `InsightFragment.initSubscriptions()`
 6. List + chart updates automatically
 
 ### Financial Overview Refresh
 1. `CategoryFragment` observes `categoryViewModel.overview: LiveData<Triple<Double,Double,Double>>`
-2. When categories change, `CategoryViewModel.refreshOverview(context)` is called
+2. When categories change, `CategoryViewModel.refreshOverview()` is called
 3. ViewModel calls `CategoryRepository.getSumIncome()` and `getSumExpense()`
 4. Results posted to `_overview` MediatorLiveData as `(incomeSum, expenseSum, balance)`
 5. Fragment updates UI from the LiveData
@@ -192,6 +193,6 @@ RepositoryModule ──provides──▶ @Singleton CategoryRepository, InsightR
 - UI updates use `LiveData.postValue()` or `withContext(Dispatchers.Main)`
 
 ## Testability Hooks
-- ViewModels expose `@VisibleForTesting internal fun setTestRepository(repo)` to inject mock repos
+- Mock repositories are injected through the ViewModel **constructor** (`CategoryViewModel(mockRepo)`) — no `setTestRepository()` hook
 - ViewModels expose `@VisibleForTesting internal fun setTestDispatcher(dispatcher)` for async control
 - This allows unit testing without Android framework dependencies (no FinancialDB, no Context)

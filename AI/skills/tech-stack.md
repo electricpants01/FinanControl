@@ -17,13 +17,14 @@
 | **DSL** | Kotlin DSL (`build.gradle.kts`, `settings.gradle.kts`) |
 | **Version Catalog** | `gradle/libs.versions.toml` |
 | **AGP** | 8.13.2 |
-| **Plugins** | `com.android.application`, `org.jetbrains.kotlin.android`, `org.jetbrains.kotlin.kapt`, `androidx.navigation.safeargs.kotlin`, `com.google.firebase.crashlytics`, `com.google.gms.google-services` |
+| **Plugins** | `com.android.application`, `org.jetbrains.kotlin.android`, `org.jetbrains.kotlin.kapt`, `androidx.navigation.safeargs.kotlin`, `com.google.firebase.crashlytics`, `com.google.gms.google-services`, `com.google.dagger.hilt.android` |
 
 ## Core Libraries
 
 | Library | Version | Purpose |
 |---|---|---|
 | **Jetpack Navigation** | 2.8.7 | Fragment navigation with Safe Args |
+| **Hilt (Dagger)** | 2.52 | Dependency injection (kapt) — provides `FinancialDB`, DAOs, and repositories |
 | **Room** | 2.4.1 | Local SQLite database (kapt) |
 | **Lifecycle (ViewModel + LiveData)** | 2.5.0-alpha02 | MVVM architecture |
 | **ViewBinding** | Built-in (enabled) | Type-safe view access |

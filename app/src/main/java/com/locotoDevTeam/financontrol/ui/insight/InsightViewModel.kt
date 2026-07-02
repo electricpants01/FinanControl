@@ -8,11 +8,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.locotoDevTeam.financontrol.database.FinancialDB
 import com.locotoDevTeam.financontrol.database.entity.Income
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class InsightViewModel: ViewModel() {
+@HiltViewModel
+class InsightViewModel @Inject constructor(): ViewModel() {
 
     private var dispatcher: CoroutineDispatcher = Dispatchers.IO
     var categoryId = MutableLiveData<Long>()

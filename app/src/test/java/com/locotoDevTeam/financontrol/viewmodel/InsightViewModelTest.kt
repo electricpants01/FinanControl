@@ -7,6 +7,7 @@ import com.locotoDevTeam.financontrol.page.InsightViewModelPage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -56,7 +57,7 @@ class InsightViewModelTest {
         page.stubDeleteIncome(income)
 
         page.viewModel.deleteInsight(income)
-        testDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         page.verifyDeleteIncomeCalled(income)
     }
@@ -67,7 +68,7 @@ class InsightViewModelTest {
         page.stubDeleteIncome(income)
 
         page.viewModel.deleteInsight(income)
-        testDispatcher.scheduler.advanceUntilIdle()
+        advanceUntilIdle()
 
         page.verifyDeleteIncomeCalled(income)
     }
@@ -102,7 +103,7 @@ class InsightViewModelTest {
 
         page.viewModel.splitIncomeAndExpenses(list)
 
-        val result = page.viewModel.incomeExpenseGraphList.value!!
+        val result = page.viewModel.insightUiState.value.chartData
         assertEquals(3, result.size)
         assertTrue(result.all { it.type in listOf(TransactionType.INCOME, TransactionType.EXPENSE) })
     }
@@ -115,7 +116,7 @@ class InsightViewModelTest {
 
         page.viewModel.splitIncomeAndExpenses(list)
 
-        val result = page.viewModel.incomeExpenseGraphList.value!!
+        val result = page.viewModel.insightUiState.value.chartData
         assertEquals(15, result.count { it.type == TransactionType.INCOME })
         assertEquals(15, result.count { it.type == TransactionType.EXPENSE })
         assertEquals(30, result.size)
@@ -131,7 +132,7 @@ class InsightViewModelTest {
 
         page.viewModel.splitIncomeAndExpenses(list)
 
-        val result = page.viewModel.incomeExpenseGraphList.value!!
+        val result = page.viewModel.insightUiState.value.chartData
         val timestamps = result.map { it.timestamp }
         assertEquals(listOf("100", "200", "300"), timestamps)
     }
@@ -139,7 +140,8 @@ class InsightViewModelTest {
     @Test
     fun `splitIncomeAndExpenses handles empty list`() {
         page.viewModel.splitIncomeAndExpenses(emptyList())
-        val result = page.viewModel.incomeExpenseGraphList.value!!
-        assertTrue(result.isEmpty())
+        val state = page.viewModel.insightUiState.value
+        assertTrue(state.chartData.isEmpty())
+        assertTrue(state.isEmpty)
     }
 }

@@ -1,12 +1,10 @@
 package com.locotoDevTeam.financontrol.ui.insight
 
-import android.content.Context
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.locotoDevTeam.financontrol.database.FinancialDB
 import com.locotoDevTeam.financontrol.database.entity.Income
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -15,29 +13,13 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class InsightViewModel @Inject constructor(): ViewModel() {
+class InsightViewModel @Inject constructor(
+    private val insightRepository: InsightRepository
+) : ViewModel() {
 
     private var dispatcher: CoroutineDispatcher = Dispatchers.IO
     var categoryId = MutableLiveData<Long>()
     val incomeExpenseGraphList = MutableLiveData<List<Income>>()
-
-    private var insightRepository: InsightRepository? = null
-
-    private fun getRepository(context: Context): InsightRepository {
-        if (insightRepository == null) {
-            val db = FinancialDB.getAppDataBase(context)!!
-            insightRepository = InsightRepository(db.incomeDao())
-        }
-        return insightRepository!!
-    }
-
-    /**
-     * Set mock repository for unit testing. Bypasses FinancialDB initialization.
-     */
-    @VisibleForTesting
-    internal fun setTestRepository(repository: InsightRepository) {
-        this.insightRepository = repository
-    }
 
     /**
      * Set test dispatcher for unit testing to avoid flaky async behavior.
@@ -48,20 +30,11 @@ class InsightViewModel @Inject constructor(): ViewModel() {
     }
 
     /**
-     * Initialize the repository from context. Call once from Fragment.
-     * After this, LiveData methods become available for observation.
-     */
-    fun initRepository(context: Context) {
-        getRepository(context)
-    }
-
-    /**
      * Returns LiveData of income/expense entries for the given category,
      * sourced from the InsightRepository (not directly from DAO).
      */
-    fun getIncomesByCategoryId(categoryId: Long, context: Context): LiveData<List<Income>> {
-        val repo = getRepository(context)
-        return repo.getAllByCategoryId(categoryId)
+    fun getIncomesByCategoryId(categoryId: Long): LiveData<List<Income>> {
+        return insightRepository.getAllByCategoryId(categoryId)
     }
 
     // first, we need to set up the id the of category
@@ -70,10 +43,9 @@ class InsightViewModel @Inject constructor(): ViewModel() {
     }
 
     // delete an insight
-    fun deleteInsight(income: Income, context: Context) {
-        val repo = getRepository(context)
+    fun deleteInsight(income: Income) {
         viewModelScope.launch(dispatcher) {
-            repo.deleteIncome(income)
+            insightRepository.deleteIncome(income)
         }
     }
 

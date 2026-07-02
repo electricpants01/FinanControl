@@ -29,12 +29,12 @@ class MainActivity : AppCompatActivity(), AddCategoryDialog.AddCategoryListener,
 
     // added a new category
     override fun onAddCategoryTapped(categoryName: String) {
-        categoryViewModel.insertNewCategory(categoryName,this)
+        categoryViewModel.insertNewCategory(categoryName)
     }
 
     // added a new income from a category
     override fun onAddIncomeTapped(categoryId: Long, amount: Double, type: String) {
-        categoryViewModel.insertNewIncomeExpense(categoryId,amount,type, this)
+        categoryViewModel.insertNewIncomeExpense(categoryId,amount,type)
     }
 
 }

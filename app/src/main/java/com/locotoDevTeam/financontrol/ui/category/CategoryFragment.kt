@@ -15,7 +15,9 @@ import com.locotoDevTeam.financontrol.data.dialog.AddCategoryDialog
 import com.locotoDevTeam.financontrol.data.dialog.MaterialAlert
 import com.locotoDevTeam.financontrol.databinding.FragmentCategoryBinding
 import com.locotoDevTeam.financontrol.ui.MainActivity
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
 
     private val categoryViewModel: CategoryViewModel by activityViewModels()
@@ -50,12 +52,9 @@ class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
     
 
     private fun initSubscriptions() {
-        // Initialize the repository so LiveData fields are available
-        categoryViewModel.initRepository(requireContext())
-
         // Observe categories from the ViewModel (sourced from CategoryRepository, not directly from DAO)
         categoryViewModel.categories.observe(viewLifecycleOwner) { categories ->
-            categoryViewModel.refreshOverview(requireContext())
+            categoryViewModel.refreshOverview()
             if (categories.isNotEmpty()) {
                 // all welcome components
                 binding.viewContainer.visibility = View.GONE
@@ -117,7 +116,7 @@ class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
     override fun onDeleteCategoryTapped(categoryId: Long) {
         MaterialAlert.showDialog(resources.getString(R.string.category_deletion_title),
                 resources.getString(R.string.category_deletion_description), requireContext()){
-            categoryViewModel.deleteACategoryById(categoryId, requireContext())
+            categoryViewModel.deleteACategoryById(categoryId)
         }
     }
 

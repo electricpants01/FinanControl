@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.locotoDevTeam.financontrol.database.entity.Category
 import com.locotoDevTeam.financontrol.database.entity.Income
+import com.locotoDevTeam.financontrol.database.entity.TransactionType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -49,7 +50,7 @@ class CategoryViewModel @Inject constructor(
         }
     }
 
-    fun insertNewIncomeExpense(categoryId: Long, amount: Double, type: String) {
+    fun insertNewIncomeExpense(categoryId: Long, amount: Double, type: TransactionType) {
         val date = Date()
         viewModelScope.launch(dispatcher) {
             categoryRepository.insertIncome(Income(type = type, amount = amount, categoryId = categoryId, timestamp = date.time.toString()))

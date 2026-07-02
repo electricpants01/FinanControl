@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.locotoDevTeam.financontrol.R
 import com.locotoDevTeam.financontrol.database.entity.Income
+import com.locotoDevTeam.financontrol.database.entity.TransactionType
 import com.locotoDevTeam.financontrol.databinding.RvInsightBinding
 
 class InsightAdapter(var incomeList: List<Income>,val listener: InsightListener): RecyclerView.Adapter<InsightAdapter.Holder>() {
@@ -26,7 +27,7 @@ class InsightAdapter(var incomeList: List<Income>,val listener: InsightListener)
 
         fun render(income: Income, listener: InsightListener){
             binding.txtAmount.text = income.amount.toString()
-            if( income.type == "Income"){
+            if( income.type == TransactionType.INCOME){
                 binding.ivInsightType.setImageResource(R.drawable.ic_twotone_arrow_circle_up)
             } else {
                 binding.ivInsightType.setImageResource(R.drawable.ic_twotone_arrow_circle_down)

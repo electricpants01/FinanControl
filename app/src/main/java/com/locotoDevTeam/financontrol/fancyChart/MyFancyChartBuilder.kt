@@ -1,6 +1,7 @@
 package com.locotoDevTeam.financontrol.fancyChart
 
 import com.locotoDevTeam.financontrol.database.entity.Income
+import com.locotoDevTeam.financontrol.database.entity.TransactionType
 import com.locotoDevTeam.financontrol.fancyChart.data.ChartData
 import com.locotoDevTeam.financontrol.util.formatDateString
 import com.locotoDevTeam.financontrol.util.formatHourString
@@ -24,7 +25,7 @@ class MyFancyChartBuilder {
 //                }
 //            }
             incomeExpensesList.forEachIndexed{ index, income ->
-                if( income.type == "Income"){
+                if( income.type == TransactionType.INCOME){
                     data.addPoint(index, income.amount.toInt())
                     data.addXValue(index.toDouble(),income.timestamp.formatHourString())
                 }else {

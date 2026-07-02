@@ -6,6 +6,7 @@ import androidx.activity.viewModels
 import androidx.navigation.findNavController
 import com.locotoDevTeam.financontrol.data.dialog.AddCategoryDialog
 import com.locotoDevTeam.financontrol.data.dialog.AddIncomeDialog
+import com.locotoDevTeam.financontrol.database.entity.TransactionType
 import com.locotoDevTeam.financontrol.databinding.ActivityMainBinding
 import com.locotoDevTeam.financontrol.ui.category.CategoryViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -33,7 +34,7 @@ class MainActivity : AppCompatActivity(), AddCategoryDialog.AddCategoryListener,
     }
 
     // added a new income from a category
-    override fun onAddIncomeTapped(categoryId: Long, amount: Double, type: String) {
+    override fun onAddIncomeTapped(categoryId: Long, amount: Double, type: TransactionType) {
         categoryViewModel.insertNewIncomeExpense(categoryId,amount,type)
     }
 

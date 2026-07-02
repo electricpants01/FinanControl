@@ -26,7 +26,9 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideFinancialDB(@ApplicationContext context: Context): FinancialDB =
-        Room.databaseBuilder(context, FinancialDB::class.java, "financial-db").build()
+        Room.databaseBuilder(context, FinancialDB::class.java, "financial-db")
+            .addMigrations(FinancialDB.MIGRATION_1_2)
+            .build()
 
     @Provides
     fun provideCategoryDao(database: FinancialDB): CategoryDao = database.categoryDao()

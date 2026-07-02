@@ -59,6 +59,10 @@ Fragment → ViewModel → Repository → DAO → Room DB
 
 ```
 com.locotoDevTeam.financontrol/
+├── FinanControlApp.kt              # @HiltAndroidApp application (DI entry point)
+├── di/
+│   ├── DatabaseModule.kt           # Provides @Singleton FinancialDB, CategoryDao, IncomeDao
+│   └── RepositoryModule.kt         # Provides CategoryRepository, InsightRepository
 ├── data/
 │   ├── adapter/
 │   │   ├── CategoryAdapter.kt       # RecyclerView adapter for categories
@@ -77,7 +81,7 @@ com.locotoDevTeam.financontrol/
 │   ├── entity/
 │   │   ├── Category.kt              # Category Room entity
 │   │   └── Income.kt                # Income Room entity
-│   └── FinancialDB.kt               # Room Database class (singleton)
+│   └── FinancialDB.kt               # Room Database class (provided via Hilt; manual singleton deprecated)
 │
 ├── fancyChart/
 │   ├── data/
@@ -104,6 +108,34 @@ com.locotoDevTeam.financontrol/
 └── util/
     └── StringExtension.kt           # Extension functions (date formatting)
 ```
+
+## Dependency Injection (Hilt)
+
+Introduced in CHRIS-230. Hilt replaces the manual `FinancialDB.getAppDataBase(context)` singleton with a compile-time DI graph.
+
+```
+FinanControlApp (@HiltAndroidApp)
+        │  builds SingletonComponent
+        ▼
+DatabaseModule  ──provides──▶ @Singleton FinancialDB ──▶ CategoryDao, IncomeDao
+        │
+        ▼
+RepositoryModule ──provides──▶ @Singleton CategoryRepository, InsightRepository
+        │
+        ▼
+@HiltViewModel CategoryViewModel / InsightViewModel  (obtained via viewModels()/activityViewModels()
+        ▲                                              from @AndroidEntryPoint owners)
+        │
+@AndroidEntryPoint MainActivity, SplashActivity
+```
+
+- **`FinanControlApp`** — `@HiltAndroidApp`, registered as `android:name=".FinanControlApp"` in the manifest.
+- **`DatabaseModule`** (`@InstallIn(SingletonComponent::class)`) — provides `@Singleton FinancialDB` via `Room.databaseBuilder(...)`, plus `CategoryDao`/`IncomeDao`.
+- **`RepositoryModule`** — provides `@Singleton` repository instances built from the injected DAOs.
+- **Activities** — `MainActivity` and `SplashActivity` are `@AndroidEntryPoint`; their ViewModels resolve through the Hilt `ViewModelFactory`.
+- **ViewModels** — `CategoryViewModel` and `InsightViewModel` are `@HiltViewModel` with `@Inject constructor()`.
+
+> **Migration note (CHRIS-230 scope):** DI scaffolding only. ViewModels still lazily build repositories from `Context` (`initRepository`/`getRepository`) for backward compatibility — removing `Context` from ViewModels and switching to constructor-injected repositories is tracked in **CHRIS-231**. The DI graph (modules) already exposes injectable repositories for that follow-up.
 
 ## Repository Layer
 

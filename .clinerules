@@ -42,7 +42,7 @@ When you need to act in a specific role, load the corresponding agent file from 
 - **Package**: `com.locotoDevTeam.financontrol`
 - **Language**: Kotlin 2.0.21 (JVM target 1.8), with some Java chart classes
 - **Build System**: Gradle 8.13 with **Kotlin DSL** (`.gradle.kts`) + **Version Catalog** (`libs.versions.toml`)
-- **Architecture**: MVVM + Repository with Room, LiveData, ViewModel, Navigation 2.8.7, ViewBinding
+- **Architecture**: MVVM + Repository with Room, LiveData, ViewModel, Navigation 2.8.7, ViewBinding, **Hilt DI (Dagger 2.52)**
 - **AGP**: 8.13.2 — **compileSdk 36**, **targetSdk 36**, minSdk 21
 - **JDK**: 21 (Android Studio bundled locally, Temurin 21 on CI)
 - **Database**: Room 2.4.1 with `Category` and `Income` entities
@@ -62,9 +62,16 @@ When you need to act in a specific role, load the corresponding agent file from 
 #### Architecture
 - **Data flow**: `Fragment → ViewModel → Repository → DAO → Room DB`
 - **Never** call DAOs directly from Fragments or ViewModels — always go through Repository
-- Repositories take DAOs as constructor params (ready for Hilt DI)
-- ViewModels lazily initialize repositories from `FinancialDB` (will be replaced by Hilt)
+- Repositories take DAOs as constructor params (injected via Hilt `RepositoryModule`)
+- ViewModels lazily initialize repositories from `FinancialDB` today; migration to constructor injection is tracked in CHRIS-231
 - Use `activityViewModels()` for ViewModels shared between fragments and MainActivity
+
+#### Dependency Injection (Hilt)
+- DI graph lives in `di/` — `DatabaseModule` (provides `@Singleton FinancialDB` + DAOs) and `RepositoryModule` (provides repositories)
+- Application class `FinanControlApp` is `@HiltAndroidApp`; new Activities/Fragments needing injection use `@AndroidEntryPoint`
+- New ViewModels use `@HiltViewModel` with `@Inject constructor(...)`; obtain them via `viewModels()`/`activityViewModels()`
+- Prefer Hilt injection over `FinancialDB.getAppDataBase(context)` — the manual singleton is `@Deprecated`
+- Hilt uses **kapt** (consistent with Room); `kapt { correctErrorTypes = true }` is required
 
 #### Kotlin
 - Use `ViewBinding.bind(view)` — never `inflate()`

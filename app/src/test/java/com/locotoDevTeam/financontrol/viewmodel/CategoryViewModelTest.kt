@@ -1,6 +1,7 @@
 package com.locotoDevTeam.financontrol.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.locotoDevTeam.financontrol.database.entity.TransactionType
 import com.locotoDevTeam.financontrol.page.CategoryViewModelPage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -69,20 +70,20 @@ class CategoryViewModelTest {
     fun `insertNewIncomeExpense delegates Income type`() = runTest {
         page.stubInsertIncome()
 
-        page.viewModel.insertNewIncomeExpense(1L, 200.0, "Income")
+        page.viewModel.insertNewIncomeExpense(1L, 200.0, TransactionType.INCOME)
         testDispatcher.scheduler.advanceUntilIdle()
 
-        page.verifyInsertIncomeCalled("Income", 200.0, 1L)
+        page.verifyInsertIncomeCalled(TransactionType.INCOME, 200.0, 1L)
     }
 
     @Test
     fun `insertNewIncomeExpense delegates Expense type`() = runTest {
         page.stubInsertIncome()
 
-        page.viewModel.insertNewIncomeExpense(3L, 75.0, "Expense")
+        page.viewModel.insertNewIncomeExpense(3L, 75.0, TransactionType.EXPENSE)
         testDispatcher.scheduler.advanceUntilIdle()
 
-        page.verifyInsertIncomeCalled("Expense", 75.0, 3L)
+        page.verifyInsertIncomeCalled(TransactionType.EXPENSE, 75.0, 3L)
     }
 
     // ── deleteACategoryById ──

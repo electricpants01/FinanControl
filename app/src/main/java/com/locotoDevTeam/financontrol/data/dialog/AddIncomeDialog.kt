@@ -12,6 +12,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.locotoDevTeam.financontrol.R
+import com.locotoDevTeam.financontrol.database.entity.TransactionType
 import com.locotoDevTeam.financontrol.databinding.DialogAddCategoryBinding
 import com.locotoDevTeam.financontrol.databinding.DialogAddIncomeBinding
 import com.locotoDevTeam.financontrol.ui.insight.InsightViewModel
@@ -22,15 +23,11 @@ class AddIncomeDialog: BottomSheetDialogFragment() {
     private val insightViewModel: InsightViewModel by activityViewModels()
     private lateinit var binding: DialogAddIncomeBinding
     private lateinit var listener: AddIncomeListener
-    private var spinnerItemSelected: String = ""
-
-    enum class Insight{
-        Income, Expense;
-    }
+    private var spinnerItemSelected: TransactionType = TransactionType.INCOME
 
     interface AddIncomeListener{
         // this listener is executed in the MainActivity.kt
-        fun onAddIncomeTapped(categoryId: Long, amount: Double, type: String)
+        fun onAddIncomeTapped(categoryId: Long, amount: Double, type: TransactionType)
     }
 
     override fun onAttach(context: Context) {
@@ -83,11 +80,7 @@ class AddIncomeDialog: BottomSheetDialogFragment() {
 
         binding.spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, id: Long) {
-                spinnerItemSelected = when(position){
-                    Insight.Income.ordinal -> Insight.Income.name
-                    Insight.Expense.ordinal -> Insight.Expense.name
-                    else -> Insight.Income.name
-                }
+                spinnerItemSelected = TransactionType.entries[position]
             }
             override fun onNothingSelected(p0: AdapterView<*>?) {
             }

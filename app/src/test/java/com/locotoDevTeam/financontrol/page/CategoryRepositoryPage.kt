@@ -4,6 +4,7 @@ import com.locotoDevTeam.financontrol.database.dao.CategoryDao
 import com.locotoDevTeam.financontrol.database.dao.IncomeDao
 import com.locotoDevTeam.financontrol.database.entity.Category
 import com.locotoDevTeam.financontrol.database.entity.Income
+import com.locotoDevTeam.financontrol.database.entity.TransactionType
 import com.locotoDevTeam.financontrol.ui.category.CategoryRepository
 import io.mockk.every
 import io.mockk.mockk
@@ -42,7 +43,7 @@ class CategoryRepositoryPage {
         verify { categoryDao.insert(match { it.name == name }) }
     }
 
-    fun verifyInsertIncomeCalled(type: String, amount: Double, categoryId: Long) {
+    fun verifyInsertIncomeCalled(type: TransactionType, amount: Double, categoryId: Long) {
         verify {
             incomeDao.insert(match {
                 it.type == type && it.amount == amount && it.categoryId == categoryId

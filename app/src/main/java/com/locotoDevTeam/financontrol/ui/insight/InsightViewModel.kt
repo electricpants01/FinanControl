@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.locotoDevTeam.financontrol.database.entity.Income
+import com.locotoDevTeam.financontrol.database.entity.TransactionType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -53,8 +54,8 @@ class InsightViewModel @Inject constructor(
     // secondly we get the last 15 item from each ones
     // thirdly we sort by date
     fun splitIncomeAndExpenses(incomeList: List<Income>) {
-        var incomes = incomeList.filter { it.type == "Income" }
-        var expenses = incomeList.filter { it.type == "Expense" }
+        var incomes = incomeList.filter { it.type == TransactionType.INCOME }
+        var expenses = incomeList.filter { it.type == TransactionType.EXPENSE }
         incomes = incomes.sortedByDescending { it.timestamp }
         expenses = expenses.sortedByDescending { it.timestamp }
         var finalIncomes = mutableListOf<Income>()

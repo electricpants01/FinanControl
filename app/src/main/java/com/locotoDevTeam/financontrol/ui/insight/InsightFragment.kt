@@ -15,6 +15,7 @@ import com.locotoDevTeam.financontrol.data.adapter.InsightAdapter
 import com.locotoDevTeam.financontrol.data.dialog.AddIncomeDialog
 import com.locotoDevTeam.financontrol.data.dialog.MaterialAlert
 import com.locotoDevTeam.financontrol.database.entity.Income
+import com.locotoDevTeam.financontrol.database.entity.TransactionType
 import com.locotoDevTeam.financontrol.databinding.FragmentInsightBinding
 import com.locotoDevTeam.financontrol.fancyChart.FancyChart
 import com.locotoDevTeam.financontrol.fancyChart.MyFancyChartBuilder
@@ -85,7 +86,7 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
     }
 
     override fun onInsightTapped(income: Income) {
-        val type = if (income.type == "Income") getString(R.string.income) else getString(R.string.expense)
+        val type = if (income.type == TransactionType.INCOME) getString(R.string.income) else getString(R.string.expense)
         val text = getString(R.string.insight_item_tapped, type, income.amount.toString(), income.timestamp.formatDateAndTimeString())
         Snackbar.make(binding.floatAddInsight, text, Snackbar.LENGTH_LONG)
             .show()

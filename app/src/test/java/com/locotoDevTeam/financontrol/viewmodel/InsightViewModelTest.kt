@@ -54,7 +54,7 @@ class InsightViewModelTest {
         val income = Income(1L, "Test", "Income", 100.0, 5L, "1000")
         page.stubDeleteIncome(income)
 
-        page.viewModel.deleteInsight(income, mockkContext())
+        page.viewModel.deleteInsight(income)
         testDispatcher.scheduler.advanceUntilIdle()
 
         page.verifyDeleteIncomeCalled(income)
@@ -65,7 +65,7 @@ class InsightViewModelTest {
         val income = Income(2L, null, "Expense", 50.0, 3L, "2000")
         page.stubDeleteIncome(income)
 
-        page.viewModel.deleteInsight(income, mockkContext())
+        page.viewModel.deleteInsight(income)
         testDispatcher.scheduler.advanceUntilIdle()
 
         page.verifyDeleteIncomeCalled(income)
@@ -76,7 +76,7 @@ class InsightViewModelTest {
         val incomes = listOf(Income(1L, null, "Income", 100.0, 7L, "100"))
         page.stubGetAllByCategoryId(7L, *incomes.toTypedArray())
 
-        val result = page.viewModel.getIncomesByCategoryId(7L, mockkContext())
+        val result = page.viewModel.getIncomesByCategoryId(7L)
 
         assertEquals(incomes, result.value)
         page.verifyGetAllByCategoryIdCalled(7L)
@@ -86,7 +86,7 @@ class InsightViewModelTest {
     fun `getIncomesByCategoryId returns empty list for empty category`() {
         page.stubGetAllByCategoryId(999L)
 
-        val result = page.viewModel.getIncomesByCategoryId(999L, mockkContext())
+        val result = page.viewModel.getIncomesByCategoryId(999L)
 
         assertTrue(result.value!!.isEmpty())
     }
@@ -141,6 +141,4 @@ class InsightViewModelTest {
         val result = page.viewModel.incomeExpenseGraphList.value!!
         assertTrue(result.isEmpty())
     }
-
-    private fun mockkContext(): android.content.Context = io.mockk.mockk(relaxed = true)
 }

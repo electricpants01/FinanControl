@@ -15,11 +15,7 @@ class CategoryViewModelPage {
     val categoryDao: CategoryDao = mockk(relaxed = true)
     val incomeDao: IncomeDao = mockk(relaxed = true)
     val repository: CategoryRepository = mockk(relaxed = true)
-    val viewModel = CategoryViewModel()
-
-    init {
-        viewModel.setTestRepository(repository)
-    }
+    val viewModel = CategoryViewModel(repository)
 
     fun setTestDispatcher(dispatcher: CoroutineDispatcher) {
         viewModel.setTestDispatcher(dispatcher)

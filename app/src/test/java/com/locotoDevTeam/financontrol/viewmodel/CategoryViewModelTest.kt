@@ -19,7 +19,7 @@ import org.junit.runners.JUnit4
 /**
  * Unit tests for CategoryViewModel.
  * Uses Page Object pattern: CategoryViewModelPage encapsulates mock setup and assertions.
- * The ViewModel's setTestRepository() and setTestDispatcher() are called to inject mocks.
+ * The mock repository is injected via the ViewModel's constructor; setTestDispatcher() controls coroutines.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class CategoryViewModelTest {
@@ -47,7 +47,7 @@ class CategoryViewModelTest {
     fun `insertNewCategory delegates to repository`() = runTest {
         page.stubInsertCategory()
 
-        page.viewModel.insertNewCategory("Salary", mockkContext())
+        page.viewModel.insertNewCategory("Salary")
         testDispatcher.scheduler.advanceUntilIdle()
 
         page.verifyInsertCategoryCalled("Salary")
@@ -57,7 +57,7 @@ class CategoryViewModelTest {
     fun `insertNewCategory with empty name still delegates`() = runTest {
         page.stubInsertCategory()
 
-        page.viewModel.insertNewCategory("", mockkContext())
+        page.viewModel.insertNewCategory("")
         testDispatcher.scheduler.advanceUntilIdle()
 
         page.verifyInsertCategoryCalled("")
@@ -69,7 +69,7 @@ class CategoryViewModelTest {
     fun `insertNewIncomeExpense delegates Income type`() = runTest {
         page.stubInsertIncome()
 
-        page.viewModel.insertNewIncomeExpense(1L, 200.0, "Income", mockkContext())
+        page.viewModel.insertNewIncomeExpense(1L, 200.0, "Income")
         testDispatcher.scheduler.advanceUntilIdle()
 
         page.verifyInsertIncomeCalled("Income", 200.0, 1L)
@@ -79,7 +79,7 @@ class CategoryViewModelTest {
     fun `insertNewIncomeExpense delegates Expense type`() = runTest {
         page.stubInsertIncome()
 
-        page.viewModel.insertNewIncomeExpense(3L, 75.0, "Expense", mockkContext())
+        page.viewModel.insertNewIncomeExpense(3L, 75.0, "Expense")
         testDispatcher.scheduler.advanceUntilIdle()
 
         page.verifyInsertIncomeCalled("Expense", 75.0, 3L)
@@ -91,7 +91,7 @@ class CategoryViewModelTest {
     fun `deleteACategoryById delegates to repository`() = runTest {
         page.stubDeleteCategoryById()
 
-        page.viewModel.deleteACategoryById(10L, mockkContext())
+        page.viewModel.deleteACategoryById(10L)
         testDispatcher.scheduler.advanceUntilIdle()
 
         page.verifyDeleteCategoryByIdCalled(10L)
@@ -104,7 +104,7 @@ class CategoryViewModelTest {
         page.stubGetSumIncome(1000.0)
         page.stubGetSumExpense(400.0)
 
-        page.viewModel.refreshOverview(mockkContext())
+        page.viewModel.refreshOverview()
         testDispatcher.scheduler.advanceUntilIdle()
 
         page.verifyGetSumIncomeCalled()
@@ -120,7 +120,7 @@ class CategoryViewModelTest {
         page.stubGetSumIncome(0.0)
         page.stubGetSumExpense(0.0)
 
-        page.viewModel.refreshOverview(mockkContext())
+        page.viewModel.refreshOverview()
         testDispatcher.scheduler.advanceUntilIdle()
 
         val overview = page.viewModel.overview.getOrAwaitValue()
@@ -136,10 +136,6 @@ class CategoryViewModelTest {
         val categories = page.viewModel.categories
         assertNotNull(categories)
     }
-
-    // ── Helper ──
-
-    private fun mockkContext(): android.content.Context = io.mockk.mockk(relaxed = true)
 }
 
 fun <T> androidx.lifecycle.LiveData<T>.getOrAwaitValue(): T {

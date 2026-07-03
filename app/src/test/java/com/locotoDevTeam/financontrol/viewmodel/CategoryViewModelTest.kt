@@ -4,7 +4,6 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.locotoDevTeam.financontrol.database.entity.Category
 import com.locotoDevTeam.financontrol.database.entity.TransactionType
 import com.locotoDevTeam.financontrol.page.CategoryViewModelPage
-import com.locotoDevTeam.financontrol.ui.category.CategoriesUiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -21,10 +20,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-/**
- * Unit tests for CategoryViewModel.
- * Uses Page Object pattern: CategoryViewModelPage encapsulates mock setup and assertions.
- */
 @OptIn(ExperimentalCoroutinesApi::class)
 class CategoryViewModelTest {
 
@@ -110,7 +105,7 @@ class CategoryViewModelTest {
         page.verifyDeleteCategoryByIdCalled(10L)
     }
 
-    // ── categoriesUiState (replaces refreshOverview) ──
+    // ── categoriesUiState ──
 
     @Test
     fun `categoriesUiState updates when categories are emitted`() = runTest {
@@ -119,6 +114,8 @@ class CategoryViewModelTest {
         val vm = page.createViewModel()
         vm.setTestDispatcher(testDispatcher)
 
+        // Let the init block's collect start (it will suspend waiting for emission)
+        advanceUntilIdle()
         page.emitCategories(Category(1L, "Salary"), Category(2L, "Rent"))
         advanceUntilIdle()
 
@@ -149,6 +146,7 @@ class CategoryViewModelTest {
         val vm = page.createViewModel()
         vm.setTestDispatcher(testDispatcher)
 
+        advanceUntilIdle()
         page.emitCategories()
         advanceUntilIdle()
 

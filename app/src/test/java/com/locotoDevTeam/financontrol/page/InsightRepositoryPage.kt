@@ -6,12 +6,8 @@ import com.locotoDevTeam.financontrol.ui.insight.InsightRepository
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.flow.flowOf
 
-/**
- * Page Object for InsightRepository tests.
- * Encapsulates mock DAO setup and provides the system under test (InsightRepository)
- * along with assertion helpers.
- */
 class InsightRepositoryPage {
 
     val incomeDao: IncomeDao = mockk(relaxed = true)
@@ -20,9 +16,7 @@ class InsightRepositoryPage {
     // ── Stub helpers ──
 
     fun stubGetAllByCategoryId(categoryId: Long, vararg incomes: Income) {
-        every { incomeDao.getAllByCategoryId(categoryId) } returns mockk {
-            every { value } returns incomes.toList()
-        }
+        every { incomeDao.getAllByCategoryId(categoryId) } returns flowOf(incomes.toList())
     }
 
     // ── Assertion helpers ──

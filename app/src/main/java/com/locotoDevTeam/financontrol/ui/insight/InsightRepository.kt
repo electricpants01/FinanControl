@@ -1,8 +1,8 @@
 package com.locotoDevTeam.financontrol.ui.insight
 
-import androidx.lifecycle.LiveData
 import com.locotoDevTeam.financontrol.database.dao.IncomeDao
 import com.locotoDevTeam.financontrol.database.entity.Income
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Repository that wraps Room DAO calls for Insight (per-category income/expense) operations.
@@ -17,7 +17,7 @@ class InsightRepository(
      * Returns a LiveData list of all income/expense entries for a specific category.
      * Observed by the UI for reactive updates.
      */
-    fun getAllByCategoryId(categoryId: Long): LiveData<List<Income>> =
+    fun getAllByCategoryId(categoryId: Long): Flow<List<Income>> =
         incomeDao.getAllByCategoryId(categoryId)
 
     /**

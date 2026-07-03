@@ -1,6 +1,5 @@
 package com.locotoDevTeam.financontrol.ui.insight
 
-import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -8,8 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.locotoDevTeam.financontrol.database.entity.Income
 import com.locotoDevTeam.financontrol.database.entity.TransactionType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,19 +29,10 @@ class InsightViewModel @Inject constructor(
     private val insightRepository: InsightRepository
 ) : ViewModel() {
 
-    private var dispatcher: CoroutineDispatcher = Dispatchers.IO
     var categoryId = MutableLiveData<Long>()
 
     private val _insightUiState = MutableStateFlow(InsightUiState())
     val insightUiState: StateFlow<InsightUiState> = _insightUiState.asStateFlow()
-
-    /**
-     * Set test dispatcher for unit testing to avoid flaky async behavior.
-     */
-    @VisibleForTesting
-    internal fun setTestDispatcher(dispatcher: CoroutineDispatcher) {
-        this.dispatcher = dispatcher
-    }
 
     /**
      * Returns LiveData of income/expense entries for the given category,
@@ -59,7 +47,7 @@ class InsightViewModel @Inject constructor(
     }
 
     fun deleteInsight(income: Income) {
-        viewModelScope.launch(dispatcher) {
+        viewModelScope.launch {
             insightRepository.deleteIncome(income)
         }
     }

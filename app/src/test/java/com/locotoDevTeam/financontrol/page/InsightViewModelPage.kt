@@ -9,17 +9,12 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import kotlinx.coroutines.CoroutineDispatcher
 
 class InsightViewModelPage {
 
     val incomeDao: IncomeDao = mockk(relaxed = true)
     val repository: InsightRepository = mockk(relaxed = true)
     val viewModel = InsightViewModel(repository)
-
-    fun setTestDispatcher(dispatcher: CoroutineDispatcher) {
-        viewModel.setTestDispatcher(dispatcher)
-    }
 
     // ── Stub helpers ──
 

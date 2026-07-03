@@ -30,7 +30,6 @@ class InsightViewModelTest {
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
-        page.setTestDispatcher(testDispatcher)
     }
 
     @After

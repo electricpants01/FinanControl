@@ -9,6 +9,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.fragment.app.setFragmentResultListener
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -23,6 +24,7 @@ import com.locotoDevTeam.financontrol.databinding.FragmentInsightBinding
 import com.locotoDevTeam.financontrol.fancyChart.FancyChart
 import com.locotoDevTeam.financontrol.fancyChart.MyFancyChartBuilder
 import com.locotoDevTeam.financontrol.ui.MainActivity
+import com.locotoDevTeam.financontrol.ui.category.CategoryViewModel
 import com.locotoDevTeam.financontrol.util.formatDateAndTimeString
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -33,6 +35,7 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
 
     private val args: InsightFragmentArgs by navArgs()
     private val insightViewModel: InsightViewModel by activityViewModels()
+    private val categoryViewModel: CategoryViewModel by activityViewModels()
     lateinit var binding: FragmentInsightBinding
     lateinit var recycler: RecyclerView
     lateinit var adapter: InsightAdapter
@@ -47,6 +50,7 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
         (activity as MainActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
         insightViewModel.setCategoryId(args.categoryId)
         chart = binding.insightFancyChart
+        listenForDialogResult()
         chart.setOnPointClickListener {
             Snackbar.make(binding.floatAddInsight, getString(R.string.insight_point_item_tapped, it.y.toString()), Snackbar.LENGTH_SHORT).show()
         }
@@ -99,6 +103,21 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
                     MyFancyChartBuilder.createChart(state.chartData, chart)
                 }
             }
+        }
+    }
+
+    /**
+     * Listens for the result from AddIncomeDialog via FragmentResultListener,
+     * replacing the previous pattern where MainActivity implemented the dialog's
+     * listener interface.
+     */
+    private fun listenForDialogResult() {
+        setFragmentResultListener(AddIncomeDialog.REQUEST_KEY) { _, bundle ->
+            val categoryId = bundle.getLong(AddIncomeDialog.KEY_CATEGORY_ID)
+            val amount = bundle.getDouble(AddIncomeDialog.KEY_AMOUNT)
+            val typeName = bundle.getString(AddIncomeDialog.KEY_TYPE) ?: return@setFragmentResultListener
+            val type = try { TransactionType.valueOf(typeName) } catch (_: IllegalArgumentException) { TransactionType.INCOME }
+            categoryViewModel.insertNewIncomeExpense(categoryId, amount, type)
         }
     }
 

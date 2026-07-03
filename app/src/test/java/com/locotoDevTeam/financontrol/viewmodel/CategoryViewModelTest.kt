@@ -50,7 +50,6 @@ class CategoryViewModelTest {
     fun `insertNewCategory delegates to repository`() = runTest {
         page.stubInsertCategory()
         val vm = page.createViewModel()
-        vm.setTestDispatcher(testDispatcher)
 
         vm.insertNewCategory("Salary")
         advanceUntilIdle()
@@ -62,7 +61,6 @@ class CategoryViewModelTest {
     fun `insertNewCategory with empty name still delegates`() = runTest {
         page.stubInsertCategory()
         val vm = page.createViewModel()
-        vm.setTestDispatcher(testDispatcher)
 
         vm.insertNewCategory("")
         advanceUntilIdle()
@@ -76,7 +74,6 @@ class CategoryViewModelTest {
     fun `insertNewIncomeExpense delegates Income type`() = runTest {
         page.stubInsertIncome()
         val vm = page.createViewModel()
-        vm.setTestDispatcher(testDispatcher)
 
         vm.insertNewIncomeExpense(1L, 200.0, TransactionType.INCOME)
         advanceUntilIdle()
@@ -88,7 +85,6 @@ class CategoryViewModelTest {
     fun `insertNewIncomeExpense delegates Expense type`() = runTest {
         page.stubInsertIncome()
         val vm = page.createViewModel()
-        vm.setTestDispatcher(testDispatcher)
 
         vm.insertNewIncomeExpense(3L, 75.0, TransactionType.EXPENSE)
         advanceUntilIdle()
@@ -102,7 +98,6 @@ class CategoryViewModelTest {
     fun `deleteACategoryById delegates to repository`() = runTest {
         page.stubDeleteCategoryById()
         val vm = page.createViewModel()
-        vm.setTestDispatcher(testDispatcher)
 
         vm.deleteACategoryById(10L)
         advanceUntilIdle()
@@ -117,7 +112,6 @@ class CategoryViewModelTest {
         page.stubGetSumIncome(1000.0)
         page.stubGetSumExpense(400.0)
         val vm = page.createViewModel()
-        vm.setTestDispatcher(testDispatcher)
 
         page.emitCategories(Category(1L, "Salary"), Category(2L, "Rent"))
         advanceUntilIdle()
@@ -147,7 +141,6 @@ class CategoryViewModelTest {
         page.stubGetSumIncome(0.0)
         page.stubGetSumExpense(0.0)
         val vm = page.createViewModel()
-        vm.setTestDispatcher(testDispatcher)
 
         page.emitCategories()
         advanceUntilIdle()

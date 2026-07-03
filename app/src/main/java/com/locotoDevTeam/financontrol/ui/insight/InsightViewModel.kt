@@ -10,8 +10,22 @@ import com.locotoDevTeam.financontrol.database.entity.TransactionType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+/**
+ * UiState for the Insight (per-category chart) screen.
+ * Contains the processed chart-ready items, the raw income list,
+ * and a flag for the empty state.
+ */
+data class InsightUiState(
+    val items: List<Income> = emptyList(),
+    val chartData: List<Income> = emptyList(),
+    val isEmpty: Boolean = true
+)
 
 @HiltViewModel
 class InsightViewModel @Inject constructor(
@@ -20,7 +34,9 @@ class InsightViewModel @Inject constructor(
 
     private var dispatcher: CoroutineDispatcher = Dispatchers.IO
     var categoryId = MutableLiveData<Long>()
-    val incomeExpenseGraphList = MutableLiveData<List<Income>>()
+
+    private val _insightUiState = MutableStateFlow(InsightUiState())
+    val insightUiState: StateFlow<InsightUiState> = _insightUiState.asStateFlow()
 
     /**
      * Set test dispatcher for unit testing to avoid flaky async behavior.
@@ -38,21 +54,20 @@ class InsightViewModel @Inject constructor(
         return insightRepository.getAllByCategoryId(categoryId)
     }
 
-    // first, we need to set up the id the of category
     fun setCategoryId(newCategoryId: Long) {
         this.categoryId.value = newCategoryId
     }
 
-    // delete an insight
     fun deleteInsight(income: Income) {
         viewModelScope.launch(dispatcher) {
             insightRepository.deleteIncome(income)
         }
     }
 
-    // first we split into to arrays, oen of income and other of expenses
-    // secondly we get the last 15 item from each ones
-    // thirdly we sort by date
+    /**
+     * Splits the raw income list into income/expense groups, takes the last 15
+     * of each, sorts by timestamp, and publishes the result via [insightUiState].
+     */
     fun splitIncomeAndExpenses(incomeList: List<Income>) {
         var incomes = incomeList.filter { it.type == TransactionType.INCOME }
         var expenses = incomeList.filter { it.type == TransactionType.EXPENSE }
@@ -70,6 +85,10 @@ class InsightViewModel @Inject constructor(
         }
         var finalIncomeExpenseList = finalIncomes + finalExpenses
         finalIncomeExpenseList = finalIncomeExpenseList.sortedBy { it.timestamp }
-        incomeExpenseGraphList.value = finalIncomeExpenseList
+        _insightUiState.value = InsightUiState(
+            items = incomeList,
+            chartData = finalIncomeExpenseList,
+            isEmpty = incomeList.isEmpty()
+        )
     }
 }

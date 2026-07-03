@@ -76,15 +76,19 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
     }
 
     /**
-     * Observe raw incomes from the repository (via ViewModel). When they arrive,
-     * delegate processing to the ViewModel which updates [InsightUiState].
+     * Collect raw incomes from the repository Flow (via ViewModel). When they
+     * arrive, delegate processing to the ViewModel which updates [InsightUiState].
      */
     private fun observeIncomes() {
         val categoryId = insightViewModel.categoryId.value
-        categoryId?.let {
-            insightViewModel.getIncomesByCategoryId(it).observe(viewLifecycleOwner) { incomes ->
-                insightViewModel.splitIncomeAndExpenses(incomes)
-                adapter.setNewIncomeList(incomes)
+        categoryId?.let { id ->
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    insightViewModel.getIncomesByCategoryId(id).collect { incomes ->
+                        insightViewModel.splitIncomeAndExpenses(incomes)
+                        adapter.setNewIncomeList(incomes)
+                    }
+                }
             }
         }
     }

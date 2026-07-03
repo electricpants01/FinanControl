@@ -1,7 +1,6 @@
 package com.locotoDevTeam.financontrol.ui.insight
 
 import androidx.annotation.VisibleForTesting
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,6 +9,7 @@ import com.locotoDevTeam.financontrol.database.entity.TransactionType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -47,10 +47,10 @@ class InsightViewModel @Inject constructor(
     }
 
     /**
-     * Returns LiveData of income/expense entries for the given category,
+     * Returns a Flow of income/expense entries for the given category,
      * sourced from the InsightRepository (not directly from DAO).
      */
-    fun getIncomesByCategoryId(categoryId: Long): LiveData<List<Income>> {
+    fun getIncomesByCategoryId(categoryId: Long): Flow<List<Income>> {
         return insightRepository.getAllByCategoryId(categoryId)
     }
 

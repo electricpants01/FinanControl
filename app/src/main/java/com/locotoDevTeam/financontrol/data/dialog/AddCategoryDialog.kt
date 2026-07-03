@@ -1,29 +1,25 @@
 package com.locotoDevTeam.financontrol.data.dialog
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.DialogFragment
+import androidx.core.os.bundleOf
+import androidx.fragment.app.setFragmentResult
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.locotoDevTeam.financontrol.R
 import com.locotoDevTeam.financontrol.databinding.DialogAddCategoryBinding
 
 class AddCategoryDialog: BottomSheetDialogFragment() {
 
+    companion object {
+        /** Request key used by FragmentResultListener in CategoryFragment. */
+        const val REQUEST_KEY = "AddCategoryDialog_result"
+        const val KEY_CATEGORY_NAME = "categoryName"
+    }
+
     lateinit var binding: DialogAddCategoryBinding
-    lateinit var listener: AddCategoryListener
 
-    interface AddCategoryListener{
-        // this listener is executed in the MainActivity.kt
-        fun onAddCategoryTapped(categoryName: String)
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        listener = context as AddCategoryListener
-    }
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -40,7 +36,6 @@ class AddCategoryDialog: BottomSheetDialogFragment() {
     }
 
     fun initButtonListener(){
-        // this button creates a new category
         binding.btnAddCategory.setOnClickListener {
             if( binding.editTextTextPersonName.text.toString().isEmpty() ){
                 binding.editTextTextPersonName.error = context?.getString(R.string.dialog_should_not_be_empty)
@@ -51,7 +46,7 @@ class AddCategoryDialog: BottomSheetDialogFragment() {
                 return@setOnClickListener
             }
             val text = binding.editTextTextPersonName.text.toString()
-            listener.onAddCategoryTapped(text)
+            setFragmentResult(REQUEST_KEY, bundleOf(KEY_CATEGORY_NAME to text))
             dismiss()
         }
         binding.btnCancelCategory.setOnClickListener {

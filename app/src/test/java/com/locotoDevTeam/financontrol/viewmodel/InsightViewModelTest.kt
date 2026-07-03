@@ -6,6 +6,7 @@ import com.locotoDevTeam.financontrol.database.entity.TransactionType
 import com.locotoDevTeam.financontrol.page.InsightViewModelPage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -73,23 +74,22 @@ class InsightViewModelTest {
     }
 
     @Test
-    fun `getIncomesByCategoryId returns LiveData from repository`() {
+    fun `getIncomesByCategoryId returns Flow from repository`() = runTest {
         val incomes = listOf(Income(1L, null, TransactionType.INCOME, 100.0, 7L, 100L))
         page.stubGetAllByCategoryId(7L, *incomes.toTypedArray())
 
-        val result = page.viewModel.getIncomesByCategoryId(7L)
+        val result = page.viewModel.getIncomesByCategoryId(7L).first()
 
-        assertEquals(incomes, result.value)
-        page.verifyGetAllByCategoryIdCalled(7L)
+        assertEquals(incomes, result)
     }
 
     @Test
-    fun `getIncomesByCategoryId returns empty list for empty category`() {
+    fun `getIncomesByCategoryId returns empty list for empty category`() = runTest {
         page.stubGetAllByCategoryId(999L)
 
-        val result = page.viewModel.getIncomesByCategoryId(999L)
+        val result = page.viewModel.getIncomesByCategoryId(999L).first()
 
-        assertTrue(result.value!!.isEmpty())
+        assertTrue(result.isEmpty())
     }
 
     @Test

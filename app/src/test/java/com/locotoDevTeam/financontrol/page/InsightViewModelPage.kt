@@ -8,7 +8,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
+import kotlinx.coroutines.flow.flowOf
 
 class InsightViewModelPage {
 
@@ -19,9 +19,7 @@ class InsightViewModelPage {
     // ── Stub helpers ──
 
     fun stubGetAllByCategoryId(categoryId: Long, vararg incomes: Income) {
-        every { repository.getAllByCategoryId(categoryId) } returns mockk {
-            every { value } returns incomes.toList()
-        }
+        every { repository.getAllByCategoryId(categoryId) } returns flowOf(incomes.toList())
     }
 
     fun stubDeleteIncome(income: Income) {
@@ -32,9 +30,5 @@ class InsightViewModelPage {
 
     fun verifyDeleteIncomeCalled(income: Income) {
         coVerify { repository.deleteIncome(income) }
-    }
-
-    fun verifyGetAllByCategoryIdCalled(categoryId: Long) {
-        verify { repository.getAllByCategoryId(categoryId) }
     }
 }

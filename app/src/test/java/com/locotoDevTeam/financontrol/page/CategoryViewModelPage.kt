@@ -1,18 +1,16 @@
 package com.locotoDevTeam.financontrol.page
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.locotoDevTeam.financontrol.database.dao.CategoryDao
 import com.locotoDevTeam.financontrol.database.dao.IncomeDao
 import com.locotoDevTeam.financontrol.database.entity.Category
 import com.locotoDevTeam.financontrol.database.entity.TransactionType
-import com.locotoDevTeam.financontrol.ui.category.CategoriesUiState
 import com.locotoDevTeam.financontrol.ui.category.CategoryRepository
 import com.locotoDevTeam.financontrol.ui.category.CategoryViewModel
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 class CategoryViewModelPage {
 
@@ -20,21 +18,21 @@ class CategoryViewModelPage {
     val incomeDao: IncomeDao = mockk(relaxed = true)
     val repository: CategoryRepository = mockk(relaxed = true)
 
-    /** LiveData backing the repository's getAllCategories() for the init-block observer. */
-    private val categoriesLiveData = MutableLiveData<List<Category>>()
+    /** Flow backing the repository's getAllCategories() for the init-block collector. */
+    private val categoriesFlow = MutableSharedFlow<List<Category>>(replay = 0)
 
     /**
      * Create the ViewModel AFTER stubs are set up so the init block observes the
-     * correct LiveData.
+     * correct Flow.
      */
     fun createViewModel(): CategoryViewModel {
-        every { repository.getAllCategories() } returns categoriesLiveData
+        every { repository.getAllCategories() } returns categoriesFlow
         return CategoryViewModel(repository)
     }
 
-    /** Triggers the init-block observer as if the DB emitted new categories. */
-    fun emitCategories(vararg categories: Category) {
-        categoriesLiveData.value = categories.toList()
+    /** Emits categories into the Flow, triggering the init-block collector. */
+    suspend fun emitCategories(vararg categories: Category) {
+        categoriesFlow.emit(categories.toList())
     }
 
     // ── Stub helpers ──

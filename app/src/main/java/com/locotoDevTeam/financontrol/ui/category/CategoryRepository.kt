@@ -1,11 +1,11 @@
 package com.locotoDevTeam.financontrol.ui.category
 
-import androidx.lifecycle.LiveData
 import com.locotoDevTeam.financontrol.database.dao.CategoryDao
 import com.locotoDevTeam.financontrol.database.dao.IncomeDao
 import com.locotoDevTeam.financontrol.database.entity.Category
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Repository that wraps Room DAO calls for Category-related operations.
@@ -20,7 +20,7 @@ class CategoryRepository(
     /**
      * Returns a LiveData list of all categories. Observed by the UI for reactive updates.
      */
-    fun getAllCategories(): LiveData<List<Category>> = categoryDao.getAll()
+    fun getAllCategories(): Flow<List<Category>> = categoryDao.getAll()
 
     /**
      * Inserts a new category into the database.

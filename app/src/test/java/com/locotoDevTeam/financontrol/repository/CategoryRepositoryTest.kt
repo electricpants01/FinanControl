@@ -4,16 +4,13 @@ import com.locotoDevTeam.financontrol.database.entity.Category
 import com.locotoDevTeam.financontrol.database.entity.Income
 import com.locotoDevTeam.financontrol.database.entity.TransactionType
 import com.locotoDevTeam.financontrol.page.CategoryRepositoryPage
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
-/**
- * Unit tests for CategoryRepository.
- * Uses Page Object pattern: CategoryRepositoryPage encapsulates mock setup and assertions.
- */
 class CategoryRepositoryTest {
 
     private val page = CategoryRepositoryPage()
@@ -26,22 +23,22 @@ class CategoryRepositoryTest {
     // ── getAllCategories ──
 
     @Test
-    fun `getAllCategories returns LiveData from DAO`() {
+    fun `getAllCategories returns Flow from DAO`() = runTest {
         val categories = listOf(Category(1L, "Salary"), Category(2L, "Rent"))
         page.stubGetAllCategories(*categories.toTypedArray())
 
-        val result = page.repository.getAllCategories()
+        val result = page.repository.getAllCategories().first()
 
-        assertEquals(categories, result.value)
+        assertEquals(categories, result)
     }
 
     @Test
-    fun `getAllCategories returns empty list when no categories`() {
+    fun `getAllCategories returns empty list when no categories`() = runTest {
         page.stubGetAllCategories()
 
-        val result = page.repository.getAllCategories()
+        val result = page.repository.getAllCategories().first()
 
-        assertTrue(result.value!!.isEmpty())
+        assertTrue(result.isEmpty())
     }
 
     // ── insertCategory ──

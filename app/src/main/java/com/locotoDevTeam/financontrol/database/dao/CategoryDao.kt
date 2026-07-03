@@ -1,6 +1,6 @@
 package com.locotoDevTeam.financontrol.database.dao
 
-import androidx.lifecycle.LiveData
+import kotlinx.coroutines.flow.Flow
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -11,7 +11,7 @@ import com.locotoDevTeam.financontrol.database.entity.Category
 interface CategoryDao{
 
     @Query("select * from category")
-    fun getAll(): LiveData<List<Category>>
+    fun getAll(): Flow<List<Category>>
 
     @Insert
     fun insert(category: Category)

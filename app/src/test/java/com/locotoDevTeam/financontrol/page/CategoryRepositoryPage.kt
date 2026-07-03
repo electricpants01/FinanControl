@@ -9,12 +9,8 @@ import com.locotoDevTeam.financontrol.ui.category.CategoryRepository
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.flow.flowOf
 
-/**
- * Page Object for CategoryRepository tests.
- * Encapsulates mock DAO setup and provides the system under test (CategoryRepository)
- * along with assertion helpers.
- */
 class CategoryRepositoryPage {
 
     val categoryDao: CategoryDao = mockk(relaxed = true)
@@ -24,9 +20,7 @@ class CategoryRepositoryPage {
     // ── Stub helpers ──
 
     fun stubGetAllCategories(vararg categories: Category) {
-        every { categoryDao.getAll() } returns mockk {
-            every { value } returns categories.toList()
-        }
+        every { categoryDao.getAll() } returns flowOf(categories.toList())
     }
 
     fun stubGetSumIncome(amount: Double) {

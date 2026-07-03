@@ -2,6 +2,7 @@ package com.locotoDevTeam.financontrol.ui.category
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.locotoDevTeam.financontrol.database.entity.Category
@@ -14,12 +15,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-/**
- * UiState for the Category screen — a single source of truth that the Fragment
- * renders. Replaces the previous two-stream (categories + overview) observation
- * with one state object. The ViewModel owns all decision logic; the Fragment
- * only calls render(state).
- */
 data class CategoriesUiState(
     val isEmpty: Boolean = true,
     val totalBalance: Double = 0.0,
@@ -36,23 +31,14 @@ class CategoryViewModel @Inject constructor(
     private val _categoriesUiState = MutableStateFlow(CategoriesUiState())
     val categoriesUiState: StateFlow<CategoriesUiState> = _categoriesUiState.asStateFlow()
 
-    /** Keeps a reference to the forever-observer so we can remove it in onCleared(). */
-    private var categoriesObserver: Observer<List<Category>>? = null
-
     init {
-        // Bridge the repository's LiveData into the StateFlow.  When categories
-        // change we also fetch income/expense totals so the UiState is complete.
-        val observer = Observer<List<Category>> { categories ->
-            refreshUiState(categories)
-        }
-        categoriesObserver = observer
-        categoryRepository.getAllCategories().observeForever(observer)
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        categoriesObserver?.let {
-            categoryRepository.getAllCategories().removeObserver(it)
+        // Collect categories from the repository Flow on Main (tests override
+        // Dispatchers.Main). Heavy DB work is dispatched to [dispatcher] inside
+        // refreshUiState. viewModelScope cancels the collection on clear.
+        viewModelScope.launch {
+            categoryRepository.getAllCategories().collect { categories ->
+                refreshUiState(categories)
+            }
         }
     }
 
@@ -75,8 +61,6 @@ class CategoryViewModel @Inject constructor(
             categoryRepository.deleteCategoryById(categoryId)
         }
     }
-
-    // ── internal helpers ──
 
     private fun refreshUiState(categories: List<Category>) {
         viewModelScope.launch {

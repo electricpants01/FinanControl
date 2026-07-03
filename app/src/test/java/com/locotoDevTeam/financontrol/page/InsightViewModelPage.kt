@@ -8,7 +8,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.flowOf
 
 class InsightViewModelPage {
@@ -16,10 +15,6 @@ class InsightViewModelPage {
     val incomeDao: IncomeDao = mockk(relaxed = true)
     val repository: InsightRepository = mockk(relaxed = true)
     val viewModel = InsightViewModel(repository)
-
-    fun setTestDispatcher(dispatcher: CoroutineDispatcher) {
-        viewModel.setTestDispatcher(dispatcher)
-    }
 
     // ── Stub helpers ──
 

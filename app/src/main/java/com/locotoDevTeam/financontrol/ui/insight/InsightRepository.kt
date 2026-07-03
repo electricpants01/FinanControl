@@ -2,6 +2,8 @@ package com.locotoDevTeam.financontrol.ui.insight
 
 import com.locotoDevTeam.financontrol.database.dao.IncomeDao
 import com.locotoDevTeam.financontrol.database.entity.Income
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -24,6 +26,8 @@ class InsightRepository(
      * Deletes an income/expense entry from the database.
      */
     suspend fun deleteIncome(income: Income) {
-        incomeDao.delete(income)
+        withContext(Dispatchers.IO) {
+            incomeDao.delete(income)
+        }
     }
 }

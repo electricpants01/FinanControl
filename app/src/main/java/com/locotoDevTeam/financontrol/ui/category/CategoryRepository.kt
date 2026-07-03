@@ -3,6 +3,8 @@ package com.locotoDevTeam.financontrol.ui.category
 import com.locotoDevTeam.financontrol.database.dao.CategoryDao
 import com.locotoDevTeam.financontrol.database.dao.IncomeDao
 import com.locotoDevTeam.financontrol.database.entity.Category
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -24,7 +26,9 @@ class CategoryRepository(
      * Inserts a new category into the database.
      */
     suspend fun insertCategory(category: Category) {
-        categoryDao.insert(category)
+        withContext(Dispatchers.IO) {
+            categoryDao.insert(category)
+        }
     }
 
     /**
@@ -32,24 +36,32 @@ class CategoryRepository(
      * Order matters: delete incomes first, then the category itself.
      */
     suspend fun deleteCategoryById(categoryId: Long) {
-        categoryDao.deleteIncomesFromACategory(categoryId)
-        categoryDao.deleteCategoryById(categoryId)
+        withContext(Dispatchers.IO) {
+            categoryDao.deleteIncomesFromACategory(categoryId)
+            categoryDao.deleteCategoryById(categoryId)
+        }
     }
 
     /**
      * Inserts an income/expense entry into the database.
      */
     suspend fun insertIncome(income: com.locotoDevTeam.financontrol.database.entity.Income) {
-        incomeDao.insert(income)
+        withContext(Dispatchers.IO) {
+            incomeDao.insert(income)
+        }
     }
 
     /**
      * Returns the total sum of all Income-type amounts across all categories.
      */
-    suspend fun getSumIncome(): Double = incomeDao.getSumIncome()
+    suspend fun getSumIncome(): Double = withContext(Dispatchers.IO) {
+        incomeDao.getSumIncome()
+    }
 
     /**
      * Returns the total sum of all Expense-type amounts across all categories.
      */
-    suspend fun getSumExpense(): Double = incomeDao.getSumExpense()
+    suspend fun getSumExpense(): Double = withContext(Dispatchers.IO) {
+        incomeDao.getSumExpense()
+    }
 }

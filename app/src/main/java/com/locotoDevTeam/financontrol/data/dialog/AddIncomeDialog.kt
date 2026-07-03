@@ -1,39 +1,33 @@
 package com.locotoDevTeam.financontrol.data.dialog
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Adapter
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import androidx.fragment.app.DialogFragment
+import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResult
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.locotoDevTeam.financontrol.R
 import com.locotoDevTeam.financontrol.database.entity.TransactionType
-import com.locotoDevTeam.financontrol.databinding.DialogAddCategoryBinding
 import com.locotoDevTeam.financontrol.databinding.DialogAddIncomeBinding
 import com.locotoDevTeam.financontrol.ui.insight.InsightViewModel
-import java.sql.SQLOutput
 
 class AddIncomeDialog: BottomSheetDialogFragment() {
 
+    companion object {
+        /** Request key used by FragmentResultListener in InsightFragment. */
+        const val REQUEST_KEY = "AddIncomeDialog_result"
+        const val KEY_CATEGORY_ID = "categoryId"
+        const val KEY_AMOUNT = "amount"
+        const val KEY_TYPE = "type"
+    }
+
     private val insightViewModel: InsightViewModel by activityViewModels()
     private lateinit var binding: DialogAddIncomeBinding
-    private lateinit var listener: AddIncomeListener
     private var spinnerItemSelected: TransactionType = TransactionType.INCOME
-
-    interface AddIncomeListener{
-        // this listener is executed in the MainActivity.kt
-        fun onAddIncomeTapped(categoryId: Long, amount: Double, type: TransactionType)
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        listener = context as AddIncomeListener
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -52,7 +46,6 @@ class AddIncomeDialog: BottomSheetDialogFragment() {
     }
 
     private fun initButtonListener(){
-        // button for adding new income or expense
         binding.btnAddIncomeExpense.setOnClickListener {
             if( binding.editTextAddIncomeExpense.text.toString().isEmpty()){
                 binding.editTextAddIncomeExpense.error = context?.getString(R.string.dialog_should_not_be_empty)
@@ -64,7 +57,11 @@ class AddIncomeDialog: BottomSheetDialogFragment() {
             }
             val amount = binding.editTextAddIncomeExpense.text.toString().toDouble()
             insightViewModel.categoryId.value?.let { categoryId ->
-                listener.onAddIncomeTapped(categoryId, amount, spinnerItemSelected)
+                setFragmentResult(REQUEST_KEY, bundleOf(
+                    KEY_CATEGORY_ID to categoryId,
+                    KEY_AMOUNT to amount,
+                    KEY_TYPE to spinnerItemSelected.name
+                ))
             }
             dismiss()
         }

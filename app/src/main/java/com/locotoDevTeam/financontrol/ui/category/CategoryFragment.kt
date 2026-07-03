@@ -9,6 +9,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.fragment.app.setFragmentResultListener
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -44,6 +45,19 @@ class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener {
         initRecycler()
         openAddNewCategory()
         observeUiState()
+        listenForDialogResult()
+    }
+
+    /**
+     * Listens for the result from AddCategoryDialog via FragmentResultListener,
+     * replacing the previous pattern where MainActivity implemented the dialog's
+     * listener interface.
+     */
+    private fun listenForDialogResult() {
+        setFragmentResultListener(AddCategoryDialog.REQUEST_KEY) { _, bundle ->
+            val categoryName = bundle.getString(AddCategoryDialog.KEY_CATEGORY_NAME) ?: return@setFragmentResultListener
+            categoryViewModel.insertNewCategory(categoryName)
+        }
     }
 
     private fun initRecycler() {

@@ -1,26 +1,29 @@
 package com.locotoDevTeam.financontrol.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.locotoDevTeam.financontrol.database.entity.Category
 import com.locotoDevTeam.financontrol.database.entity.TransactionType
 import com.locotoDevTeam.financontrol.page.CategoryViewModelPage
+import com.locotoDevTeam.financontrol.ui.category.CategoriesUiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.runners.JUnit4
 
 /**
  * Unit tests for CategoryViewModel.
  * Uses Page Object pattern: CategoryViewModelPage encapsulates mock setup and assertions.
- * The mock repository is injected via the ViewModel's constructor; setTestDispatcher() controls coroutines.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class CategoryViewModelTest {
@@ -34,7 +37,6 @@ class CategoryViewModelTest {
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
-        page.setTestDispatcher(testDispatcher)
     }
 
     @After
@@ -47,9 +49,11 @@ class CategoryViewModelTest {
     @Test
     fun `insertNewCategory delegates to repository`() = runTest {
         page.stubInsertCategory()
+        val vm = page.createViewModel()
+        vm.setTestDispatcher(testDispatcher)
 
-        page.viewModel.insertNewCategory("Salary")
-        testDispatcher.scheduler.advanceUntilIdle()
+        vm.insertNewCategory("Salary")
+        advanceUntilIdle()
 
         page.verifyInsertCategoryCalled("Salary")
     }
@@ -57,9 +61,11 @@ class CategoryViewModelTest {
     @Test
     fun `insertNewCategory with empty name still delegates`() = runTest {
         page.stubInsertCategory()
+        val vm = page.createViewModel()
+        vm.setTestDispatcher(testDispatcher)
 
-        page.viewModel.insertNewCategory("")
-        testDispatcher.scheduler.advanceUntilIdle()
+        vm.insertNewCategory("")
+        advanceUntilIdle()
 
         page.verifyInsertCategoryCalled("")
     }
@@ -69,9 +75,11 @@ class CategoryViewModelTest {
     @Test
     fun `insertNewIncomeExpense delegates Income type`() = runTest {
         page.stubInsertIncome()
+        val vm = page.createViewModel()
+        vm.setTestDispatcher(testDispatcher)
 
-        page.viewModel.insertNewIncomeExpense(1L, 200.0, TransactionType.INCOME)
-        testDispatcher.scheduler.advanceUntilIdle()
+        vm.insertNewIncomeExpense(1L, 200.0, TransactionType.INCOME)
+        advanceUntilIdle()
 
         page.verifyInsertIncomeCalled(TransactionType.INCOME, 200.0, 1L)
     }
@@ -79,9 +87,11 @@ class CategoryViewModelTest {
     @Test
     fun `insertNewIncomeExpense delegates Expense type`() = runTest {
         page.stubInsertIncome()
+        val vm = page.createViewModel()
+        vm.setTestDispatcher(testDispatcher)
 
-        page.viewModel.insertNewIncomeExpense(3L, 75.0, TransactionType.EXPENSE)
-        testDispatcher.scheduler.advanceUntilIdle()
+        vm.insertNewIncomeExpense(3L, 75.0, TransactionType.EXPENSE)
+        advanceUntilIdle()
 
         page.verifyInsertIncomeCalled(TransactionType.EXPENSE, 75.0, 3L)
     }
@@ -91,65 +101,64 @@ class CategoryViewModelTest {
     @Test
     fun `deleteACategoryById delegates to repository`() = runTest {
         page.stubDeleteCategoryById()
+        val vm = page.createViewModel()
+        vm.setTestDispatcher(testDispatcher)
 
-        page.viewModel.deleteACategoryById(10L)
-        testDispatcher.scheduler.advanceUntilIdle()
+        vm.deleteACategoryById(10L)
+        advanceUntilIdle()
 
         page.verifyDeleteCategoryByIdCalled(10L)
     }
 
-    // ── refreshOverview ──
+    // ── categoriesUiState (replaces refreshOverview) ──
 
     @Test
-    fun `refreshOverview updates overview LiveData with income and expense`() = runTest {
+    fun `categoriesUiState updates when categories are emitted`() = runTest {
         page.stubGetSumIncome(1000.0)
         page.stubGetSumExpense(400.0)
+        val vm = page.createViewModel()
+        vm.setTestDispatcher(testDispatcher)
 
-        page.viewModel.refreshOverview()
-        testDispatcher.scheduler.advanceUntilIdle()
+        page.emitCategories(Category(1L, "Salary"), Category(2L, "Rent"))
+        advanceUntilIdle()
 
+        val state = vm.categoriesUiState.value
+        assertFalse(state.isEmpty)
+        assertEquals(1000.0, state.totalIncome, 0.0)
+        assertEquals(400.0, state.totalExpense, 0.0)
+        assertEquals(600.0, state.totalBalance, 0.0)
+        assertEquals(2, state.categories.size)
         page.verifyGetSumIncomeCalled()
         page.verifyGetSumExpenseCalled()
-        val overview = page.viewModel.overview.getOrAwaitValue()
-        assertEquals(1000.0, overview.first, 0.0)
-        assertEquals(400.0, overview.second, 0.0)
-        assertEquals(600.0, overview.third, 0.0)
     }
 
     @Test
-    fun `refreshOverview with zero values works correctly`() = runTest {
+    fun `categoriesUiState initial state is empty`() {
+        val vm = page.createViewModel()
+
+        val state = vm.categoriesUiState.value
+        assertTrue(state.isEmpty)
+        assertEquals(0.0, state.totalBalance, 0.0)
+        assertTrue(state.categories.isEmpty())
+    }
+
+    @Test
+    fun `categoriesUiState isEmpty when categories empty`() = runTest {
         page.stubGetSumIncome(0.0)
         page.stubGetSumExpense(0.0)
+        val vm = page.createViewModel()
+        vm.setTestDispatcher(testDispatcher)
 
-        page.viewModel.refreshOverview()
-        testDispatcher.scheduler.advanceUntilIdle()
+        page.emitCategories()
+        advanceUntilIdle()
 
-        val overview = page.viewModel.overview.getOrAwaitValue()
-        assertEquals(0.0, overview.first, 0.0)
-        assertEquals(0.0, overview.second, 0.0)
-        assertEquals(0.0, overview.third, 0.0)
+        val state = vm.categoriesUiState.value
+        assertTrue(state.isEmpty)
     }
-
-    // ── categories LiveData ──
 
     @Test
-    fun `categories returns LiveData from repository when initialized`() {
-        val categories = page.viewModel.categories
-        assertNotNull(categories)
+    fun `categoriesUiState returns StateFlow`() {
+        val vm = page.createViewModel()
+        assertNotNull(vm.categoriesUiState)
     }
-}
-
-fun <T> androidx.lifecycle.LiveData<T>.getOrAwaitValue(): T {
-    var value: T? = null
-    val latch = java.util.concurrent.CountDownLatch(1)
-    val observer = object : androidx.lifecycle.Observer<T> {
-        override fun onChanged(v: T) {
-            value = v
-            latch.countDown()
-        }
-    }
-    observeForever(observer)
-    latch.await(2, java.util.concurrent.TimeUnit.SECONDS)
-    removeObserver(observer)
-    return value!!
 }

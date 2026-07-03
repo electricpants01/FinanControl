@@ -1,25 +1,40 @@
 package com.locotoDevTeam.financontrol.page
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.locotoDevTeam.financontrol.database.dao.CategoryDao
 import com.locotoDevTeam.financontrol.database.dao.IncomeDao
+import com.locotoDevTeam.financontrol.database.entity.Category
 import com.locotoDevTeam.financontrol.database.entity.TransactionType
+import com.locotoDevTeam.financontrol.ui.category.CategoriesUiState
 import com.locotoDevTeam.financontrol.ui.category.CategoryRepository
 import com.locotoDevTeam.financontrol.ui.category.CategoryViewModel
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.CoroutineDispatcher
 
 class CategoryViewModelPage {
 
     val categoryDao: CategoryDao = mockk(relaxed = true)
     val incomeDao: IncomeDao = mockk(relaxed = true)
     val repository: CategoryRepository = mockk(relaxed = true)
-    val viewModel = CategoryViewModel(repository)
 
-    fun setTestDispatcher(dispatcher: CoroutineDispatcher) {
-        viewModel.setTestDispatcher(dispatcher)
+    /** LiveData backing the repository's getAllCategories() for the init-block observer. */
+    private val categoriesLiveData = MutableLiveData<List<Category>>()
+
+    /**
+     * Create the ViewModel AFTER stubs are set up so the init block observes the
+     * correct LiveData.
+     */
+    fun createViewModel(): CategoryViewModel {
+        every { repository.getAllCategories() } returns categoriesLiveData
+        return CategoryViewModel(repository)
+    }
+
+    /** Triggers the init-block observer as if the DB emitted new categories. */
+    fun emitCategories(vararg categories: Category) {
+        categoriesLiveData.value = categories.toList()
     }
 
     // ── Stub helpers ──

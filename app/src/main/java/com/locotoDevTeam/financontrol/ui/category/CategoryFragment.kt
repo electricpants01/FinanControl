@@ -6,6 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.fragment.app.setFragmentResultListener
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,9 +20,10 @@ import com.locotoDevTeam.financontrol.data.dialog.MaterialAlert
 import com.locotoDevTeam.financontrol.databinding.FragmentCategoryBinding
 import com.locotoDevTeam.financontrol.ui.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
+class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener {
 
     private val categoryViewModel: CategoryViewModel by activityViewModels()
     lateinit var binding: FragmentCategoryBinding
@@ -40,7 +44,7 @@ class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
         super.onViewCreated(view, savedInstanceState)
         initRecycler()
         openAddNewCategory()
-        initSubscriptions()
+        observeUiState()
         listenForDialogResult()
     }
 
@@ -56,66 +60,78 @@ class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
         }
     }
 
-    private fun initRecycler(){
+    private fun initRecycler() {
         recycler = binding.rvCategory
-        adapter = CategoryAdapter(emptyList(),this)
+        adapter = CategoryAdapter(emptyList(), this)
         recycler.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         recycler.adapter = adapter
     }
 
-    
-
-    private fun initSubscriptions() {
-        // Observe categories from the ViewModel (sourced from CategoryRepository, not directly from DAO)
-        categoryViewModel.categories.observe(viewLifecycleOwner) { categories ->
-            categoryViewModel.refreshOverview()
-            if (categories.isNotEmpty()) {
-                // all welcome components
-                binding.viewContainer.visibility = View.GONE
-                binding.txtWelcome.visibility = View.GONE
-                binding.txtWelcomeDescription.visibility = View.GONE
-                binding.ivWelcomeArrow.visibility = View.GONE
-                // all overview components
-                binding.ivOverviewExpense.visibility = View.VISIBLE
-                binding.ivOverviewIncome.visibility = View.VISIBLE
-                binding.txtOverview.visibility = View.VISIBLE
-                binding.txtOverviewAmount.visibility = View.VISIBLE
-                binding.txtExpenseAmount.visibility = View.VISIBLE
-                binding.txtIncomeAmount.visibility = View.VISIBLE
-                binding.txtIncome.visibility = View.VISIBLE
-                binding.txtExpense.visibility = View.VISIBLE
-                // make rv visible
-                binding.rvCategory.visibility = View.VISIBLE
-                adapter.setCategoryList(categories)
-            } else {
-                // all welcome components
-                binding.viewContainer.visibility = View.VISIBLE
-                binding.txtWelcome.visibility = View.VISIBLE
-                binding.txtWelcomeDescription.visibility = View.VISIBLE
-                binding.ivWelcomeArrow.visibility = View.VISIBLE
-                // all overview components
-                binding.ivOverviewExpense.visibility = View.GONE
-                binding.ivOverviewIncome.visibility = View.GONE
-                binding.txtOverview.visibility = View.GONE
-                binding.txtOverviewAmount.visibility = View.GONE
-                binding.txtExpenseAmount.visibility = View.GONE
-                binding.txtIncomeAmount.visibility = View.GONE
-                binding.txtIncome.visibility = View.GONE
-                binding.txtExpense.visibility = View.GONE
-                // make rv visible
-                binding.rvCategory.visibility = View.GONE
+    private fun observeUiState() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                categoryViewModel.categoriesUiState.collect { state ->
+                    render(state)
+                }
             }
-        }
-
-        // Observe overview (income sum, expense sum, balance) from ViewModel
-        categoryViewModel.overview.observe(viewLifecycleOwner) { (incomeSum, expenseSum, balance) ->
-            binding.txtIncomeAmount.text = incomeSum.toString()
-            binding.txtExpenseAmount.text = expenseSum.toString()
-            binding.txtOverviewAmount.text = balance.toString()
         }
     }
 
-    private fun openAddNewCategory(){
+    private fun render(state: CategoriesUiState) {
+        if (state.isEmpty) {
+            showWelcome()
+            hideOverview()
+            binding.rvCategory.visibility = View.GONE
+        } else {
+            hideWelcome()
+            showOverview()
+            binding.rvCategory.visibility = View.VISIBLE
+            binding.txtIncomeAmount.text = state.totalIncome.toString()
+            binding.txtExpenseAmount.text = state.totalExpense.toString()
+            binding.txtOverviewAmount.text = state.totalBalance.toString()
+            adapter.setCategoryList(state.categories)
+        }
+    }
+
+    // ── visibility helpers ──
+
+    private fun showWelcome() {
+        binding.viewContainer.visibility = View.VISIBLE
+        binding.txtWelcome.visibility = View.VISIBLE
+        binding.txtWelcomeDescription.visibility = View.VISIBLE
+        binding.ivWelcomeArrow.visibility = View.VISIBLE
+    }
+
+    private fun hideWelcome() {
+        binding.viewContainer.visibility = View.GONE
+        binding.txtWelcome.visibility = View.GONE
+        binding.txtWelcomeDescription.visibility = View.GONE
+        binding.ivWelcomeArrow.visibility = View.GONE
+    }
+
+    private fun showOverview() {
+        binding.ivOverviewExpense.visibility = View.VISIBLE
+        binding.ivOverviewIncome.visibility = View.VISIBLE
+        binding.txtOverview.visibility = View.VISIBLE
+        binding.txtOverviewAmount.visibility = View.VISIBLE
+        binding.txtExpenseAmount.visibility = View.VISIBLE
+        binding.txtIncomeAmount.visibility = View.VISIBLE
+        binding.txtIncome.visibility = View.VISIBLE
+        binding.txtExpense.visibility = View.VISIBLE
+    }
+
+    private fun hideOverview() {
+        binding.ivOverviewExpense.visibility = View.GONE
+        binding.ivOverviewIncome.visibility = View.GONE
+        binding.txtOverview.visibility = View.GONE
+        binding.txtOverviewAmount.visibility = View.GONE
+        binding.txtExpenseAmount.visibility = View.GONE
+        binding.txtIncomeAmount.visibility = View.GONE
+        binding.txtIncome.visibility = View.GONE
+        binding.txtExpense.visibility = View.GONE
+    }
+
+    private fun openAddNewCategory() {
         binding.floatingActionButton.setOnClickListener {
             val myDialog = AddCategoryDialog()
             myDialog.show(parentFragmentManager, "AddCategory")
@@ -133,5 +149,4 @@ class CategoryFragment : Fragment(), CategoryAdapter.CategoryListener{
             categoryViewModel.deleteACategoryById(categoryId)
         }
     }
-
 }

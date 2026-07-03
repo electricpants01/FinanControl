@@ -6,6 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.fragment.app.setFragmentResultListener
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -24,6 +27,7 @@ import com.locotoDevTeam.financontrol.ui.MainActivity
 import com.locotoDevTeam.financontrol.ui.category.CategoryViewModel
 import com.locotoDevTeam.financontrol.util.formatDateAndTimeString
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 
 @AndroidEntryPoint
@@ -46,7 +50,6 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
         (activity as MainActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
         insightViewModel.setCategoryId(args.categoryId)
         chart = binding.insightFancyChart
-        initSubscriptions()
         listenForDialogResult()
         chart.setOnPointClickListener {
             Snackbar.make(binding.floatAddInsight, getString(R.string.insight_point_item_tapped, it.y.toString()), Snackbar.LENGTH_SHORT).show()
@@ -58,6 +61,8 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
         super.onViewCreated(view, savedInstanceState)
         initRecycler()
         initListeners()
+        observeIncomes()
+        observeUiState()
     }
 
     fun initRecycler() {
@@ -67,25 +72,37 @@ class InsightFragment : Fragment(), InsightAdapter.InsightListener {
         recycler.adapter = adapter
     }
 
-    fun initListeners() { // FloatActionButton
+    fun initListeners() {
         binding.floatAddInsight.setOnClickListener {
             val dialog = AddIncomeDialog()
             dialog.show(parentFragmentManager, "IncomeDialog")
         }
     }
 
-    fun initSubscriptions() {
+    /**
+     * Observe raw incomes from the repository (via ViewModel). When they arrive,
+     * delegate processing to the ViewModel which updates [InsightUiState].
+     */
+    private fun observeIncomes() {
         val categoryId = insightViewModel.categoryId.value
         categoryId?.let {
-            // Observe incomes via InsightRepository (through ViewModel), NOT directly from DAO
             insightViewModel.getIncomesByCategoryId(it).observe(viewLifecycleOwner) { incomes ->
                 insightViewModel.splitIncomeAndExpenses(incomes)
                 adapter.setNewIncomeList(incomes)
             }
         }
+    }
 
-        insightViewModel.incomeExpenseGraphList.observe(viewLifecycleOwner) {
-            MyFancyChartBuilder.createChart(it, chart)
+    /**
+     * Observe the single UiState for chart data and render the chart.
+     */
+    private fun observeUiState() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                insightViewModel.insightUiState.collect { state ->
+                    MyFancyChartBuilder.createChart(state.chartData, chart)
+                }
+            }
         }
     }
 
